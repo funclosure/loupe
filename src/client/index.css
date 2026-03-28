@@ -127,7 +127,7 @@ body {
 .loupe-placeholder {
   position: absolute;
   top: 0;
-  left: 0;
+  left: 4px;
   color: var(--loupe-text-ghost);
   font-family: var(--loupe-editor-font);
   font-size: 17px;

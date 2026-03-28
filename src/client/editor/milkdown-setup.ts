@@ -8,6 +8,7 @@ import { commonmark } from "@milkdown/kit/preset/commonmark";
 import { listener, listenerCtx } from "@milkdown/kit/plugin/listener";
 import { trailing } from "@milkdown/kit/plugin/trailing";
 import { clipboard } from "@milkdown/kit/plugin/clipboard";
+import { history } from "@milkdown/kit/plugin/history";
 import { getMarkdown, replaceAll } from "@milkdown/kit/utils";
 import type { EditorView } from "@milkdown/kit/prose/view";
 import { codeBlockView } from "./code-block-view";
@@ -39,6 +40,7 @@ export async function createEditor(
     .use(listener)
     .use(trailing)
     .use(clipboard)
+    .use(history)
     .use(codeBlockView)
     .create();
 
