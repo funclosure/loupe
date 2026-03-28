@@ -9,8 +9,12 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: "prompt",
+      registerType: "autoUpdate",
       includeAssets: ["favicon.svg"],
+      workbox: {
+        // Never cache API routes — they go to Bun server
+        navigateFallbackDenylist: [/^\/api\//],
+      },
       manifest: {
         name: "Loupe",
         short_name: "Loupe",
