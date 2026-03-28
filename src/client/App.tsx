@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { Editor } from "./editor/Editor";
 import { TopBar } from "./chrome/TopBar";
 import { LensLayer } from "./lenses/LensLayer";
@@ -18,6 +18,7 @@ export function App() {
   const { filename, initialContent, saveState, openFile, saveFileAs, updateContent, persistFilename } = useFile();
   const { zenMode } = useZenMode();
   const lens = useLenses();
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const { drag, highlight, snapBack, handleDragStart } = useLensDrag({
     editorRef,
     definitions: lens.available,
@@ -102,9 +103,13 @@ export function App() {
       } else if (mod && e.key === "s") {
         e.preventDefault();
         saveFileAs();
+      } else if (mod && e.key === "/") {
+        e.preventDefault();
+        setShortcutsOpen((prev) => !prev);
       } else if (e.key === "Escape") {
-        // Close picker or collapse any expanded lens
-        if (lens.pickerOpen) {
+        if (shortcutsOpen) {
+          setShortcutsOpen(false);
+        } else if (lens.pickerOpen) {
           lens.setPickerOpen(false);
         } else {
           for (const [lensId, state] of lens.lenses) {
@@ -115,7 +120,7 @@ export function App() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [handleOpenFile, saveFileAs, lens.pickerOpen, lens.lenses]);
+  }, [handleOpenFile, saveFileAs, lens.pickerOpen, lens.lenses, shortcutsOpen]);
 
   return (
     <div className={zenMode ? "zen h-full flex flex-col" : "h-full flex flex-col"}>
@@ -215,6 +220,48 @@ export function App() {
           onActivate={lens.activate}
           onClose={() => lens.setPickerOpen(false)}
         />
+      )}
+
+      {/* Keyboard shortcuts overlay */}
+      {shortcutsOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          onClick={() => setShortcutsOpen(false)}
+        >
+          <div
+            className="rounded-xl p-6 max-w-xs w-full"
+            style={{
+              background: "var(--loupe-elevated)",
+              border: "1px solid var(--loupe-border-strong)",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--loupe-text)" }}>
+              Keyboard Shortcuts
+            </h3>
+            <div className="space-y-2.5 text-[12.5px]" style={{ color: "var(--loupe-text-secondary)" }}>
+              {[
+                ["Cmd + L", "Open lens picker"],
+                ["Cmd + O", "Open file"],
+                ["Cmd + S", "Save file"],
+                ["Cmd + .", "Toggle zen mode"],
+                ["Cmd + Z", "Undo"],
+                ["Cmd + Shift + Z", "Redo"],
+                ["Cmd + /", "This overlay"],
+                ["Escape", "Close / collapse"],
+              ].map(([key, desc]) => (
+                <div key={key} className="flex justify-between gap-4">
+                  <span style={{ color: "var(--loupe-text-tertiary)" }}>{desc}</span>
+                  <kbd className="font-mono text-[11px] px-1.5 py-0.5 rounded" style={{
+                    background: "var(--loupe-surface)",
+                    color: "var(--loupe-text)",
+                  }}>{key}</kbd>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
