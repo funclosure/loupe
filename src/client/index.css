@@ -197,8 +197,8 @@ body {
   color: var(--loupe-text-tertiary) !important;
 }
 
-/* Inline code */
-.loupe-editor div[contenteditable="true"] code {
+/* Inline code — scoped to exclude code blocks managed by the node view */
+.loupe-editor div[contenteditable="true"] code:not(.loupe-code-block *) {
   background: var(--loupe-elevated) !important;
   padding: 2px 7px !important;
   border-radius: 4px !important;
@@ -208,8 +208,8 @@ body {
   border: 1px solid var(--loupe-border-strong) !important;
 }
 
-/* Code block — Shuttle-inspired: subtle border, clean bg */
-.loupe-editor div[contenteditable="true"] pre {
+/* Code block — fallback for any pre NOT managed by the code block view */
+.loupe-editor div[contenteditable="true"] pre:not(.loupe-code-highlight):not(.loupe-code-editable) {
   background: #1e1c1a !important;
   padding: 20px 24px !important;
   border-radius: 8px !important;
@@ -220,7 +220,7 @@ body {
   box-shadow: none !important;
 }
 
-.loupe-editor div[contenteditable="true"] pre code {
+.loupe-editor div[contenteditable="true"] pre:not(.loupe-code-editable) code {
   background: none !important;
   padding: 0 !important;
   border: none !important;
@@ -349,4 +349,186 @@ body {
 @keyframes loupe-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
+}
+
+/* -- Code block — enhanced with Shiki highlighting ---------- */
+.loupe-code-block {
+  position: relative;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 245, 230, 0.06);
+  background: #1e1c1a;
+  margin: 4px 0 24px 0;
+  overflow: hidden;
+}
+
+.loupe-code-block.selected {
+  border-color: rgba(255, 245, 230, 0.15);
+}
+
+/* Toolbar */
+.loupe-code-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border-bottom: 1px solid rgba(255, 245, 230, 0.06);
+  position: relative;
+}
+
+.loupe-code-toolbar button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--loupe-text-tertiary);
+  font-size: 12px;
+  font-family: system-ui, -apple-system, sans-serif;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.loupe-code-toolbar button:hover {
+  background: rgba(255, 245, 230, 0.06);
+  color: var(--loupe-text-secondary);
+}
+
+.loupe-code-toolbar .loupe-code-copy-btn.copied {
+  color: #6b9e6b;
+}
+
+.loupe-code-toolbar .loupe-code-wrap-btn {
+  padding: 3px 6px;
+}
+
+.loupe-code-block.wrapped .loupe-code-wrap-btn {
+  color: var(--loupe-text-secondary);
+}
+
+.loupe-code-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Language dropdown — portaled to document.body, positioned via JS */
+.loupe-code-dropdown {
+  z-index: 100;
+  background: var(--loupe-elevated);
+  border: 1px solid var(--loupe-border-strong);
+  border-radius: 8px;
+  width: 180px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  padding: 4px 0;
+}
+
+.loupe-code-dropdown-search {
+  padding: 4px 8px;
+}
+
+.loupe-code-dropdown-search input {
+  width: 100%;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--loupe-border-strong);
+  background: var(--loupe-surface);
+  color: var(--loupe-text);
+  font-size: 12px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.loupe-code-dropdown-search input:focus {
+  border-color: rgba(255, 245, 230, 0.2);
+}
+
+.loupe-code-dropdown-list {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.loupe-code-dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 5px 12px;
+  text-align: left;
+  border: none;
+  background: none;
+  color: var(--loupe-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: system-ui, -apple-system, sans-serif;
+  transition: background 0.1s;
+  box-sizing: border-box;
+}
+
+.loupe-code-dropdown-item:hover {
+  background: rgba(255, 245, 230, 0.06);
+}
+
+.loupe-code-dropdown-item.active {
+  color: var(--loupe-text);
+  font-weight: 500;
+}
+
+/* Code container — CSS Grid stacks overlay + editable in same cell.
+   Both children share one scroll context, preventing horizontal scroll desync. */
+.loupe-code-container {
+  display: grid;
+  grid-template: 1fr / 1fr;
+  overflow-x: auto;
+}
+
+.loupe-code-block.wrapped .loupe-code-container {
+  overflow-x: visible;
+}
+
+.loupe-code-highlight,
+.loupe-code-editable {
+  grid-area: 1 / 1;
+  margin: 0 !important;
+  padding: 16px !important;
+  font-family: "SF Mono", "Fira Code", ui-monospace, monospace !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  white-space: pre !important;
+  border: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.loupe-code-block.wrapped .loupe-code-highlight,
+.loupe-code-block.wrapped .loupe-code-editable {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+}
+
+/* Shiki overlay — behind editable text, no pointer events */
+.loupe-code-highlight {
+  pointer-events: none;
+}
+
+/* Editable layer — transparent text, visible caret */
+.loupe-code-editable {
+  position: relative;
+  color: transparent !important;
+  caret-color: var(--loupe-text-secondary) !important;
+}
+
+.loupe-editor .loupe-code-block .loupe-code-editable code {
+  color: transparent !important;
+  background: none !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  font: inherit !important;
+}
+
+/* Selection should still be visible */
+.loupe-code-editable ::selection {
+  background: rgba(255, 245, 230, 0.15);
 }
