@@ -34,10 +34,16 @@ export async function startServer() {
       let filePath = join(distDir, url.pathname === "/" ? "index.html" : url.pathname);
 
       const file = Bun.file(filePath);
-      if (await file.exists()) return new Response(file);
+      if (await file.exists()) {
+        return new Response(file, {
+          headers: { "Cache-Control": "no-cache, no-store, must-revalidate" },
+        });
+      }
 
       // SPA fallback
-      return new Response(Bun.file(join(distDir, "index.html")));
+      return new Response(Bun.file(join(distDir, "index.html")), {
+        headers: { "Cache-Control": "no-cache, no-store, must-revalidate" },
+      });
     },
   });
 

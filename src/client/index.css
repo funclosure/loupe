@@ -86,6 +86,7 @@ body {
 .editor-column {
   width: 100%;
   max-width: var(--loupe-editor-max-width);
+  padding-bottom: 50vh;
 }
 
 .loupe-editor {
