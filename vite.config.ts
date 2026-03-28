@@ -9,10 +9,10 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
+      selfDestroying: true, // Disable SW during development — re-enable for production
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg"],
       workbox: {
-        // Never cache API routes — they go to Bun server
         navigateFallbackDenylist: [/^\/api\//],
       },
       manifest: {
