@@ -7,6 +7,7 @@ import { useFile } from "./hooks/use-file";
 import { useZenMode } from "./hooks/use-zen-mode";
 import { useLenses } from "./hooks/use-lenses";
 import { useLensDrag } from "./hooks/use-lens-drag";
+import { LoupeIcon } from "./lenses/LoupeIcon";
 import type { MilkdownInstance } from "./editor/milkdown-setup";
 
 export function App() {
@@ -177,26 +178,13 @@ export function App() {
 
       {/* Floating loupe during drag */}
       {drag && (
-        <div
-          className="loupe-drag-overlay"
-          style={{ left: drag.x, top: drag.y }}
-        >
-          <div className="loupe-bubble" style={{ transform: "scale(1.4)" }}>
-            <div
-              className="loupe-bubble-tail"
-              style={{ background: `${drag.definition.color}30` }}
-            />
-            <div
-              className="loupe-bubble-circle"
-              style={{
-                background: `${drag.definition.color}20`,
-                color: `${drag.definition.color}99`,
-                boxShadow: `0 0 30px ${drag.definition.color}25`,
-              }}
-            >
-              {drag.definition.icon}
-            </div>
-          </div>
+        <div className="loupe-drag-overlay" style={{ left: drag.x, top: drag.y }}>
+          <LoupeIcon
+            size={62}
+            color={drag.definition.color}
+            icon={drag.definition.icon}
+            glow
+          />
         </div>
       )}
 
@@ -208,25 +196,15 @@ export function App() {
             left: snapBack.toX,
             top: snapBack.toY,
             transition: "left 0.25s ease-out, top 0.25s ease-out, transform 0.25s ease-out, opacity 0.25s",
-            opacity: 0.5,
-            transform: "translate(-50%, -50%) scale(0.8)",
+            opacity: 0.4,
+            transform: "translate(-50%, -50%) scale(0.7)",
           }}
         >
-          <div className="loupe-bubble">
-            <div
-              className="loupe-bubble-tail"
-              style={{ background: `${snapBack.definition.color}25` }}
-            />
-            <div
-              className="loupe-bubble-circle"
-              style={{
-                background: `${snapBack.definition.color}15`,
-                color: `${snapBack.definition.color}99`,
-              }}
-            >
-              {snapBack.definition.icon}
-            </div>
-          </div>
+          <LoupeIcon
+            size={44}
+            color={snapBack.definition.color}
+            icon={snapBack.definition.icon}
+          />
         </div>
       )}
 

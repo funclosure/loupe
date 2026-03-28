@@ -363,42 +363,7 @@ body {
   cursor: grabbing;
 }
 
-/* Tail — larger rounded shape behind circle, upper-right point */
-.loupe-bubble-tail {
-  position: absolute;
-  top: -8px;
-  left: -4px;
-  width: 52px;
-  height: 52px;
-  border-radius: 40% 18% 40% 40%;
-  pointer-events: none;
-}
-
-/* Circle — main body */
-.loupe-bubble-circle {
-  position: relative;
-  z-index: 1;
-  width: 40px;
-  height: 40px;
-  top: 4px;
-  left: 2px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  font-weight: 600;
-  background: rgba(0, 0, 0, 0.15);
-}
-
-/* Thinking pulse on bubble */
-.loupe-bubble.thinking .loupe-bubble-circle {
-  animation: loupe-pulse 1.5s ease-in-out infinite;
-}
-
-.loupe-bubble.thinking .loupe-bubble-tail {
-  animation: loupe-pulse 1.5s ease-in-out infinite;
-}
+/* Bubble shape is now rendered by LoupeIcon component */
 
 /* Dismiss button — appears on hover */
 .loupe-bubble-dismiss {

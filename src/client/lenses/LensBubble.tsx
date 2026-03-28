@@ -1,5 +1,6 @@
 import Markdown from "react-markdown";
 import type { LensDefinition, LensStatus } from "@shared/types";
+import { LoupeIcon } from "./LoupeIcon";
 
 interface LensBubbleProps {
   lensId: string;
@@ -30,27 +31,20 @@ export function LensBubble({
         <span className="loupe-bubble-name">{definition.name}</span>
 
         <div
-          className={`loupe-bubble ${status === "thinking" ? "thinking" : ""}`}
+          className="loupe-bubble"
           onClick={onClick}
           onPointerDown={(e) => {
             if (e.button !== 0) return;
             onDragStart?.(e);
           }}
+          style={status === "thinking" ? { animation: "loupe-pulse 1.5s ease-in-out infinite" } : undefined}
         >
-          <div
-            className="loupe-bubble-tail"
-            style={{ background: `${color}25` }}
+          <LoupeIcon
+            size={44}
+            color={color}
+            icon={definition.icon}
+            glow={status === "thinking"}
           />
-          <div
-            className="loupe-bubble-circle"
-            style={{
-              background: `${color}15`,
-              color: `${color}99`,
-              boxShadow: status === "thinking" ? `0 0 20px ${color}20` : "none",
-            }}
-          >
-            {definition.icon}
-          </div>
         </div>
 
         <button

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Markdown from "react-markdown";
 import type { LensDefinition, ChatMessage } from "@shared/types";
+import { LoupeIcon } from "./LoupeIcon";
 
 interface LensChatProps {
   lensId: string;
@@ -91,31 +92,7 @@ export function LensChat({
       {/* Header */}
       <div className="loupe-chat-header">
         <div className="flex items-center gap-2.5">
-          {/* Mini loupe icon */}
-          <div className="relative" style={{ width: 24, height: 24 }}>
-            <div
-              className="absolute"
-              style={{
-                top: -1, left: -4,
-                width: 24, height: 24,
-                borderRadius: "50% 50% 50% 6px",
-                background: `${color}20`,
-              }}
-            />
-            <div
-              className="relative z-10 flex items-center justify-center"
-              style={{
-                width: 22, height: 22,
-                left: 1,
-                borderRadius: "50%",
-                background: `${color}12`,
-                color: `${color}80`,
-                fontSize: 10, fontWeight: 600,
-              }}
-            >
-              {definition.icon}
-            </div>
-          </div>
+          <LoupeIcon size={26} color={color} icon={definition.icon} />
           <span className="text-[12.5px] font-medium" style={{ color: "var(--loupe-text-secondary)" }}>
             {definition.name}
           </span>
