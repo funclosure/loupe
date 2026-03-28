@@ -2,8 +2,13 @@ import type { DocumentSyncBody, LensFocusBody, LensAskBody, SSEEvent } from "@sh
 import { DocumentStore } from "./document";
 import { LensManager } from "./lens-manager";
 
+type SSEWriter = {
+  write: (data: string) => void;
+  close: () => void;
+};
+
 export class RouteHandler {
-  private sseClients: Set<ReadableStreamDefaultController> = new Set();
+  private sseClients: Set<SSEWriter> = new Set();
 
   constructor(
     private document: DocumentStore,
@@ -88,37 +93,65 @@ export class RouteHandler {
 
   private handleSSE(): Response {
     const self = this;
+
+    // Use a direct ReadableStream with pull-based keepalive
+    // Bun needs the stream to stay "active" — we use a resolver pattern
+    let clientWriter: SSEWriter;
+
     const stream = new ReadableStream({
       start(controller) {
-        self.sseClients.add(controller);
-        // Send initial active lenses
+        const encoder = new TextEncoder();
+
+        clientWriter = {
+          write(data: string) {
+            try {
+              controller.enqueue(encoder.encode(data));
+            } catch {
+              self.sseClients.delete(clientWriter);
+            }
+          },
+          close() {
+            try { controller.close(); } catch {}
+            self.sseClients.delete(clientWriter);
+          },
+        };
+
+        self.sseClients.add(clientWriter);
+
+        // Send initial state
         const active = self.lensManager.activeSessions();
-        const data = JSON.stringify({ type: "init", active });
-        controller.enqueue(new TextEncoder().encode(`data: ${data}\n\n`));
+        const initData = JSON.stringify({ type: "init", active });
+        controller.enqueue(encoder.encode(`data: ${initData}\n\n`));
+
+        // Send keepalive comments every 15s to prevent connection timeout
+        const keepalive = setInterval(() => {
+          try {
+            controller.enqueue(encoder.encode(`: keepalive\n\n`));
+          } catch {
+            clearInterval(keepalive);
+            self.sseClients.delete(clientWriter);
+          }
+        }, 15000);
       },
-      cancel(controller) {
-        self.sseClients.delete(controller);
+      cancel() {
+        self.sseClients.delete(clientWriter);
       },
     });
 
     return new Response(stream, {
       headers: {
         "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
+        "Cache-Control": "no-cache, no-transform",
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no",
       },
     });
   }
 
-  private broadcast(event: SSEEvent): void {
-    const data = JSON.stringify(event);
-    const encoded = new TextEncoder().encode(`data: ${data}\n\n`);
+  broadcast(event: SSEEvent): void {
+    const data = `data: ${JSON.stringify(event)}\n\n`;
     for (const client of this.sseClients) {
-      try {
-        client.enqueue(encoded);
-      } catch {
-        this.sseClients.delete(client);
-      }
+      client.write(data);
     }
   }
 
