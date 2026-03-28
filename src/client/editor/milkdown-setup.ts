@@ -10,6 +10,7 @@ import { trailing } from "@milkdown/kit/plugin/trailing";
 import { clipboard } from "@milkdown/kit/plugin/clipboard";
 import { getMarkdown, replaceAll } from "@milkdown/kit/utils";
 import type { EditorView } from "@milkdown/kit/prose/view";
+import { codeBlockView } from "./code-block-view";
 
 export interface MilkdownInstance {
   editor: Editor;
@@ -38,6 +39,7 @@ export async function createEditor(
     .use(listener)
     .use(trailing)
     .use(clipboard)
+    .use(codeBlockView)
     .create();
 
   // Milkdown injects theme classes (prose, milkdown-theme-nord) that fight
