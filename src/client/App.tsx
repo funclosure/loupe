@@ -17,7 +17,7 @@ export function App() {
   const { filename, initialContent, saveState, openFile, saveFileAs, updateContent, persistFilename } = useFile();
   const { zenMode } = useZenMode();
   const lens = useLenses();
-  const { drag, handleDragStart } = useLensDrag({
+  const { drag, highlight, handleDragStart } = useLensDrag({
     editorRef,
     definitions: lens.available,
     lenses: lens.lenses,
@@ -156,6 +156,25 @@ export function App() {
           draggingLensId={drag?.lensId ?? null}
         />
       </div>
+
+      {/* Paragraph highlight during drag */}
+      {highlight && (
+        <div
+          style={{
+            position: "fixed",
+            top: highlight.rect.top,
+            left: highlight.rect.left,
+            width: highlight.rect.width,
+            height: highlight.rect.height,
+            borderLeft: `3px solid ${highlight.color}`,
+            background: `${highlight.color}12`,
+            borderRadius: "0 4px 4px 0",
+            pointerEvents: "none",
+            zIndex: 50,
+            transition: "top 0.08s, height 0.08s",
+          }}
+        />
+      )}
 
       {/* Floating loupe during drag */}
       {drag && (

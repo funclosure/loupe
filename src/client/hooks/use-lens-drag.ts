@@ -9,8 +9,8 @@ interface DragState {
   y: number;
 }
 
-interface HighlightState {
-  element: HTMLElement;
+export interface HighlightState {
+  rect: { top: number; left: number; width: number; height: number };
   text: string;
   color: string;
 }
@@ -31,6 +31,7 @@ export function useLensDrag({
   versionRef,
 }: UseLensDragOptions) {
   const [drag, setDrag] = useState<DragState | null>(null);
+  const [highlight, setHighlight] = useState<HighlightState | null>(null);
   const dragRef = useRef<DragState | null>(null);
   const highlightRef = useRef<HighlightState | null>(null);
   const startPosRef = useRef<{ x: number; y: number } | null>(null);
@@ -108,20 +109,18 @@ export function useLensDrag({
         // Hit-test for block highlight
         const block = resolveBlock(me.clientX, me.clientY);
         if (block && block.text.trim().length >= 10) {
-          if (highlightRef.current?.element !== block.element) {
-            // Clear old highlight
-            if (highlightRef.current) {
-              highlightRef.current.element.classList.remove("loupe-drag-target");
-            }
-            // Apply new highlight via CSS class
-            block.element.style.setProperty("--loupe-drag-color", def.color);
-            block.element.classList.add("loupe-drag-target");
-            highlightRef.current = { ...block, color: def.color };
-          }
+          const rect = block.element.getBoundingClientRect();
+          const hl: HighlightState = {
+            rect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height },
+            text: block.text,
+            color: def.color,
+          };
+          highlightRef.current = hl;
+          setHighlight(hl);
         } else {
           if (highlightRef.current) {
-            highlightRef.current.element.classList.remove("loupe-drag-target");
             highlightRef.current = null;
+            setHighlight(null);
           }
         }
       };
@@ -139,24 +138,23 @@ export function useLensDrag({
         isDraggingRef.current = false;
         startPosRef.current = null;
 
-        // Clear any active highlight
-        if (highlightRef.current) {
-          highlightRef.current.element.classList.remove("loupe-drag-target");
-          highlightRef.current = null;
-        }
+        // Clear highlight
+        highlightRef.current = null;
+        setHighlight(null);
 
         // Resolve block at drop position and trigger focus
         if (wasDragging) {
           const block = resolveBlock(ue.clientX, ue.clientY);
           if (block && block.text.trim().length >= 10) {
-            // Mark the focused paragraph with a fading accent
-            const el = block.element;
-            el.style.setProperty("--loupe-drag-color", def.color);
-            el.classList.add("loupe-drag-landed");
-
-            setTimeout(() => {
-              el.classList.remove("loupe-drag-landed");
-            }, 4000);
+            // Show a brief landed highlight
+            const rect = block.element.getBoundingClientRect();
+            const landed: HighlightState = {
+              rect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height },
+              text: block.text,
+              color: def.color,
+            };
+            setHighlight(landed);
+            setTimeout(() => setHighlight(null), 2000);
 
             onFocus(lensId, block.text, versionRef.current);
           }
@@ -172,5 +170,5 @@ export function useLensDrag({
     [lenses, definitions, editorRef, resolveBlock, onFocus, versionRef]
   );
 
-  return { drag, handleDragStart };
+  return { drag, highlight, handleDragStart };
 }
