@@ -6,6 +6,8 @@ import { LensPicker } from "./chrome/LensPicker";
 import { useFile } from "./hooks/use-file";
 import { useZenMode } from "./hooks/use-zen-mode";
 import { useLenses } from "./hooks/use-lenses";
+import { useLensDrag } from "./hooks/use-lens-drag";
+import { LoupeIcon } from "./lenses/LoupeIcon";
 import type { MilkdownInstance } from "./editor/milkdown-setup";
 
 export function App() {
@@ -16,6 +18,13 @@ export function App() {
   const { filename, initialContent, saveState, openFile, saveFileAs, updateContent, persistFilename } = useFile();
   const { zenMode } = useZenMode();
   const lens = useLenses();
+  const { drag, highlight, snapBack, handleDragStart } = useLensDrag({
+    editorRef,
+    definitions: lens.available,
+    lenses: lens.lenses,
+    onFocus: (lensId, text, version) => lens.focus(lensId, text, version),
+    versionRef,
+  });
 
   // Fetch available lenses on mount
   useEffect(() => { lens.fetchLenses(); }, []);
@@ -142,15 +151,62 @@ export function App() {
           onToggleExpanded={lens.toggleExpanded}
           onDismiss={lens.deactivate}
           onAsk={lens.ask}
-          onFocus={(lensId) => {
-            // Get current selection text from editor
-            const selection = window.getSelection()?.toString() || "";
-            lens.focus(lensId, selection, versionRef.current);
-          }}
           onRethink={lens.rethink}
           onReset={lens.resetLens}
+          onBubbleDragStart={handleDragStart}
+          draggingLensId={drag?.lensId ?? null}
         />
       </div>
+
+      {/* Paragraph highlight during drag */}
+      {highlight && (
+        <div
+          style={{
+            position: "fixed",
+            top: highlight.rect.top,
+            left: highlight.rect.left,
+            width: highlight.rect.width,
+            height: highlight.rect.height,
+            background: `${highlight.color}15`,
+            borderRadius: "6px",
+            pointerEvents: "none",
+            zIndex: 50,
+            transition: "top 0.08s, height 0.08s",
+          }}
+        />
+      )}
+
+      {/* Floating loupe during drag */}
+      {drag && (
+        <div className="loupe-drag-overlay" style={{ left: drag.x, top: drag.y }}>
+          <LoupeIcon
+            size={62}
+            color={drag.definition.color}
+            icon={drag.definition.icon}
+            glow
+          />
+        </div>
+      )}
+
+      {/* Snap-back animation */}
+      {snapBack && (
+        <div
+          className="loupe-drag-overlay"
+          style={{
+            left: snapBack.toX,
+            top: snapBack.toY,
+            transition: "left 0.25s ease-out, top 0.25s ease-out, transform 0.25s ease-out, opacity 0.25s",
+            opacity: 0.4,
+            transform: "translate(-50%, -50%) scale(0.7)",
+          }}
+        >
+          <LoupeIcon
+            size={44}
+            color={snapBack.definition.color}
+            icon={snapBack.definition.icon}
+          />
+        </div>
+      )}
 
       {lens.pickerOpen && (
         <LensPicker

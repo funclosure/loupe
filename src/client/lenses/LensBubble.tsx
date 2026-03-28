@@ -1,5 +1,6 @@
 import Markdown from "react-markdown";
 import type { LensDefinition, LensStatus } from "@shared/types";
+import { LoupeIcon } from "./LoupeIcon";
 
 interface LensBubbleProps {
   lensId: string;
@@ -8,6 +9,8 @@ interface LensBubbleProps {
   preview: string | null;
   onClick: () => void;
   onDismiss: () => void;
+  onDragStart?: (e: React.PointerEvent) => void;
+  isDragging?: boolean;
 }
 
 export function LensBubble({
@@ -16,38 +19,37 @@ export function LensBubble({
   preview,
   onClick,
   onDismiss,
+  onDragStart,
+  isDragging,
 }: LensBubbleProps) {
+  const color = definition.color;
+
   return (
-    <div className="flex flex-col items-end gap-2 max-w-[260px] group">
+    <div className="loupe-bubble-wrap flex flex-col items-end gap-2" style={{ opacity: isDragging ? 0.3 : 1 }}>
       {/* Avatar row */}
       <div className="flex items-center gap-2">
-        <span
-          className="text-[11px] opacity-0 group-hover:opacity-60 transition-opacity"
-          style={{ color: "var(--loupe-text-tertiary)" }}
-        >
-          {definition.name}
-        </span>
-        <button
+        <span className="loupe-bubble-name">{definition.name}</span>
+
+        <div
+          className="loupe-bubble"
           onClick={onClick}
-          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold
-                     transition-all cursor-pointer"
-          style={{
-            background: `${definition.color}18`,
-            border: `1.5px solid ${definition.color}40`,
-            color: definition.color,
-            boxShadow: status === "thinking"
-              ? `0 0 16px ${definition.color}30`
-              : "none",
-            animation: status === "thinking" ? "loupe-pulse 1.5s ease-in-out infinite" : "none",
+          onPointerDown={(e) => {
+            if (e.button !== 0) return;
+            onDragStart?.(e);
           }}
+          style={status === "thinking" ? { animation: "loupe-pulse 1.5s ease-in-out infinite" } : undefined}
         >
-          {definition.icon}
-        </button>
+          <LoupeIcon
+            size={44}
+            color={color}
+            icon={definition.icon}
+            glow={status === "thinking"}
+          />
+        </div>
+
         <button
+          className="loupe-bubble-dismiss"
           onClick={(e) => { e.stopPropagation(); onDismiss(); }}
-          className="w-4 opacity-0 group-hover:opacity-40 hover:!opacity-80
-                     text-xs transition-opacity cursor-pointer"
-          style={{ color: "var(--loupe-text-tertiary)" }}
         >
           &times;
         </button>
@@ -55,17 +57,8 @@ export function LensBubble({
 
       {/* Preview */}
       {preview && status === "idle" && (
-        <button
-          onClick={onClick}
-          className="text-left rounded-lg px-3 py-2.5 text-[12px] leading-[1.6] cursor-pointer
-                     transition-opacity hover:opacity-80 max-w-full"
-          style={{
-            background: "var(--loupe-surface)",
-            color: "var(--loupe-text-secondary)",
-          }}
-        >
+        <button onClick={onClick} className="loupe-bubble-preview text-left">
           <Markdown className="lens-markdown" components={{
-            // Strip block-level elements to keep preview compact
             p: ({ children }) => <span>{children} </span>,
             h1: ({ children }) => <span>{children} </span>,
             h2: ({ children }) => <span>{children} </span>,
@@ -85,9 +78,10 @@ export function LensBubble({
       {/* Thinking */}
       {status === "thinking" && (
         <div
-          className="rounded-lg px-3 py-1.5 text-[11px] uppercase tracking-[0.1em]"
+          className="text-[11px] uppercase tracking-[0.1em]"
           style={{
-            color: definition.color,
+            color: color,
+            opacity: 0.7,
             animation: "loupe-pulse 1.5s ease-in-out infinite",
           }}
         >
@@ -99,7 +93,7 @@ export function LensBubble({
       {status === "error" && (
         <button
           onClick={onClick}
-          className="text-left rounded-lg px-3 py-2 text-[13px] leading-relaxed cursor-pointer max-w-full"
+          className="text-left rounded-lg px-3 py-2 text-[12px] cursor-pointer"
           style={{
             background: "rgba(220, 38, 38, 0.06)",
             color: "var(--loupe-text-secondary)",

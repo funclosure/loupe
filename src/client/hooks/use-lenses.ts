@@ -5,6 +5,7 @@ interface LensUIState extends ActiveLens {
   messages: ChatMessage[];
   streamingContent: string;
   expanded: boolean;
+  seen: boolean; // true after user has expanded and seen the latest response
 }
 
 /**
@@ -71,6 +72,7 @@ export function useLenses() {
               messages: [],
               streamingContent: "",
               expanded: false,
+            seen: false,
             });
           }
         }
@@ -166,6 +168,9 @@ export function useLenses() {
                 if (fullText) {
                   lens.messages = [...lens.messages, { role: "lens", content: fullText }];
                   lens.preview = fullText.slice(0, 120);
+                  // If user is watching the chat, mark as seen immediately
+                  if (lens.expanded) lens.seen = true;
+                  else lens.seen = false;
                 }
                 lens.streamingContent = "";
                 lens.status = "idle";
@@ -223,6 +228,18 @@ export function useLenses() {
 
   const focus = useCallback(
     async (lensId: string, paragraphText: string, version: number) => {
+      // Show focused text as a user message in the chat
+      setLenses((prev) => {
+        const next = new Map(prev);
+        const lens = next.get(lensId);
+        if (lens) {
+          const preview = paragraphText.length > 100
+            ? paragraphText.slice(0, 100) + "..."
+            : paragraphText;
+          lens.messages = [...lens.messages, { role: "user", content: `🔍 ${preview}` }];
+        }
+        return next;
+      });
       await streamFromEndpoint(lensId, `/api/lens/${lensId}/focus`, {
         paragraphText,
         version,
@@ -258,7 +275,16 @@ export function useLenses() {
     setLenses((prev) => {
       const next = new Map(prev);
       const lens = next.get(lensId);
-      if (lens) lens.expanded = !lens.expanded;
+      if (!lens) return next;
+      const willExpand = !lens.expanded;
+      // Collapse all others when expanding one
+      if (willExpand) {
+        for (const [id, l] of next) {
+          if (id !== lensId && l.expanded) l.expanded = false;
+        }
+        lens.seen = true; // User has viewed the chat
+      }
+      lens.expanded = willExpand;
       return next;
     });
   }, []);
