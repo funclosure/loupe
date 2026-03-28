@@ -197,8 +197,8 @@ body {
   color: var(--loupe-text-tertiary) !important;
 }
 
-/* Inline code */
-.loupe-editor div[contenteditable="true"] code {
+/* Inline code — scoped to exclude code blocks managed by the node view */
+.loupe-editor div[contenteditable="true"] code:not(.loupe-code-block *) {
   background: var(--loupe-elevated) !important;
   padding: 2px 7px !important;
   border-radius: 4px !important;
@@ -522,11 +522,12 @@ body {
   caret-color: var(--loupe-text-secondary) !important;
 }
 
-.loupe-code-editable code {
+.loupe-editor .loupe-code-block .loupe-code-editable code {
   color: transparent !important;
   background: none !important;
   padding: 0 !important;
   border: none !important;
+  border-radius: 0 !important;
   font: inherit !important;
 }
 
