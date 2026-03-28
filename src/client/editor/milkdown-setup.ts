@@ -6,6 +6,7 @@ import {
 } from "@milkdown/kit/core";
 import { commonmark } from "@milkdown/kit/preset/commonmark";
 import { listener, listenerCtx } from "@milkdown/kit/plugin/listener";
+import { trailing } from "@milkdown/kit/plugin/trailing";
 import { getMarkdown } from "@milkdown/kit/utils";
 import type { EditorView } from "@milkdown/kit/prose/view";
 
@@ -33,6 +34,7 @@ export async function createEditor(
     })
     .use(commonmark)
     .use(listener)
+    .use(trailing)
     .create();
 
   // Milkdown injects theme classes (prose, milkdown-theme-nord) that fight
