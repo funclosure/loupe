@@ -17,7 +17,7 @@ export function App() {
   const { filename, initialContent, saveState, openFile, saveFileAs, updateContent, persistFilename } = useFile();
   const { zenMode } = useZenMode();
   const lens = useLenses();
-  const { drag, highlight, handleDragStart } = useLensDrag({
+  const { drag, highlight, snapBack, handleDragStart } = useLensDrag({
     editorRef,
     definitions: lens.available,
     lenses: lens.lenses,
@@ -166,9 +166,8 @@ export function App() {
             left: highlight.rect.left,
             width: highlight.rect.width,
             height: highlight.rect.height,
-            borderLeft: `3px solid ${highlight.color}`,
-            background: `${highlight.color}12`,
-            borderRadius: "0 4px 4px 0",
+            background: `${highlight.color}15`,
+            borderRadius: "6px",
             pointerEvents: "none",
             zIndex: 50,
             transition: "top 0.08s, height 0.08s",
@@ -196,6 +195,36 @@ export function App() {
               }}
             >
               {drag.definition.icon}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Snap-back animation */}
+      {snapBack && (
+        <div
+          className="loupe-drag-overlay"
+          style={{
+            left: snapBack.toX,
+            top: snapBack.toY,
+            transition: "left 0.25s ease-out, top 0.25s ease-out, transform 0.25s ease-out, opacity 0.25s",
+            opacity: 0.5,
+            transform: "translate(-50%, -50%) scale(0.8)",
+          }}
+        >
+          <div className="loupe-bubble">
+            <div
+              className="loupe-bubble-tail"
+              style={{ background: `${snapBack.definition.color}25` }}
+            />
+            <div
+              className="loupe-bubble-circle"
+              style={{
+                background: `${snapBack.definition.color}15`,
+                color: `${snapBack.definition.color}99`,
+              }}
+            >
+              {snapBack.definition.icon}
             </div>
           </div>
         </div>

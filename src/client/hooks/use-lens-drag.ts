@@ -9,6 +9,14 @@ interface DragState {
   y: number;
 }
 
+export interface SnapBackState {
+  definition: LensDefinition;
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
+}
+
 export interface HighlightState {
   rect: { top: number; left: number; width: number; height: number };
   text: string;
@@ -32,6 +40,7 @@ export function useLensDrag({
 }: UseLensDragOptions) {
   const [drag, setDrag] = useState<DragState | null>(null);
   const [highlight, setHighlight] = useState<HighlightState | null>(null);
+  const [snapBack, setSnapBack] = useState<SnapBackState | null>(null);
   const dragRef = useRef<DragState | null>(null);
   const highlightRef = useRef<HighlightState | null>(null);
   const startPosRef = useRef<{ x: number; y: number } | null>(null);
@@ -142,26 +151,45 @@ export function useLensDrag({
         highlightRef.current = null;
         setHighlight(null);
 
-        // Resolve block at drop position and trigger focus
         if (wasDragging) {
+          // Snap-back animation: find the resting bubble position
+          const bubbleEl = document.querySelector(`[data-lens-id="${lensId}"] .loupe-bubble`);
+          const bubbleRect = bubbleEl?.getBoundingClientRect();
+          const toX = bubbleRect ? bubbleRect.x + bubbleRect.width / 2 : startPosRef.current?.x ?? ue.clientX;
+          const toY = bubbleRect ? bubbleRect.y + bubbleRect.height / 2 : startPosRef.current?.y ?? ue.clientY;
+
+          setSnapBack({
+            definition: def,
+            fromX: ue.clientX,
+            fromY: ue.clientY,
+            toX,
+            toY,
+          });
+          // Clear drag immediately so bubble reappears at full opacity
+          dragRef.current = null;
+          setDrag(null);
+
+          // Clear snap-back after animation
+          setTimeout(() => setSnapBack(null), 300);
+
+          // Trigger focus if over a valid block
           const block = resolveBlock(ue.clientX, ue.clientY);
           if (block && block.text.trim().length >= 10) {
             // Show a brief landed highlight
             const rect = block.element.getBoundingClientRect();
-            const landed: HighlightState = {
+            setHighlight({
               rect: { top: rect.top, left: rect.left, width: rect.width, height: rect.height },
               text: block.text,
               color: def.color,
-            };
-            setHighlight(landed);
+            });
             setTimeout(() => setHighlight(null), 2000);
 
             onFocus(lensId, block.text, versionRef.current);
           }
+        } else {
+          dragRef.current = null;
+          setDrag(null);
         }
-
-        dragRef.current = null;
-        setDrag(null);
       };
 
       document.addEventListener("pointermove", onMove);
@@ -170,5 +198,5 @@ export function useLensDrag({
     [lenses, definitions, editorRef, resolveBlock, onFocus, versionRef]
   );
 
-  return { drag, highlight, handleDragStart };
+  return { drag, highlight, snapBack, handleDragStart };
 }

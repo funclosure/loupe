@@ -45,7 +45,7 @@ export function LensLayer({
         if (!def) return null;
 
         return (
-          <div key={lensId} className="pointer-events-auto">
+          <div key={lensId} className="pointer-events-auto" data-lens-id={lensId}>
             {state.expanded ? (
               <LensChat
                 lensId={lensId}
