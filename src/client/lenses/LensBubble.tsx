@@ -77,6 +77,23 @@ export function LensBubble({
           thinking...
         </div>
       )}
+
+      {/* Error state */}
+      {status === "error" && (
+        <button
+          onClick={onClick}
+          className="text-left rounded-xl px-3 py-2 text-xs leading-relaxed cursor-pointer
+                     transition-opacity hover:opacity-90 max-w-full"
+          style={{
+            background: "rgba(220, 38, 38, 0.08)",
+            border: "1px solid rgba(220, 38, 38, 0.25)",
+            color: "rgba(220, 38, 38, 0.85)",
+          }}
+        >
+          <span className="block mb-1 text-[10px] uppercase tracking-wider opacity-70">error</span>
+          <span>Something went wrong — click to retry</span>
+        </button>
+      )}
     </div>
   );
 }
