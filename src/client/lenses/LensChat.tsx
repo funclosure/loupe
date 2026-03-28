@@ -18,10 +18,9 @@ interface LensChatProps {
 function LensMessage({ content, color }: { content: string; color: string }) {
   return (
     <div
-      className="text-[13px] leading-[1.7] rounded-lg px-3 py-2"
+      className="text-[13px] leading-[1.7] rounded-lg px-3 py-2.5"
       style={{
         color: "var(--loupe-text)",
-        borderLeft: `2px solid ${color}`,
         background: "var(--loupe-surface)",
       }}
     >
