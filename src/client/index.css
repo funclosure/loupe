@@ -79,7 +79,7 @@ body {
   overflow-y: auto;
   display: flex;
   justify-content: center;
-  padding: 64px 32px 128px;
+  padding: 64px 32px 50vh;
   cursor: text;
 }
 
