@@ -32,15 +32,6 @@ export interface ActiveLens {
   error: string | null;
 }
 
-// -- SSE events (server → client) --
-
-export type SSEEvent =
-  | { type: "lens:thinking"; lensId: string }
-  | { type: "lens:bubble"; lensId: string; preview: string }
-  | { type: "lens:message"; lensId: string; delta: string; done: boolean }
-  | { type: "lens:error"; lensId: string; error: string }
-  | { type: "lens:removed"; lensId: string };
-
 // -- API request bodies --
 
 export interface DocumentSyncBody {

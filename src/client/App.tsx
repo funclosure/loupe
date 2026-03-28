@@ -6,7 +6,6 @@ import { LensPicker } from "./chrome/LensPicker";
 import { useFile } from "./hooks/use-file";
 import { useZenMode } from "./hooks/use-zen-mode";
 import { useLenses } from "./hooks/use-lenses";
-import { useSSE } from "./hooks/use-sse";
 import type { MilkdownInstance } from "./editor/milkdown-setup";
 
 export function App() {
@@ -17,9 +16,6 @@ export function App() {
   const { filename, saveState, openFile, saveFileAs, updateContent } = useFile();
   const { zenMode } = useZenMode();
   const lens = useLenses();
-
-  // Connect SSE only when lenses are active (avoids error spam on empty page)
-  useSSE(lens.handleSSEEvent, lens.lenses.size > 0);
 
   // Fetch available lenses on mount
   useEffect(() => { lens.fetchLenses(); }, []);

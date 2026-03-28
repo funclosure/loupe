@@ -23,6 +23,7 @@ export async function startServer() {
 
   const server = Bun.serve({
     port: PORT,
+    idleTimeout: 120, // SSE streams idle during Claude processing
     async fetch(req) {
       // Try API routes first
       const apiResponse = await router.handle(req);

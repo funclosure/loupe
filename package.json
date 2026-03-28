@@ -33,7 +33,7 @@
     "typescript": "^6.0.2"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.80.0",
+    "@anthropic-ai/claude-agent-sdk": "^0.2.86",
     "@milkdown/core": "^7.19.2",
     "@milkdown/ctx": "^7.19.2",
     "@milkdown/kit": "^7.19.2",
@@ -45,6 +45,7 @@
     "prosemirror-state": "^1.4.4",
     "prosemirror-view": "^1.41.7",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "zod": "^4.3.6"
   }
 }

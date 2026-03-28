@@ -1,5 +1,56 @@
-import Anthropic from "@anthropic-ai/sdk";
+import { query, type Query } from "@anthropic-ai/claude-agent-sdk";
 import type { LensDefinition, LensStatus, ChatMessage } from "@shared/types";
+
+type SDKMessage = {
+  type: string;
+  event?: {
+    type?: string;
+    delta?: { type?: string; text?: string };
+  };
+  [key: string]: unknown;
+};
+
+type UserMessage = {
+  type: "user";
+  message: { role: "user"; content: string };
+  parent_tool_use_id: null;
+  session_id: string;
+};
+
+// Async channel that keeps the query alive for multi-turn conversation
+// (same pattern as pace)
+class MessageChannel {
+  private queue: UserMessage[] = [];
+  private waiting: ((msg: UserMessage) => void) | null = null;
+
+  push(content: string) {
+    const msg: UserMessage = {
+      type: "user",
+      message: { role: "user", content },
+      parent_tool_use_id: null,
+      session_id: "default",
+    };
+    if (this.waiting) {
+      const resolve = this.waiting;
+      this.waiting = null;
+      resolve(msg);
+    } else {
+      this.queue.push(msg);
+    }
+  }
+
+  async *[Symbol.asyncIterator](): AsyncGenerator<UserMessage> {
+    while (true) {
+      if (this.queue.length > 0) {
+        yield this.queue.shift()!;
+      } else {
+        yield await new Promise<UserMessage>((resolve) => {
+          this.waiting = resolve;
+        });
+      }
+    }
+  }
+}
 
 export class LensSession {
   readonly definition: LensDefinition;
@@ -7,7 +58,11 @@ export class LensSession {
   status: LensStatus = "idle";
   history: ChatMessage[] = [];
   preview: string | null = null;
-  private client: Anthropic | null = null;
+
+  private q: Query | null = null;
+  private iter: AsyncIterator<SDKMessage> | null = null;
+  private channel = new MessageChannel();
+  private started = false;
 
   constructor(definition: LensDefinition, defaultModel: string) {
     this.definition = definition;
@@ -20,61 +75,69 @@ export class LensSession {
     if (focusedParagraph) {
       prompt += `\n\nThe writer is currently focused on this passage:\n\n${focusedParagraph}`;
     }
+    prompt += `\n\nKeep responses concise and conversational. You are a companion, not a lecturer.`;
     return prompt;
   }
 
-  addToHistory(role: "user" | "lens", content: string): void {
-    this.history.push({ role, content });
-  }
+  async start(documentContent: string, initialMessage: string, focusedParagraph?: string): Promise<void> {
+    const systemPrompt = this.buildSystemPrompt(documentContent, focusedParagraph);
 
-  reset(): void {
-    this.history = [];
-    this.status = "idle";
-    this.preview = null;
-  }
+    this.channel.push(initialMessage);
 
-  private getClient(): Anthropic {
-    if (!this.client) this.client = new Anthropic();
-    return this.client;
-  }
-
-  async *stream(
-    documentContent: string,
-    userMessage: string,
-    focusedParagraph?: string,
-  ): AsyncGenerator<
-    | { type: "delta"; text: string }
-    | { type: "done" }
-    | { type: "error"; error: string }
-  > {
-    this.status = "thinking";
-    try {
-      const client = this.getClient();
-      const systemPrompt = this.buildSystemPrompt(documentContent, focusedParagraph);
-      const messages: Anthropic.MessageParam[] = this.history.map((msg) => ({
-        role: msg.role === "lens" ? ("assistant" as const) : ("user" as const),
-        content: msg.content,
-      }));
-      messages.push({ role: "user", content: userMessage });
-
-      const stream = client.messages.stream({
+    this.q = query({
+      prompt: this.channel as any,
+      options: {
+        systemPrompt,
         model: this.model,
-        max_tokens: 1024,
-        system: systemPrompt,
-        messages,
-      });
+        permissionMode: "bypassPermissions",
+        allowDangerouslySkipPermissions: true,
+        allowedTools: [],
+        disallowedTools: [
+          "Bash", "Read", "Write", "Edit", "Glob", "Grep",
+          "Agent", "WebFetch", "WebSearch", "NotebookEdit",
+        ],
+        includePartialMessages: true,
+      },
+    }) as Query;
 
-      let fullResponse = "";
-      for await (const event of stream) {
-        if (
-          event.type === "content_block_delta" &&
-          event.delta.type === "text_delta"
-        ) {
-          fullResponse += event.delta.text;
-          yield { type: "delta", text: event.delta.text };
+    this.iter = (this.q as AsyncIterable<SDKMessage>)[Symbol.asyncIterator]();
+    this.started = true;
+  }
+
+  send(message: string): void {
+    if (!this.q) throw new Error("Session not started");
+    this.channel.push(message);
+  }
+
+  async *receive(): AsyncGenerator<{ type: "text"; text: string } | { type: "done" } | { type: "error"; error: string }> {
+    if (!this.iter) return;
+
+    this.status = "thinking";
+    let fullResponse = "";
+
+    try {
+      while (true) {
+        const { value: msg, done } = await this.iter.next();
+        if (done || !msg) break;
+
+        if (msg.type === "stream_event" && msg.event) {
+          const delta = msg.event.delta;
+          if (
+            msg.event.type === "content_block_delta" &&
+            delta?.type === "text_delta" &&
+            delta.text
+          ) {
+            fullResponse += delta.text;
+            yield { type: "text", text: delta.text };
+          }
+        }
+
+        if (msg.type === "result") {
+          break;
         }
       }
-      this.addToHistory("user", userMessage);
+
+      this.addToHistory("user", ""); // placeholder — actual message already in channel
       this.addToHistory("lens", fullResponse);
       this.preview = fullResponse.slice(0, 120);
       this.status = "idle";
@@ -85,6 +148,31 @@ export class LensSession {
         type: "error",
         error: err instanceof Error ? err.message : "Unknown error",
       };
+    }
+  }
+
+  get isStarted(): boolean {
+    return this.started;
+  }
+
+  addToHistory(role: "user" | "lens", content: string): void {
+    this.history.push({ role, content });
+  }
+
+  reset(): void {
+    this.close();
+    this.history = [];
+    this.status = "idle";
+    this.preview = null;
+    this.started = false;
+    this.channel = new MessageChannel();
+  }
+
+  close(): void {
+    if (this.q) {
+      this.q.close();
+      this.q = null;
+      this.iter = null;
     }
   }
 }

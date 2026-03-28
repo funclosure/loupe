@@ -37,6 +37,10 @@ describe("LensSession", () => {
     expect(session.status).toBe("idle");
   });
 
+  it("starts as not started", () => {
+    expect(session.isStarted).toBe(false);
+  });
+
   it("tracks the effective model (per-lens or default)", () => {
     expect(session.model).toBe("claude-sonnet-4-6");
     const lensWithModel = { ...testLens, model: "claude-haiku-4-5-20251001" };

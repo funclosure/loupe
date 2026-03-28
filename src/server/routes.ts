@@ -1,15 +1,9 @@
-import type { DocumentSyncBody, LensFocusBody, LensAskBody, SSEEvent } from "@shared/types";
+import type { DocumentSyncBody, LensFocusBody, LensAskBody } from "@shared/types";
 import { DocumentStore } from "./document";
 import { LensManager } from "./lens-manager";
-
-type SSEWriter = {
-  write: (data: string) => void;
-  close: () => void;
-};
+import type { LensSession } from "./lens-session";
 
 export class RouteHandler {
-  private sseClients: Set<SSEWriter> = new Set();
-
   constructor(
     private document: DocumentStore,
     private lensManager: LensManager
@@ -17,11 +11,6 @@ export class RouteHandler {
 
   async handle(req: Request): Promise<Response | null> {
     const url = new URL(req.url);
-
-    // SSE endpoint
-    if (url.pathname === "/api/events" && req.method === "GET") {
-      return this.handleSSE();
-    }
 
     // Document sync
     if (url.pathname === "/api/document" && req.method === "POST") {
@@ -52,32 +41,46 @@ export class RouteHandler {
     // Deactivate lens
     const deactivateMatch = url.pathname.match(/^\/api\/lens\/([^/]+)\/deactivate$/);
     if (deactivateMatch && req.method === "POST") {
+      const session = this.lensManager.getSession(deactivateMatch[1]);
+      if (session) session.close();
       this.lensManager.deactivate(deactivateMatch[1]);
-      this.broadcast({ type: "lens:removed", lensId: deactivateMatch[1] });
       return Response.json({ ok: true });
     }
 
-    // Lens focus
-    const focusMatch = url.pathname.match(/^\/api\/lens\/([^/]+)\/focus$/);
-    if (focusMatch && req.method === "POST") {
-      const body: LensFocusBody = await req.json();
-      this.handleLensStream(focusMatch[1], "Please share your thoughts on this passage.", body.paragraphText);
-      return Response.json({ ok: true });
-    }
-
-    // Lens ask
+    // Lens ask — returns SSE stream
     const askMatch = url.pathname.match(/^\/api\/lens\/([^/]+)\/ask$/);
     if (askMatch && req.method === "POST") {
       const body: LensAskBody = await req.json();
-      this.handleLensStream(askMatch[1], body.message);
-      return Response.json({ ok: true });
+      const session = this.lensManager.getSession(askMatch[1]);
+      if (!session) return Response.json({ error: "Lens not found" }, { status: 404 });
+
+      return this.streamLensResponse(session, body.message);
     }
 
-    // Lens rethink
+    // Lens focus — returns SSE stream
+    const focusMatch = url.pathname.match(/^\/api\/lens\/([^/]+)\/focus$/);
+    if (focusMatch && req.method === "POST") {
+      const body: LensFocusBody = await req.json();
+      const session = this.lensManager.getSession(focusMatch[1]);
+      if (!session) return Response.json({ error: "Lens not found" }, { status: 404 });
+
+      return this.streamLensResponse(
+        session,
+        "Please share your thoughts on this passage.",
+        body.paragraphText
+      );
+    }
+
+    // Lens rethink — returns SSE stream
     const rethinkMatch = url.pathname.match(/^\/api\/lens\/([^/]+)\/rethink$/);
     if (rethinkMatch && req.method === "POST") {
-      this.handleLensStream(rethinkMatch[1], "I've updated the document. What do you think now?");
-      return Response.json({ ok: true });
+      const session = this.lensManager.getSession(rethinkMatch[1]);
+      if (!session) return Response.json({ error: "Lens not found" }, { status: 404 });
+
+      return this.streamLensResponse(
+        session,
+        "I've updated the document. What do you think now?"
+      );
     }
 
     // Lens reset
@@ -91,85 +94,66 @@ export class RouteHandler {
     return null; // Not an API route
   }
 
-  private handleSSE(): Response {
-    const self = this;
-
-    // Use a direct ReadableStream with pull-based keepalive
-    // Bun needs the stream to stay "active" — we use a resolver pattern
-    let clientWriter: SSEWriter;
+  /**
+   * Stream a lens response as SSE (per-request, like pace).
+   * Each request starts or continues a conversation, streams the response, then closes.
+   */
+  private streamLensResponse(
+    session: LensSession,
+    message: string,
+    focusedParagraph?: string
+  ): Response {
+    const doc = this.document.get();
 
     const stream = new ReadableStream({
-      start(controller) {
+      async start(controller) {
         const encoder = new TextEncoder();
 
-        clientWriter = {
-          write(data: string) {
-            try {
-              controller.enqueue(encoder.encode(data));
-            } catch {
-              self.sseClients.delete(clientWriter);
-            }
-          },
-          close() {
-            try { controller.close(); } catch {}
-            self.sseClients.delete(clientWriter);
-          },
-        };
-
-        self.sseClients.add(clientWriter);
-
-        // Send initial state
-        const active = self.lensManager.activeSessions();
-        const initData = JSON.stringify({ type: "init", active });
-        controller.enqueue(encoder.encode(`data: ${initData}\n\n`));
-
-        // Send keepalive comments every 15s to prevent connection timeout
-        const keepalive = setInterval(() => {
-          try {
-            controller.enqueue(encoder.encode(`: keepalive\n\n`));
-          } catch {
-            clearInterval(keepalive);
-            self.sseClients.delete(clientWriter);
+        try {
+          // Start or continue the session
+          if (!session.isStarted) {
+            await session.start(doc.content, message, focusedParagraph);
+          } else {
+            // For follow-up turns, update context by prepending document state
+            const contextMessage = focusedParagraph
+              ? `[Current document context updated]\n\nFocused passage:\n${focusedParagraph}\n\n${message}`
+              : message;
+            session.send(contextMessage);
           }
-        }, 15000);
-      },
-      cancel() {
-        self.sseClients.delete(clientWriter);
+
+          // Stream the response
+          for await (const event of session.receive()) {
+            if (event.type === "text") {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ text: event.text })}\n\n`)
+              );
+            } else if (event.type === "done") {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ done: true })}\n\n`)
+              );
+            } else if (event.type === "error") {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ error: event.error })}\n\n`)
+              );
+            }
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ error: msg })}\n\n`)
+          );
+        }
+
+        controller.close();
       },
     });
 
     return new Response(stream, {
       headers: {
         "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache, no-transform",
+        "Cache-Control": "no-cache",
         "Connection": "keep-alive",
-        "X-Accel-Buffering": "no",
       },
     });
-  }
-
-  broadcast(event: SSEEvent): void {
-    const data = `data: ${JSON.stringify(event)}\n\n`;
-    for (const client of this.sseClients) {
-      client.write(data);
-    }
-  }
-
-  private async handleLensStream(lensId: string, userMessage: string, focusedParagraph?: string): Promise<void> {
-    const session = this.lensManager.getSession(lensId);
-    if (!session) return;
-
-    const doc = this.document.get();
-    this.broadcast({ type: "lens:thinking", lensId });
-
-    for await (const chunk of session.stream(doc.content, userMessage, focusedParagraph)) {
-      if (chunk.type === "delta") {
-        this.broadcast({ type: "lens:message", lensId, delta: chunk.text, done: false });
-      } else if (chunk.type === "done") {
-        this.broadcast({ type: "lens:message", lensId, delta: "", done: true });
-      } else if (chunk.type === "error") {
-        this.broadcast({ type: "lens:error", lensId, error: chunk.error });
-      }
-    }
   }
 }
