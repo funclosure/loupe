@@ -86,7 +86,13 @@ body {
 .editor-column {
   width: 100%;
   max-width: var(--loupe-editor-max-width);
-  padding-bottom: 50vh;
+}
+
+/* Extra space after content so last line isn't stuck at bottom */
+.editor-column::after {
+  content: "";
+  display: block;
+  height: 50vh;
 }
 
 .loupe-editor {
