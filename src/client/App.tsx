@@ -13,7 +13,7 @@ export function App() {
   const versionRef = useRef(0);
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { filename, saveState, openFile, saveFileAs, updateContent } = useFile();
+  const { filename, initialContent, saveState, openFile, saveFileAs, updateContent } = useFile();
   const { zenMode } = useZenMode();
   const lens = useLenses();
 
@@ -101,7 +101,7 @@ export function App() {
       >
         <div className="editor-column">
           <Editor
-            defaultValue=""
+            defaultValue={initialContent}
             onChange={handleEditorChange}
             editorRef={editorRef}
           />
