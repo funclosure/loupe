@@ -4,7 +4,7 @@ A zen writing PWA where floating AI lenses offer different perspectives on your 
 
 ## Concept
 
-Loupe is a distraction-free markdown writing app built around a single metaphor: a **loupe** — a small magnifying lens you hold up to your text to see it differently. Each lens embodies a persona (Heidegger), a thinking framework (Intuition Pump), or a practical role (Copy Editor). Lenses float alongside your writing as autonomous companions — they read your document, think independently, and request your attention when they have something to say.
+Loupe is a distraction-free markdown writing app built around a single metaphor: a **loupe** — a small magnifying lens you hold up to your text to see it differently. Each lens embodies a persona (Heidegger), a thinking framework (Intuition Pump), or a practical role (Copy Editor). Lenses float alongside your writing as companions that respond when summoned and offer thoughts when you shift focus to a new passage. In Phase 2, lenses become fully autonomous — thinking independently and conversing with each other.
 
 The interaction model has three context levels:
 1. **Full document** — the lens always has the complete text
@@ -64,10 +64,10 @@ loupe/
 
 **1. Document sync (Client → Server)**
 
-Editor content auto-saves to disk on every change (debounced ~1s via File System Access API). Simultaneously, the client posts the latest state to the server so lenses have current context.
+Editor content auto-saves to disk on every change (debounced ~1s via File System Access API). Simultaneously, the client posts the latest state to the server so lenses have current context. Each document update carries an incrementing version counter. The server is the secondary copy — the file on disk is always authoritative.
 
 ```
-Editor onChange → debounce 1s → POST /api/document { content, cursor, selection? }
+Editor onChange → debounce 1s → POST /api/document { content, cursor, selection?, version }
                               → write to file handle (auto-save)
 ```
 
@@ -75,13 +75,15 @@ No manual save. The file on disk is always in sync.
 
 **2. Lens triggers (Client → Server)**
 
-Three actions that start lens thinking:
+Three user actions that start lens thinking:
 
 | Action | Endpoint | When |
 |--------|----------|------|
-| Focus paragraph | `POST /api/lens/:id/focus` | User selects/clicks a paragraph |
-| Ask | `POST /api/lens/:id/ask` | User types in the lens chat |
-| Rethink | `POST /api/lens/:id/rethink` | User hits re-evaluate button |
+| Focus paragraph | `POST /api/lens/:id/focus { paragraphRange, version }` | User selects text or clicks into a paragraph |
+| Ask | `POST /api/lens/:id/ask { message }` | User types in the expanded lens chat |
+| What now? | `POST /api/lens/:id/rethink` | User presses "What now?" — lens re-reads the latest document and responds in the context of the ongoing conversation |
+
+Additionally, when a user focuses a new paragraph and a lens is active, the lens **auto-suggests**: after a ~2s dwell time, the server sends the focused passage to each active lens. If a lens has something to say, it surfaces a preview bubble. Only one auto-suggest per paragraph focus (no repeated firing). This is the "auto-suggest on paragraph focus" behavior.
 
 **3. Lens responses (Server → Client via SSE)**
 
@@ -90,12 +92,14 @@ Single SSE connection carries all lens activity:
 ```
 GET /api/events →
 
-event: lens:thinking     { lensId, status: "thinking" }
-event: lens:bubble       { lensId, preview: "Your notion of..." }
-event: lens:attention    { lensId, message: "I noticed something..." }
-event: lens:message      { lensId, content: "...", streaming: true }
-event: lens:done         { lensId }
+event: lens:thinking     { lensId }                          # lens started processing
+event: lens:bubble       { lensId, preview: "..." }          # short preview for collapsed bubble (auto-suggest result)
+event: lens:message      { lensId, delta: "...", done: false } # streaming chunk for expanded chat
+event: lens:message      { lensId, delta: "", done: true }    # stream complete
+event: lens:error        { lensId, error: "..." }             # API failure, shown in bubble
 ```
+
+Streaming uses incremental deltas — each `lens:message` event contains a text chunk appended to the running response. The client accumulates chunks per `lensId`.
 
 ### What the server holds in memory
 
@@ -104,6 +108,27 @@ event: lens:done         { lensId }
 - Lens definitions loaded from `lenses/` directory
 
 No database. Lens conversations are ephemeral — close the session, they reset.
+
+### Configuration
+
+API key via environment variable: `ANTHROPIC_API_KEY`. The CLI reads it from the environment (same pattern as pace). No settings UI for the key in Phase 1.
+
+Optional: `~/.loupe/config.json` for preferences (default model, theme). The CLI can also accept `--model` flag.
+
+### Model selection
+
+Default model: `claude-sonnet-4-6` (good balance of speed and quality for streaming into bubbles). Configurable globally via config or per-lens in `LENS.md` frontmatter with an optional `model` field. Haiku for fast/cheap lenses, Opus for deep analysis lenses.
+
+### Error handling
+
+- **Missing API key**: server starts but lens activation shows an inline error with setup instructions
+- **API errors (rate limit, 500)**: lens bubble shows error state with a retry button; other lenses unaffected
+- **SSE disconnection**: client auto-reconnects with exponential backoff; lens bubbles show "reconnecting..." state
+- **File System Access API permission revoked**: editor content preserved in memory, top bar shows "save unavailable" warning, user can re-grant or use download fallback
+
+### Resource limits
+
+Maximum **5 concurrent lenses** in Phase 1. The lens picker disables activation beyond the limit with a note. Each lens carries the full document in context, so cost scales with `document_length x active_lenses`.
 
 ## Editor
 
@@ -120,6 +145,8 @@ WYSIWYG-ish markdown editing like Slack — type markdown syntax and it renders 
 - Links
 
 No tables, images, or embeds in Phase 1. Text-first.
+
+**Architecture note for Phase 2**: The Milkdown plugin setup must preserve direct access to ProseMirror's `EditorView` and transaction system. This is needed for the future diff/suggestion feature where lenses propose tracked changes as ProseMirror decorations. Avoid abstractions that hide the ProseMirror layer.
 
 ### Writing surface
 
@@ -157,8 +184,21 @@ Clicking a bubble opens a floating card (~280px wide):
 - Lens name + avatar at top
 - Scrollable message thread
 - Text input at bottom
-- Three context actions: "Re-read full doc" / "Focus here" / "What now?"
+- Three context actions:
+  - **"Focus here"** — sends the currently selected/focused paragraph to this lens (same as the `focus` trigger)
+  - **"What now?"** — asks the lens to re-read the latest document and respond (the `rethink` trigger)
+  - **"Reset"** — clears the conversation history and starts the lens fresh with the current document
 - Close to collapse back to bubble
+
+### Lens picker
+
+`Cmd+L` or clicking the "+" button opens a modal overlay listing available lenses:
+
+- **Built-in presets** section (always present)
+- **User lenses** section (from `lenses/` directory, if any exist)
+- Each entry shows: icon, name, description, and an "Activate" button
+- Grayed out with a note when 5 lenses are already active
+- No preview or configuration — just pick and go
 
 ### Color system
 
@@ -201,13 +241,17 @@ name: Heidegger
 icon: H
 color: "#7c3aed"
 description: Phenomenological perspective on being and time
+model: claude-sonnet-4-6    # optional, overrides global default
 ---
 
 You are a lens embodying Martin Heidegger's philosophical perspective.
 When examining text, consider it through the framework of...
 ```
 
-Frontmatter provides UI metadata (bubble color, icon, label). Body is the system prompt.
+**Required fields**: `name`, `description`
+**Optional fields**: `icon` (single character or emoji, defaults to first letter of name), `color` (hex, defaults to a generated muted tone), `model` (overrides global default)
+
+Frontmatter provides UI metadata (bubble color, icon, label). Body is the system prompt (plain text, not rendered as markdown). Malformed LENS.md files (missing frontmatter delimiters, missing required fields) are skipped with a console warning.
 
 ### Lens lifecycle
 
@@ -228,6 +272,8 @@ Focus (when set): "The writer is currently focused on this passage:\n\n{selectio
 ```
 
 The conversation accumulates — the lens remembers prior exchanges. This is what makes "what do you think now?" meaningful: the lens can compare its previous reading to the updated document.
+
+**Context window management**: When a lens conversation approaches the context limit, the server summarizes the earlier exchanges into a condensed context block and resets the conversation with the summary + current document. The user sees a subtle "lens refreshed" indicator but the conversation continues naturally.
 
 ### Built-in presets
 
@@ -252,16 +298,21 @@ Ship with the app, no `lenses/` directory needed:
 
 - `Cmd+O` → `showOpenFilePicker()` → read content into editor
 - Auto-save on change (debounced ~1s) → write back to same file handle
-- New file: empty untitled document, first save triggers `showSaveFilePicker()`
+- **New file**: app opens with an empty untitled document. The first `Cmd+S` triggers `showSaveFilePicker()` to choose location and filename. After that, auto-save takes over.
+- **Switching files**: `Cmd+O` while a file is open replaces the current document. All active lens conversations reset (they start fresh with the new document context).
 - Filename displayed in top bar
-- Fallback for unsupported browsers: download/upload pattern
+- **Fallback** (Firefox, Safari): no File System Access API. The editor works in-memory. "Open" uses a standard `<input type="file">`. "Save" triggers a `.md` download. Auto-save is disabled — top bar shows a "download to save" hint. The writing and lens experience is otherwise identical.
 
 ### PWA configuration
 
 - `display: standalone` — no browser chrome
 - Service worker caches app shell for offline launch
 - Register `.md` file handler in manifest
-- Offline: editor works fully offline, lens features require network
+- **Offline**: editor works fully offline. Lens bubbles show "offline" state (dimmed, no interaction). When connection restores, lenses resume automatically.
+
+### Distribution model
+
+Loupe is a **local web app** that uses PWA features for polish. The Bun server must be running for lenses to work (it manages AI sessions). The PWA manifest provides: standalone display (no browser chrome), app shell caching (fast reload), and `.md` file handler registration. It is not a hosted SaaS — the user runs `loupe` locally.
 
 ### CLI entry
 
