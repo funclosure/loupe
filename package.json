@@ -1,0 +1,40 @@
+{
+  "name": "loupe",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/bun": "latest",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "autoprefixer": "^10.4.27",
+    "jsdom": "^29.0.1",
+    "postcss": "^8.5.8",
+    "tailwindcss": "^4.2.2",
+    "vite": "^8.0.3",
+    "vite-plugin-pwa": "^1.2.0",
+    "vitest": "^4.1.2"
+  },
+  "peerDependencies": {
+    "typescript": "^6.0.2"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
+    "@milkdown/core": "^7.19.2",
+    "@milkdown/ctx": "^7.19.2",
+    "@milkdown/kit": "^7.19.2",
+    "@milkdown/plugin-listener": "^7.19.2",
+    "@milkdown/preset-commonmark": "^7.19.2",
+    "@milkdown/theme-nord": "^7.19.2",
+    "nanoid": "^5.1.7",
+    "prosemirror-model": "^1.25.4",
+    "prosemirror-state": "^1.4.4",
+    "prosemirror-view": "^1.41.7",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  }
+}
