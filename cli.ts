@@ -1,3 +1,4 @@
+#!/usr/bin/env bun
 import { startServer } from "./src/server/index";
 
 const args = process.argv.slice(2);
