@@ -363,25 +363,21 @@ body {
   cursor: grabbing;
 }
 
-/* Tail — behind circle, points upper-right */
+/* Tail — rounded shape behind circle, upper-right point */
 .loupe-bubble-tail {
   position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 46px;
-  height: 46px;
-  border-radius: 50% 10px 50% 50%;
+  inset: -3px;
+  border-radius: 44% 44% 44% 44% / 44% 28% 44% 44%;
   pointer-events: none;
+  transform: rotate(0deg);
 }
 
-/* Circle — main body */
+/* Circle — main body, centered */
 .loupe-bubble-circle {
   position: relative;
   z-index: 1;
   width: 40px;
   height: 40px;
-  left: 0;
-  top: 2px;
   border-radius: 50%;
   display: flex;
   align-items: center;

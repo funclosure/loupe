@@ -45,24 +45,15 @@ export function useLensDrag({
       const view = editorRef.current?.getEditorView();
       if (!view) return null;
 
-      const posInfo = view.posAtCoords({ left: x, top: y });
-      if (!posInfo) return null;
+      // Use DOM hit-testing — more reliable than posAtCoords for drag-over
+      const el = document.elementFromPoint(x, y);
+      if (!el) return null;
 
-      const pos = posInfo.inside >= 0 ? posInfo.inside : posInfo.pos;
-      const resolved = view.state.doc.resolve(pos);
+      // Walk up to find the nearest block-level element within the editor
+      const block = el.closest("p, h1, h2, h3, h4, h5, h6, li, blockquote, pre");
+      if (!block || !view.dom.contains(block)) return null;
 
-      // Walk up depth to find block-level node
-      for (let depth = resolved.depth; depth >= 1; depth--) {
-        const node = resolved.node(depth);
-        if (node.isBlock) {
-          const nodePos = resolved.before(depth);
-          const dom = view.nodeDOM(nodePos);
-          if (dom instanceof HTMLElement) {
-            return { element: dom, text: node.textContent };
-          }
-        }
-      }
-      return null;
+      return { element: block as HTMLElement, text: block.textContent || "" };
     },
     [editorRef]
   );
