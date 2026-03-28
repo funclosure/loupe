@@ -13,7 +13,7 @@ export function Editor({ defaultValue, onChange, editorRef }: EditorProps) {
   const instanceRef = useRef<MilkdownInstance | null>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
-  const [isEmpty, setIsEmpty] = useState(true);
+  const [isEmpty, setIsEmpty] = useState(!defaultValue);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -22,13 +22,11 @@ export function Editor({ defaultValue, onChange, editorRef }: EditorProps) {
     let initialized = false;
 
     createEditor(containerRef.current, defaultValue, (md: string) => {
-      // Skip the initial markdownUpdated call from Milkdown setup
       if (!initialized) {
         initialized = true;
-        if (!defaultValue) return; // Don't fire onChange for empty init
+        if (!defaultValue) return;
       }
       onChangeRef.current(md);
-      // Milkdown emits "\n" for empty docs
       setIsEmpty(!md || md.replace(/\s/g, "") === "");
     }).then(
       (instance) => {
@@ -48,6 +46,17 @@ export function Editor({ defaultValue, onChange, editorRef }: EditorProps) {
       if (editorRef) editorRef.current = null;
     };
   }, []);
+
+  // Hide placeholder instantly on first input — don't wait for markdownUpdated
+  useEffect(() => {
+    if (!isEmpty) return;
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const hideOnInput = () => setIsEmpty(false);
+    wrapper.addEventListener("keydown", hideOnInput, { once: true });
+    return () => wrapper.removeEventListener("keydown", hideOnInput);
+  }, [isEmpty]);
 
   // Click anywhere to focus the editor
   const handleClick = useCallback(() => {

@@ -9,10 +9,10 @@
 :root {
   --loupe-bg: #1a1a1f;
   --loupe-surface: #232329;
-  --loupe-border: rgba(255, 255, 255, 0.06);
-  --loupe-text: #d4d4d8;
-  --loupe-text-muted: #71717a;
-  --loupe-text-dim: #3f3f46;
+  --loupe-border: rgba(255, 255, 255, 0.08);
+  --loupe-text: #e4e4e7;
+  --loupe-text-muted: #a1a1aa;
+  --loupe-text-dim: #52525b;
   --loupe-chrome-bg: #232329;
   --loupe-save-color: #52525b;
   --loupe-editor-font: Georgia, "Times New Roman", serif;
