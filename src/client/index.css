@@ -363,14 +363,14 @@ body {
   cursor: grabbing;
 }
 
-/* Tail — behind circle, points left */
+/* Tail — behind circle, points upper-right */
 .loupe-bubble-tail {
   position: absolute;
-  top: -2px;
-  left: -8px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50% 50% 50% 10px;
+  top: -6px;
+  right: -6px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50% 10px 50% 50%;
   pointer-events: none;
 }
 
@@ -380,8 +380,8 @@ body {
   z-index: 1;
   width: 40px;
   height: 40px;
-  left: 2px;
-  top: 0;
+  left: 0;
+  top: 2px;
   border-radius: 50%;
   display: flex;
   align-items: center;

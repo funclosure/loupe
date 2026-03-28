@@ -131,7 +131,7 @@ export function useLensDrag({
         }
       };
 
-      const onUp = () => {
+      const onUp = (ue: PointerEvent) => {
         document.body.style.userSelect = "";
         if (editorDom) {
           editorDom.removeEventListener("dragover", suppressDrag);
@@ -144,27 +144,27 @@ export function useLensDrag({
         isDraggingRef.current = false;
         startPosRef.current = null;
 
-        // Clear highlight styling
+        // Clear any active highlight
         if (highlightRef.current) {
-          const el = highlightRef.current.element;
-          const text = highlightRef.current.text;
-          el.style.borderLeft = "";
-          el.style.background = "";
+          highlightRef.current.element.style.borderLeft = "";
+          highlightRef.current.element.style.background = "";
+          highlightRef.current = null;
+        }
 
-          // If we were dragging and have a valid target, trigger focus
-          if (wasDragging && text.trim().length >= 10) {
-            // Leave a fading accent
-            el.style.borderLeft = `2px solid ${def.color}40`;
-            el.style.transition = "border-left-color 2s";
+        // Resolve block at drop position and trigger focus
+        if (wasDragging) {
+          const block = resolveBlock(ue.clientX, ue.clientY);
+          if (block && block.text.trim().length >= 10) {
+            // Leave a fading accent on the dropped block
+            block.element.style.borderLeft = `2px solid ${def.color}40`;
+            block.element.style.transition = "border-left-color 2s";
             setTimeout(() => {
-              el.style.borderLeft = "";
-              el.style.transition = "";
+              block.element.style.borderLeft = "";
+              block.element.style.transition = "";
             }, 2000);
 
-            onFocus(lensId, text, versionRef.current);
+            onFocus(lensId, block.text, versionRef.current);
           }
-
-          highlightRef.current = null;
         }
 
         dragRef.current = null;
