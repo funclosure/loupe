@@ -351,6 +351,115 @@ body {
   50% { opacity: 0.5; }
 }
 
+/* -- Loupe bubble ------------------------------------------- */
+.loupe-bubble {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  cursor: grab;
+}
+
+.loupe-bubble:active {
+  cursor: grabbing;
+}
+
+/* Tail — behind circle, points left */
+.loupe-bubble-tail {
+  position: absolute;
+  top: -2px;
+  left: -8px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50% 50% 50% 10px;
+  pointer-events: none;
+}
+
+/* Circle — main body */
+.loupe-bubble-circle {
+  position: relative;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  left: 2px;
+  top: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* Thinking pulse on bubble */
+.loupe-bubble.thinking .loupe-bubble-circle {
+  animation: loupe-pulse 1.5s ease-in-out infinite;
+}
+
+.loupe-bubble.thinking .loupe-bubble-tail {
+  animation: loupe-pulse 1.5s ease-in-out infinite;
+}
+
+/* Dismiss button — appears on hover */
+.loupe-bubble-dismiss {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  z-index: 2;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: var(--loupe-surface);
+  color: var(--loupe-text-tertiary);
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loupe-bubble-wrap:hover .loupe-bubble-dismiss {
+  opacity: 0.6;
+}
+
+.loupe-bubble-dismiss:hover {
+  opacity: 1 !important;
+  background: var(--loupe-elevated);
+}
+
+/* Name label — appears on hover */
+.loupe-bubble-name {
+  font-size: 11px;
+  color: var(--loupe-text-tertiary);
+  opacity: 0;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.loupe-bubble-wrap:hover .loupe-bubble-name {
+  opacity: 0.6;
+}
+
+/* Preview snippet */
+.loupe-bubble-preview {
+  background: var(--loupe-surface);
+  border-radius: 10px;
+  padding: 8px 12px;
+  max-width: 220px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--loupe-text-secondary);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.loupe-bubble-preview:hover {
+  opacity: 0.8;
+}
+
 /* -- Code block — enhanced with Shiki highlighting ---------- */
 .loupe-code-block {
   position: relative;
