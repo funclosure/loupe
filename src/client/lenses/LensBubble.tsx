@@ -17,46 +17,50 @@ export function LensBubble({
   onDismiss,
 }: LensBubbleProps) {
   return (
-    <div className="flex flex-col items-end gap-1.5 max-w-[240px] group">
+    <div className="flex flex-col items-end gap-2 max-w-[260px] group">
       {/* Avatar row */}
       <div className="flex items-center gap-2">
-        <span className="text-[10px] opacity-70" style={{ color: definition.color }}>
+        <span
+          className="text-[11px] opacity-0 group-hover:opacity-60 transition-opacity"
+          style={{ color: "var(--loupe-text-tertiary)" }}
+        >
           {definition.name}
         </span>
         <button
           onClick={onClick}
-          className="w-8 h-8 rounded-full flex items-center justify-center text-sm
+          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold
                      transition-all cursor-pointer"
           style={{
-            background: `${definition.color}22`,
-            border: `1.5px solid ${definition.color}55`,
+            background: `${definition.color}18`,
+            border: `1.5px solid ${definition.color}40`,
             color: definition.color,
             boxShadow: status === "thinking"
-              ? `0 0 12px ${definition.color}40`
+              ? `0 0 16px ${definition.color}30`
               : "none",
-            animation: status === "thinking" ? "pulse 2s infinite" : "none",
+            animation: status === "thinking" ? "loupe-pulse 1.5s ease-in-out infinite" : "none",
           }}
         >
           {definition.icon}
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); onDismiss(); }}
-          className="opacity-0 group-hover:opacity-60 text-xs transition-opacity cursor-pointer"
-          style={{ color: "var(--loupe-text-muted)" }}
+          className="w-4 opacity-0 group-hover:opacity-40 hover:!opacity-80
+                     text-xs transition-opacity cursor-pointer"
+          style={{ color: "var(--loupe-text-tertiary)" }}
         >
           &times;
         </button>
       </div>
 
-      {/* Preview bubble */}
+      {/* Preview */}
       {preview && status === "idle" && (
         <button
           onClick={onClick}
-          className="text-left rounded-xl px-3 py-2 text-[13px] leading-relaxed cursor-pointer
-                     transition-opacity hover:opacity-90 max-w-full"
+          className="text-left rounded-lg px-3 py-2 text-[13px] leading-[1.6] cursor-pointer
+                     transition-opacity hover:opacity-80 max-w-full"
           style={{
-            background: `${definition.color}10`,
-            borderLeft: `2px solid ${definition.color}50`,
+            background: "var(--loupe-surface)",
+            borderLeft: `2px solid ${definition.color}`,
             color: "var(--loupe-text)",
           }}
         >
@@ -64,34 +68,31 @@ export function LensBubble({
         </button>
       )}
 
-      {/* Thinking indicator */}
+      {/* Thinking */}
       {status === "thinking" && (
         <div
-          className="rounded-xl px-3 py-2 text-[9px] uppercase tracking-wider"
+          className="rounded-lg px-3 py-1.5 text-[11px] uppercase tracking-[0.1em]"
           style={{
-            background: `${definition.color}12`,
-            border: `1px solid ${definition.color}20`,
             color: definition.color,
+            animation: "loupe-pulse 1.5s ease-in-out infinite",
           }}
         >
           thinking...
         </div>
       )}
 
-      {/* Error state */}
+      {/* Error */}
       {status === "error" && (
         <button
           onClick={onClick}
-          className="text-left rounded-xl px-3 py-2 text-xs leading-relaxed cursor-pointer
-                     transition-opacity hover:opacity-90 max-w-full"
+          className="text-left rounded-lg px-3 py-2 text-[13px] leading-relaxed cursor-pointer max-w-full"
           style={{
-            background: "rgba(220, 38, 38, 0.08)",
-            border: "1px solid rgba(220, 38, 38, 0.25)",
-            color: "rgba(220, 38, 38, 0.85)",
+            background: "rgba(220, 38, 38, 0.06)",
+            borderLeft: "2px solid rgba(220, 38, 38, 0.5)",
+            color: "var(--loupe-text-secondary)",
           }}
         >
-          <span className="block mb-1 text-[10px] uppercase tracking-wider opacity-70">error</span>
-          <span>Something went wrong — click to retry</span>
+          Something went wrong — click to retry
         </button>
       )}
     </div>
