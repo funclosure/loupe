@@ -10,6 +10,7 @@ interface LensState {
   messages: { role: "user" | "lens"; content: string }[];
   streamingContent: string;
   expanded: boolean;
+  seen: boolean;
 }
 
 interface LensLayerProps {
@@ -58,7 +59,7 @@ export function LensLayer({
                 lensId={lensId}
                 definition={def}
                 status={state.status}
-                preview={state.preview}
+                preview={state.seen ? null : state.preview}
                 onClick={() => onToggleExpanded(lensId)}
                 onDismiss={() => onDismiss(lensId)}
                 onDragStart={(e) => onBubbleDragStart?.(lensId, e)}

@@ -5,6 +5,7 @@ interface LensUIState extends ActiveLens {
   messages: ChatMessage[];
   streamingContent: string;
   expanded: boolean;
+  seen: boolean; // true after user has expanded and seen the latest response
 }
 
 /**
@@ -71,6 +72,7 @@ export function useLenses() {
               messages: [],
               streamingContent: "",
               expanded: false,
+            seen: false,
             });
           }
         }
@@ -166,6 +168,9 @@ export function useLenses() {
                 if (fullText) {
                   lens.messages = [...lens.messages, { role: "lens", content: fullText }];
                   lens.preview = fullText.slice(0, 120);
+                  // If user is watching the chat, mark as seen immediately
+                  if (lens.expanded) lens.seen = true;
+                  else lens.seen = false;
                 }
                 lens.streamingContent = "";
                 lens.status = "idle";
@@ -277,6 +282,7 @@ export function useLenses() {
         for (const [id, l] of next) {
           if (id !== lensId && l.expanded) l.expanded = false;
         }
+        lens.seen = true; // User has viewed the chat
       }
       lens.expanded = willExpand;
       return next;

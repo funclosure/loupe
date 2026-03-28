@@ -393,17 +393,20 @@ body {
   border-radius: 50%;
 }
 
-/* Name label — appears on hover */
+/* Name label — pill with background, appears on hover */
 .loupe-bubble-name {
   font-size: 11px;
-  color: var(--loupe-text-tertiary);
+  color: var(--loupe-text-secondary);
+  background: var(--loupe-surface);
+  padding: 3px 10px;
+  border-radius: 8px;
   opacity: 0;
   transition: opacity 0.15s;
   white-space: nowrap;
 }
 
 .loupe-bubble-wrap:hover .loupe-bubble-name {
-  opacity: 0.6;
+  opacity: 1;
 }
 
 /* -- Lens chat — warm glass --------------------------------- */
