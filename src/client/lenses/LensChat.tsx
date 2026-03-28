@@ -1,6 +1,21 @@
 import { useState, useRef, useEffect } from "react";
 import type { LensDefinition, ChatMessage } from "@shared/types";
 
+/**
+ * Minimal inline markdown: **bold**, *italic*, `code`, line breaks.
+ * No block-level parsing — just enough for lens chat.
+ */
+function renderInlineMarkdown(text: string) {
+  const html = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/`(.+?)`/g, '<code style="background:var(--loupe-surface);padding:1px 5px;border-radius:3px;font-size:12px">$1</code>')
+    .replace(/\n/g, "<br/>");
+  return <span dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
 interface LensChatProps {
   lensId: string;
   definition: LensDefinition;
@@ -41,15 +56,9 @@ export function LensChat({
     setInput("");
   };
 
-  const lensMessageStyle = {
-    color: "var(--loupe-text)",
-    borderLeft: `2px solid ${definition.color}`,
-    background: "var(--loupe-surface)",
-  };
-
   return (
     <div
-      className="w-[320px] rounded-lg overflow-hidden flex flex-col max-h-[480px]"
+      className="w-full rounded-lg overflow-hidden flex flex-col max-h-[70vh]"
       style={{
         background: "var(--loupe-elevated)",
         border: "1px solid var(--loupe-border-strong)",
@@ -68,10 +77,7 @@ export function LensChat({
           >
             {definition.icon}
           </span>
-          <span
-            className="text-[13px] font-medium"
-            style={{ color: "var(--loupe-text)" }}
-          >
+          <span className="text-[13px] font-medium" style={{ color: "var(--loupe-text)" }}>
             {definition.name}
           </span>
         </div>
@@ -102,9 +108,13 @@ export function LensChat({
             ) : (
               <div
                 className="text-[13px] leading-[1.7] rounded-lg px-3 py-2"
-                style={lensMessageStyle}
+                style={{
+                  color: "var(--loupe-text)",
+                  borderLeft: `2px solid ${definition.color}`,
+                  background: "var(--loupe-surface)",
+                }}
               >
-                {msg.content}
+                {renderInlineMarkdown(msg.content)}
               </div>
             )}
           </div>
@@ -113,9 +123,13 @@ export function LensChat({
         {streamingContent && (
           <div
             className="text-[13px] leading-[1.7] rounded-lg px-3 py-2"
-            style={lensMessageStyle}
+            style={{
+              color: "var(--loupe-text)",
+              borderLeft: `2px solid ${definition.color}`,
+              background: "var(--loupe-surface)",
+            }}
           >
-            {streamingContent}
+            {renderInlineMarkdown(streamingContent)}
           </div>
         )}
 
