@@ -42,7 +42,7 @@ export function LoupeIcon({ size, color, icon, glow, className, style }: LoupeIc
           background: `${color}35`,
         }}
       />
-      {/* Inner shape — circle */}
+      {/* Inner shape — circle with dark base for contrast */}
       <div
         style={{
           position: "absolute",
@@ -51,14 +51,16 @@ export function LoupeIcon({ size, color, icon, glow, className, style }: LoupeIc
           width: inner,
           height: inner,
           borderRadius: "50%",
-          background: `${color}28`,
+          background: `linear-gradient(135deg, ${color}30, ${color}18)`,
+          boxShadow: glow
+            ? `0 0 ${size * 0.5}px ${color}25, inset 0 0 ${size * 0.3}px rgba(0,0,0,0.3)`
+            : `inset 0 0 ${size * 0.3}px rgba(0,0,0,0.25)`,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           fontSize,
           fontWeight: 600,
-          color: `${color}99`,
-          boxShadow: glow ? `0 0 ${size * 0.5}px ${color}25` : "none",
+          color: `${color}cc`,
         }}
       >
         {icon}
