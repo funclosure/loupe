@@ -1,3 +1,4 @@
+import Markdown from "react-markdown";
 import type { LensDefinition, LensStatus } from "@shared/types";
 
 interface LensBubbleProps {
@@ -56,15 +57,28 @@ export function LensBubble({
       {preview && status === "idle" && (
         <button
           onClick={onClick}
-          className="text-left rounded-lg px-3 py-2 text-[13px] leading-[1.6] cursor-pointer
+          className="text-left rounded-lg px-3 py-2.5 text-[12px] leading-[1.6] cursor-pointer
                      transition-opacity hover:opacity-80 max-w-full"
           style={{
             background: "var(--loupe-surface)",
-            borderLeft: `2px solid ${definition.color}`,
-            color: "var(--loupe-text)",
+            color: "var(--loupe-text-secondary)",
           }}
         >
-          {preview.length > 100 ? preview.slice(0, 100) + "..." : preview}
+          <Markdown className="lens-markdown" components={{
+            // Strip block-level elements to keep preview compact
+            p: ({ children }) => <span>{children} </span>,
+            h1: ({ children }) => <span>{children} </span>,
+            h2: ({ children }) => <span>{children} </span>,
+            h3: ({ children }) => <span>{children} </span>,
+            ul: ({ children }) => <span>{children}</span>,
+            ol: ({ children }) => <span>{children}</span>,
+            li: ({ children }) => <span>{children} </span>,
+            blockquote: ({ children }) => <span>{children}</span>,
+            pre: () => null,
+            hr: () => null,
+          }}>
+            {preview.length > 120 ? preview.slice(0, 120) + "..." : preview}
+          </Markdown>
         </button>
       )}
 
@@ -88,7 +102,6 @@ export function LensBubble({
           className="text-left rounded-lg px-3 py-2 text-[13px] leading-relaxed cursor-pointer max-w-full"
           style={{
             background: "rgba(220, 38, 38, 0.06)",
-            borderLeft: "2px solid rgba(220, 38, 38, 0.5)",
             color: "var(--loupe-text-secondary)",
           }}
         >
