@@ -132,5 +132,5 @@ export function useFile(): UseFileReturn {
     };
   }, []);
 
-  return { filename, initialContent, saveState, openFile, saveFileAs, updateContent, isSupported };
+  return { filename, initialContent, saveState, openFile, saveFileAs, updateContent, persistFilename, isSupported };
 }

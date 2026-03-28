@@ -13,7 +13,7 @@ export function App() {
   const versionRef = useRef(0);
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { filename, initialContent, saveState, openFile, saveFileAs, updateContent } = useFile();
+  const { filename, initialContent, saveState, openFile, saveFileAs, updateContent, persistFilename } = useFile();
   const { zenMode } = useZenMode();
   const lens = useLenses();
 
@@ -26,17 +26,27 @@ export function App() {
     const filePath = params.get("file");
     if (!filePath) return;
 
+    // Clear query param immediately so refresh uses localStorage
+    window.history.replaceState({}, "", "/");
+
     fetch(`/api/file?path=${encodeURIComponent(filePath)}`)
       .then((r) => r.json())
       .then((data) => {
-        if (data.content && editorRef.current) {
-          editorRef.current.setMarkdown(data.content);
-          updateContent(data.content);
+        if (!data.content) return;
+        updateContent(data.content);
+        if (data.filename) persistFilename(data.filename);
+
+        // Wait for editor to mount, then load content
+        function tryLoad() {
+          if (editorRef.current) {
+            editorRef.current.setMarkdown(data.content);
+          } else {
+            setTimeout(tryLoad, 100);
+          }
         }
+        tryLoad();
       })
       .catch(() => {});
-    // Clear the query param so refresh doesn't re-load over localStorage
-    window.history.replaceState({}, "", "/");
   }, []);
 
   // Sync document to server (debounced)
