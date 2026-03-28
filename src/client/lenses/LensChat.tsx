@@ -1,20 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import Markdown from "react-markdown";
 import type { LensDefinition, ChatMessage } from "@shared/types";
-
-/**
- * Minimal inline markdown: **bold**, *italic*, `code`, line breaks.
- * No block-level parsing — just enough for lens chat.
- */
-function renderInlineMarkdown(text: string) {
-  const html = text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>")
-    .replace(/`(.+?)`/g, '<code style="background:var(--loupe-surface);padding:1px 5px;border-radius:3px;font-size:12px">$1</code>')
-    .replace(/\n/g, "<br/>");
-  return <span dangerouslySetInnerHTML={{ __html: html }} />;
-}
 
 interface LensChatProps {
   lensId: string;
@@ -27,6 +13,21 @@ interface LensChatProps {
   onRethink: () => void;
   onReset: () => void;
   onClose: () => void;
+}
+
+function LensMessage({ content, color }: { content: string; color: string }) {
+  return (
+    <div
+      className="text-[13px] leading-[1.7] rounded-lg px-3 py-2"
+      style={{
+        color: "var(--loupe-text)",
+        borderLeft: `2px solid ${color}`,
+        background: "var(--loupe-surface)",
+      }}
+    >
+      <Markdown className="lens-markdown">{content}</Markdown>
+    </div>
+  );
 }
 
 export function LensChat({
@@ -62,7 +63,7 @@ export function LensChat({
       style={{
         background: "var(--loupe-elevated)",
         border: "1px solid var(--loupe-border-strong)",
-        boxShadow: "0 12px 40px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)",
+        boxShadow: "0 12px 40px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2)",
       }}
     >
       {/* Header */}
@@ -106,31 +107,13 @@ export function LensChat({
                 {msg.content}
               </div>
             ) : (
-              <div
-                className="text-[13px] leading-[1.7] rounded-lg px-3 py-2"
-                style={{
-                  color: "var(--loupe-text)",
-                  borderLeft: `2px solid ${definition.color}`,
-                  background: "var(--loupe-surface)",
-                }}
-              >
-                {renderInlineMarkdown(msg.content)}
-              </div>
+              <LensMessage content={msg.content} color={definition.color} />
             )}
           </div>
         ))}
 
         {streamingContent && (
-          <div
-            className="text-[13px] leading-[1.7] rounded-lg px-3 py-2"
-            style={{
-              color: "var(--loupe-text)",
-              borderLeft: `2px solid ${definition.color}`,
-              background: "var(--loupe-surface)",
-            }}
-          >
-            {renderInlineMarkdown(streamingContent)}
-          </div>
+          <LensMessage content={streamingContent} color={definition.color} />
         )}
 
         {isThinking && !streamingContent && (
@@ -181,7 +164,7 @@ export function LensChat({
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask this lens..."
           disabled={isThinking}
-          className="w-full text-[13px] bg-transparent outline-none"
+          className="w-full text-[13px] bg-transparent outline-none placeholder:opacity-30"
           style={{
             color: "var(--loupe-text)",
             caretColor: definition.color,
