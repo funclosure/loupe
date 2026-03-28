@@ -408,16 +408,24 @@ body {
 
 /* -- Lens chat — warm glass --------------------------------- */
 .loupe-chat {
-  background: rgba(30, 28, 26, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 245, 230, 0.06);
+  background: #232120;
+  border: 1px solid rgba(255, 245, 230, 0.08);
   border-radius: 14px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   max-height: 70vh;
+}
+
+/* When rendered as a fixed side panel */
+.loupe-chat-fixed {
+  position: fixed;
+  right: 1rem;
+  top: 3.5rem;
+  width: 340px;
+  max-width: 40vw;
+  z-index: 20;
 }
 
 .loupe-chat-header {
