@@ -201,26 +201,16 @@ body {
   border: 1px solid var(--loupe-border-strong) !important;
 }
 
-/* Code block — clean, flat, no chrome */
+/* Code block — Shuttle-inspired: subtle border, clean bg */
 .loupe-editor div[contenteditable="true"] pre {
-  background: var(--loupe-elevated) !important;
+  background: #1e1c1a !important;
   padding: 20px 24px !important;
-  border-radius: 6px !important;
+  border-radius: 8px !important;
   margin: 4px 0 24px 0 !important;
   overflow-x: auto;
-  border: none !important;
+  border: 1px solid rgba(255, 245, 230, 0.06) !important;
   outline: none !important;
   box-shadow: none !important;
-}
-
-/* Kill any Milkdown wrapper borders on code blocks */
-.loupe-editor div[contenteditable="true"] .code-block,
-.loupe-editor div[contenteditable="true"] [data-type="code_block"],
-.loupe-editor div[contenteditable="true"] .milkdown-code-block {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
 }
 
 .loupe-editor div[contenteditable="true"] pre code {
@@ -229,7 +219,28 @@ body {
   border: none !important;
   font-size: 14px !important;
   line-height: 1.6 !important;
-  color: var(--loupe-text-secondary) !important;
+  color: #b8b0a8 !important;
+}
+
+/* Nuke ALL Milkdown wrapper styling on code blocks and their parents.
+   Milkdown wraps code blocks in divs with borders/outlines from the nord theme. */
+.loupe-editor [class*="code"],
+.loupe-editor [data-type*="code"],
+.loupe-editor .milkdown > div > div {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Be more aggressive — any direct child div of ProseMirror that contains a pre */
+.loupe-editor div[contenteditable="true"] > div:has(> pre) {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
 }
 
 .loupe-editor div[contenteditable="true"] a {
