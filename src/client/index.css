@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+:root {
+  --loupe-bg: #1a1a1f;
+  --loupe-surface: #232329;
+  --loupe-border: rgba(255, 255, 255, 0.06);
+  --loupe-text: #d4d4d8;
+  --loupe-text-muted: #71717a;
+  --loupe-text-dim: #3f3f46;
+  --loupe-chrome-bg: #232329;
+  --loupe-chrome-opacity: 1;
+  --loupe-save-color: #52525b;
+  --loupe-editor-font: Georgia, "Times New Roman", serif;
+  --loupe-editor-max-width: 720px;
+  --loupe-fade-duration: 0.3s;
+}
+
+.light {
+  --loupe-bg: #fafafa;
+  --loupe-surface: #f5f5f5;
+  --loupe-border: rgba(0, 0, 0, 0.06);
+  --loupe-text: #27272a;
+  --loupe-text-muted: #71717a;
+  --loupe-text-dim: #d4d4d8;
+  --loupe-chrome-bg: #f5f5f5;
+  --loupe-save-color: #a1a1aa;
+}
+
+.zen .chrome {
+  opacity: 0;
+  transition: opacity var(--loupe-fade-duration) ease;
+}
+.zen .chrome:hover {
+  opacity: 1;
+}
+
+body {
+  background: var(--loupe-bg);
+  color: var(--loupe-text);
+  font-family: system-ui, -apple-system, sans-serif;
+  margin: 0;
+  overflow: hidden;
+  height: 100vh;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-surface {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  padding: 48px 24px;
+}
+
+.editor-column {
+  width: 100%;
+  max-width: var(--loupe-editor-max-width);
+  font-family: var(--loupe-editor-font);
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.editor-column .milkdown {
+  outline: none;
+}
+
+.editor-column .milkdown h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: var(--loupe-text);
+}
+
+.editor-column .milkdown h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 32px;
+  margin-bottom: 16px;
+}
+
+.editor-column .milkdown p {
+  margin-bottom: 16px;
+  color: var(--loupe-text);
+}
+
+.editor-column .milkdown blockquote {
+  border-left: 2px solid var(--loupe-border);
+  padding-left: 16px;
+  color: var(--loupe-text-muted);
+}
+
+.editor-surface::-webkit-scrollbar {
+  width: 6px;
+}
+.editor-surface::-webkit-scrollbar-track {
+  background: transparent;
+}
+.editor-surface::-webkit-scrollbar-thumb {
+  background: var(--loupe-text-dim);
+  border-radius: 3px;
+}
