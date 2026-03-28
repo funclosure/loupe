@@ -59,6 +59,24 @@ export function useLenses() {
     const res = await fetch("/api/lenses");
     const data = await res.json();
     setAvailable(data.available);
+
+    // Restore active lenses from server (survives browser refresh)
+    if (data.active?.length) {
+      setLenses((prev) => {
+        const next = new Map(prev);
+        for (const active of data.active) {
+          if (!next.has(active.lensId)) {
+            next.set(active.lensId, {
+              ...active,
+              messages: [],
+              streamingContent: "",
+              expanded: false,
+            });
+          }
+        }
+        return next;
+      });
+    }
   }, []);
 
   const activate = useCallback(async (definitionId: string) => {
