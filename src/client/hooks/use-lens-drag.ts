@@ -45,8 +45,15 @@ export function useLensDrag({
       const view = editorRef.current?.getEditorView();
       if (!view) return null;
 
-      // Use DOM hit-testing — more reliable than posAtCoords for drag-over
+      // Hide drag overlay during hit-test — elementFromPoint ignores
+      // pointer-events:none and would return the overlay element
+      const overlay = document.querySelector(".loupe-drag-overlay") as HTMLElement | null;
+      if (overlay) overlay.style.display = "none";
+
       const el = document.elementFromPoint(x, y);
+
+      if (overlay) overlay.style.display = "";
+
       if (!el) return null;
 
       // Walk up to find the nearest block-level element within the editor
@@ -106,10 +113,16 @@ export function useLensDrag({
             if (highlightRef.current) {
               highlightRef.current.element.style.borderLeft = "";
               highlightRef.current.element.style.background = "";
+              highlightRef.current.element.style.borderRadius = "";
+              highlightRef.current.element.style.paddingLeft = "";
+              highlightRef.current.element.style.transition = "";
             }
             // Apply new highlight
-            block.element.style.borderLeft = `3px solid ${def.color}80`;
-            block.element.style.background = `${def.color}08`;
+            block.element.style.borderLeft = `3px solid ${def.color}90`;
+            block.element.style.background = `${def.color}10`;
+            block.element.style.borderRadius = "0 4px 4px 0";
+            block.element.style.paddingLeft = "16px";
+            block.element.style.transition = "border-left 0.1s, background 0.1s, padding-left 0.1s";
             highlightRef.current = { ...block, color: def.color };
           }
         } else {
@@ -117,6 +130,9 @@ export function useLensDrag({
           if (highlightRef.current) {
             highlightRef.current.element.style.borderLeft = "";
             highlightRef.current.element.style.background = "";
+            highlightRef.current.element.style.borderRadius = "";
+            highlightRef.current.element.style.paddingLeft = "";
+            highlightRef.current.element.style.transition = "";
             highlightRef.current = null;
           }
         }
@@ -139,6 +155,9 @@ export function useLensDrag({
         if (highlightRef.current) {
           highlightRef.current.element.style.borderLeft = "";
           highlightRef.current.element.style.background = "";
+          highlightRef.current.element.style.borderRadius = "";
+          highlightRef.current.element.style.paddingLeft = "";
+          highlightRef.current.element.style.transition = "";
           highlightRef.current = null;
         }
 
