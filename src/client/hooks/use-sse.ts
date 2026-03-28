@@ -1,7 +1,14 @@
 import { useEffect, useRef } from "react";
 import type { SSEEvent } from "@shared/types";
 
-export function useSSE(onEvent: (event: SSEEvent | { type: "init"; active: any[] }) => void) {
+/**
+ * SSE hook that only connects when `enabled` is true.
+ * Pass `enabled={lensCount > 0}` to avoid connecting on empty pages.
+ */
+export function useSSE(
+  onEvent: (event: SSEEvent | { type: "init"; active: any[] }) => void,
+  enabled: boolean = true
+) {
   const onEventRef = useRef(onEvent);
   onEventRef.current = onEvent;
 
@@ -10,10 +17,11 @@ export function useSSE(onEvent: (event: SSEEvent | { type: "init"; active: any[]
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const maxRetries = 10;
+    if (!enabled) return;
+
+    const maxRetries = 5;
 
     function connect() {
-      // Clean up any pending retry
       if (retryTimerRef.current) {
         clearTimeout(retryTimerRef.current);
         retryTimerRef.current = null;
@@ -36,10 +44,11 @@ export function useSSE(onEvent: (event: SSEEvent | { type: "init"; active: any[]
         eventSourceRef.current = null;
 
         if (retriesRef.current < maxRetries) {
-          const delay = Math.min(1000 * 2 ** retriesRef.current, 30000);
+          const delay = Math.min(2000 * 2 ** retriesRef.current, 30000);
           retriesRef.current++;
           retryTimerRef.current = setTimeout(connect, delay);
         }
+        // After maxRetries, stop silently. User can refresh page.
       };
 
       eventSourceRef.current = es;
@@ -51,6 +60,7 @@ export function useSSE(onEvent: (event: SSEEvent | { type: "init"; active: any[]
       if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
       eventSourceRef.current?.close();
       eventSourceRef.current = null;
+      retriesRef.current = 0;
     };
-  }, []); // Empty deps — connect once, use ref for callback
+  }, [enabled]);
 }

@@ -69,10 +69,12 @@ export function LensChat({
         </div>
         <button
           onClick={onClose}
-          className="text-xs opacity-60 hover:opacity-100 transition-opacity cursor-pointer"
+          className="w-6 h-6 flex items-center justify-center rounded-full
+                     opacity-60 hover:opacity-100 transition-opacity cursor-pointer
+                     hover:bg-white/5 text-sm leading-none"
           style={{ color: "var(--loupe-text-muted)" }}
         >
-          x
+          &times;
         </button>
       </div>
 

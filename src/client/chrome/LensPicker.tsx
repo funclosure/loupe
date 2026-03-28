@@ -32,10 +32,12 @@ export function LensPicker({ available, activeLensCount, onActivate, onClose }: 
           </h2>
           <button
             onClick={onClose}
-            className="text-sm opacity-60 hover:opacity-100 cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center rounded-full
+                       opacity-60 hover:opacity-100 cursor-pointer
+                       hover:bg-white/5 text-lg leading-none"
             style={{ color: "var(--loupe-text-muted)" }}
           >
-            esc
+            &times;
           </button>
         </div>
 

@@ -18,8 +18,8 @@ export function App() {
   const { zenMode } = useZenMode();
   const lens = useLenses();
 
-  // Connect SSE to lens state
-  useSSE(lens.handleSSEEvent);
+  // Connect SSE only when lenses are active (avoids error spam on empty page)
+  useSSE(lens.handleSSEEvent, lens.lenses.size > 0);
 
   // Fetch available lenses on mount
   useEffect(() => { lens.fetchLenses(); }, []);

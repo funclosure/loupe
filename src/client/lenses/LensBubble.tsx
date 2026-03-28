@@ -44,7 +44,7 @@ export function LensBubble({
           className="opacity-0 group-hover:opacity-60 text-xs transition-opacity cursor-pointer"
           style={{ color: "var(--loupe-text-muted)" }}
         >
-          x
+          &times;
         </button>
       </div>
 
