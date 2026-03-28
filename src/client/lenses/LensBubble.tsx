@@ -52,12 +52,12 @@ export function LensBubble({
       {preview && status === "idle" && (
         <button
           onClick={onClick}
-          className="text-left rounded-xl px-3 py-2 text-xs leading-relaxed cursor-pointer
+          className="text-left rounded-xl px-3 py-2 text-[13px] leading-relaxed cursor-pointer
                      transition-opacity hover:opacity-90 max-w-full"
           style={{
-            background: `${definition.color}12`,
-            border: `1px solid ${definition.color}20`,
-            color: `${definition.color}cc`,
+            background: `${definition.color}10`,
+            borderLeft: `2px solid ${definition.color}50`,
+            color: "var(--loupe-text)",
           }}
         >
           {preview.length > 100 ? preview.slice(0, 100) + "..." : preview}
