@@ -223,6 +223,18 @@ export function useLenses() {
 
   const focus = useCallback(
     async (lensId: string, paragraphText: string, version: number) => {
+      // Show focused text as a user message in the chat
+      setLenses((prev) => {
+        const next = new Map(prev);
+        const lens = next.get(lensId);
+        if (lens) {
+          const preview = paragraphText.length > 100
+            ? paragraphText.slice(0, 100) + "..."
+            : paragraphText;
+          lens.messages = [...lens.messages, { role: "user", content: `🔍 ${preview}` }];
+        }
+        return next;
+      });
       await streamFromEndpoint(lensId, `/api/lens/${lensId}/focus`, {
         paragraphText,
         version,
