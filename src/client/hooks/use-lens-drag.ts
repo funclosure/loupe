@@ -111,28 +111,16 @@ export function useLensDrag({
           if (highlightRef.current?.element !== block.element) {
             // Clear old highlight
             if (highlightRef.current) {
-              highlightRef.current.element.style.borderLeft = "";
-              highlightRef.current.element.style.background = "";
-              highlightRef.current.element.style.borderRadius = "";
-              highlightRef.current.element.style.paddingLeft = "";
-              highlightRef.current.element.style.transition = "";
+              highlightRef.current.element.classList.remove("loupe-drag-target");
             }
-            // Apply new highlight
-            block.element.style.borderLeft = `3px solid ${def.color}90`;
-            block.element.style.background = `${def.color}10`;
-            block.element.style.borderRadius = "0 4px 4px 0";
-            block.element.style.paddingLeft = "16px";
-            block.element.style.transition = "border-left 0.1s, background 0.1s, padding-left 0.1s";
+            // Apply new highlight via CSS class
+            block.element.style.setProperty("--loupe-drag-color", def.color);
+            block.element.classList.add("loupe-drag-target");
             highlightRef.current = { ...block, color: def.color };
           }
         } else {
-          // Clear highlight when not over valid block
           if (highlightRef.current) {
-            highlightRef.current.element.style.borderLeft = "";
-            highlightRef.current.element.style.background = "";
-            highlightRef.current.element.style.borderRadius = "";
-            highlightRef.current.element.style.paddingLeft = "";
-            highlightRef.current.element.style.transition = "";
+            highlightRef.current.element.classList.remove("loupe-drag-target");
             highlightRef.current = null;
           }
         }
@@ -153,11 +141,7 @@ export function useLensDrag({
 
         // Clear any active highlight
         if (highlightRef.current) {
-          highlightRef.current.element.style.borderLeft = "";
-          highlightRef.current.element.style.background = "";
-          highlightRef.current.element.style.borderRadius = "";
-          highlightRef.current.element.style.paddingLeft = "";
-          highlightRef.current.element.style.transition = "";
+          highlightRef.current.element.classList.remove("loupe-drag-target");
           highlightRef.current = null;
         }
 
@@ -165,21 +149,13 @@ export function useLensDrag({
         if (wasDragging) {
           const block = resolveBlock(ue.clientX, ue.clientY);
           if (block && block.text.trim().length >= 10) {
-            // Mark the focused paragraph with a visible accent
+            // Mark the focused paragraph with a fading accent
             const el = block.element;
-            el.style.borderLeft = `3px solid ${def.color}60`;
-            el.style.background = `${def.color}06`;
-            el.style.paddingLeft = "16px";
-            el.style.transition = "border-left-color 0.3s, background 0.3s";
-            el.dataset.lensFocused = lensId;
+            el.style.setProperty("--loupe-drag-color", def.color);
+            el.classList.add("loupe-drag-landed");
 
-            // Fade out after 4 seconds
             setTimeout(() => {
-              el.style.borderLeft = "";
-              el.style.background = "";
-              el.style.paddingLeft = "";
-              el.style.transition = "";
-              delete el.dataset.lensFocused;
+              el.classList.remove("loupe-drag-landed");
             }, 4000);
 
             onFocus(lensId, block.text, versionRef.current);

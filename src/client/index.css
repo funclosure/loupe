@@ -608,6 +608,22 @@ body {
   color: #b85c5c;
 }
 
+/* -- Drag highlight on paragraphs --------------------------- */
+.loupe-drag-target {
+  border-left: 3px solid var(--loupe-drag-color, #888) !important;
+  background: color-mix(in srgb, var(--loupe-drag-color, #888) 6%, transparent) !important;
+  border-radius: 0 4px 4px 0 !important;
+  padding-left: 16px !important;
+  transition: border-left 0.1s, background 0.1s, padding-left 0.1s;
+}
+
+.loupe-drag-landed {
+  border-left: 3px solid var(--loupe-drag-color, #888) !important;
+  background: color-mix(in srgb, var(--loupe-drag-color, #888) 4%, transparent) !important;
+  padding-left: 16px !important;
+  transition: border-left-color 3s, background 3s;
+}
+
 /* -- Drag overlay — floating loupe follows cursor ----------- */
 .loupe-drag-overlay {
   position: fixed;
