@@ -4,7 +4,7 @@ interface UseFileReturn {
   filename: string;
   content: string;
   saveState: "saved" | "saving" | "unsaved" | "unavailable";
-  openFile: () => Promise<void>;
+  openFile: () => Promise<string | null>;
   saveFileAs: () => Promise<void>;
   updateContent: (newContent: string) => void;
   isSupported: boolean;
@@ -39,24 +39,39 @@ export function useFile(): UseFileReturn {
     }, 1000);
   }, [writeToHandle]);
 
-  const openFile = useCallback(async () => {
+  const openFile = useCallback(async (): Promise<string | null> => {
     if (!isSupported) {
-      const input = document.createElement("input");
-      input.type = "file"; input.accept = ".md,.txt";
-      input.onchange = async () => {
-        const file = input.files?.[0]; if (!file) return;
-        const text = await file.text();
-        setFilename(file.name); setContent(text); latestContentRef.current = text;
-      };
-      input.click(); return;
+      return new Promise((resolve) => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".md,.txt";
+        input.onchange = async () => {
+          const file = input.files?.[0];
+          if (!file) { resolve(null); return; }
+          const text = await file.text();
+          setFilename(file.name);
+          setContent(text);
+          latestContentRef.current = text;
+          resolve(text);
+        };
+        input.click();
+      });
     }
     try {
-      const [handle] = await (window as any).showOpenFilePicker({ types: [{ description: "Markdown files", accept: { "text/markdown": [".md"], "text/plain": [".txt"] } }] });
+      const [handle] = await (window as any).showOpenFilePicker({
+        types: [{ description: "Markdown files", accept: { "text/markdown": [".md"], "text/plain": [".txt"] } }],
+      });
       fileHandleRef.current = handle;
       const file = await handle.getFile();
       const text = await file.text();
-      setFilename(file.name); setContent(text); latestContentRef.current = text; setSaveState("saved");
-    } catch { /* User cancelled */ }
+      setFilename(file.name);
+      setContent(text);
+      latestContentRef.current = text;
+      setSaveState("saved");
+      return text;
+    } catch {
+      return null; // User cancelled
+    }
   }, [isSupported]);
 
   const saveFileAs = useCallback(async () => {

@@ -7,13 +7,15 @@ import {
 import { commonmark } from "@milkdown/kit/preset/commonmark";
 import { listener, listenerCtx } from "@milkdown/kit/plugin/listener";
 import { trailing } from "@milkdown/kit/plugin/trailing";
-import { getMarkdown } from "@milkdown/kit/utils";
+import { clipboard } from "@milkdown/kit/plugin/clipboard";
+import { getMarkdown, replaceAll } from "@milkdown/kit/utils";
 import type { EditorView } from "@milkdown/kit/prose/view";
 
 export interface MilkdownInstance {
   editor: Editor;
   getMarkdown: () => string;
   getEditorView: () => EditorView;
+  setMarkdown: (md: string) => void;
   destroy: () => void;
 }
 
@@ -35,6 +37,7 @@ export async function createEditor(
     .use(commonmark)
     .use(listener)
     .use(trailing)
+    .use(clipboard)
     .create();
 
   // Milkdown injects theme classes (prose, milkdown-theme-nord) that fight
@@ -67,6 +70,7 @@ export async function createEditor(
     editor,
     getMarkdown: () => editor.action(getMarkdown()),
     getEditorView: () => editor.action((ctx) => ctx.get(editorViewCtx)),
+    setMarkdown: (md: string) => editor.action(replaceAll(md)),
     destroy: () => {
       observer.disconnect();
       editor.destroy();

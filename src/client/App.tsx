@@ -39,9 +39,12 @@ export function App() {
     syncToServer(markdown);
   }, [updateContent, syncToServer]);
 
-  // Reset lenses when opening a new file
+  // Open file and load content into editor
   const handleOpenFile = useCallback(async () => {
-    await openFile();
+    const text = await openFile();
+    if (text != null && editorRef.current) {
+      editorRef.current.setMarkdown(text);
+    }
     // Reset all active lens conversations for new document context
     for (const [lensId] of lens.lenses) {
       await lens.resetLens(lensId);
