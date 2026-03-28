@@ -146,13 +146,22 @@ export function useLensDrag({
         if (wasDragging) {
           const block = resolveBlock(ue.clientX, ue.clientY);
           if (block && block.text.trim().length >= 10) {
-            // Leave a fading accent on the dropped block
-            block.element.style.borderLeft = `2px solid ${def.color}40`;
-            block.element.style.transition = "border-left-color 2s";
+            // Mark the focused paragraph with a visible accent
+            const el = block.element;
+            el.style.borderLeft = `3px solid ${def.color}60`;
+            el.style.background = `${def.color}06`;
+            el.style.paddingLeft = "16px";
+            el.style.transition = "border-left-color 0.3s, background 0.3s";
+            el.dataset.lensFocused = lensId;
+
+            // Fade out after 4 seconds
             setTimeout(() => {
-              block.element.style.borderLeft = "";
-              block.element.style.transition = "";
-            }, 2000);
+              el.style.borderLeft = "";
+              el.style.background = "";
+              el.style.paddingLeft = "";
+              el.style.transition = "";
+              delete el.dataset.lensFocused;
+            }, 4000);
 
             onFocus(lensId, block.text, versionRef.current);
           }
