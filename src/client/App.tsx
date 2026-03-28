@@ -20,6 +20,25 @@ export function App() {
   // Fetch available lenses on mount
   useEffect(() => { lens.fetchLenses(); }, []);
 
+  // Load file from ?file= query param (CLI: `loupe sample.md`)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const filePath = params.get("file");
+    if (!filePath) return;
+
+    fetch(`/api/file?path=${encodeURIComponent(filePath)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.content && editorRef.current) {
+          editorRef.current.setMarkdown(data.content);
+          updateContent(data.content);
+        }
+      })
+      .catch(() => {});
+    // Clear the query param so refresh doesn't re-load over localStorage
+    window.history.replaceState({}, "", "/");
+  }, []);
+
   // Sync document to server (debounced)
   const syncToServer = useCallback((content: string) => {
     if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);

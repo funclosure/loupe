@@ -12,6 +12,20 @@ export class RouteHandler {
   async handle(req: Request): Promise<Response | null> {
     const url = new URL(req.url);
 
+    // Load file by path (for CLI `loupe file.md`)
+    if (url.pathname === "/api/file" && req.method === "GET") {
+      const filePath = url.searchParams.get("path");
+      if (!filePath) return Response.json({ error: "path required" }, { status: 400 });
+      try {
+        const resolved = require("path").resolve(filePath);
+        const text = await Bun.file(resolved).text();
+        const name = require("path").basename(resolved);
+        return Response.json({ content: text, filename: name });
+      } catch {
+        return Response.json({ error: "File not found" }, { status: 404 });
+      }
+    }
+
     // Document sync
     if (url.pathname === "/api/document" && req.method === "POST") {
       const body: DocumentSyncBody = await req.json();
