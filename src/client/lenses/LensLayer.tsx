@@ -18,9 +18,10 @@ interface LensLayerProps {
   onToggleExpanded: (lensId: string) => void;
   onDismiss: (lensId: string) => void;
   onAsk: (lensId: string, message: string) => void;
-  onFocus: (lensId: string) => void;
   onRethink: (lensId: string) => void;
   onReset: (lensId: string) => void;
+  onBubbleDragStart?: (lensId: string, e: React.PointerEvent) => void;
+  draggingLensId?: string | null;
 }
 
 export function LensLayer({
@@ -29,9 +30,10 @@ export function LensLayer({
   onToggleExpanded,
   onDismiss,
   onAsk,
-  onFocus,
   onRethink,
   onReset,
+  onBubbleDragStart,
+  draggingLensId,
 }: LensLayerProps) {
   const entries = Array.from(lenses.entries());
   if (entries.length === 0) return null;
@@ -52,7 +54,6 @@ export function LensLayer({
                 streamingContent={state.streamingContent}
                 isThinking={state.status === "thinking"}
                 onAsk={(msg) => onAsk(lensId, msg)}
-                onFocus={() => onFocus(lensId)}
                 onRethink={() => onRethink(lensId)}
                 onReset={() => onReset(lensId)}
                 onClose={() => onToggleExpanded(lensId)}
@@ -65,6 +66,8 @@ export function LensLayer({
                 preview={state.preview}
                 onClick={() => onToggleExpanded(lensId)}
                 onDismiss={() => onDismiss(lensId)}
+                onDragStart={(e) => onBubbleDragStart?.(lensId, e)}
+                isDragging={draggingLensId === lensId}
               />
             )}
           </div>

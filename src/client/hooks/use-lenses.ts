@@ -258,7 +258,15 @@ export function useLenses() {
     setLenses((prev) => {
       const next = new Map(prev);
       const lens = next.get(lensId);
-      if (lens) lens.expanded = !lens.expanded;
+      if (!lens) return next;
+      const willExpand = !lens.expanded;
+      // Collapse all others when expanding one
+      if (willExpand) {
+        for (const [id, l] of next) {
+          if (id !== lensId && l.expanded) l.expanded = false;
+        }
+      }
+      lens.expanded = willExpand;
       return next;
     });
   }, []);

@@ -142,11 +142,6 @@ export function App() {
           onToggleExpanded={lens.toggleExpanded}
           onDismiss={lens.deactivate}
           onAsk={lens.ask}
-          onFocus={(lensId) => {
-            // Get current selection text from editor
-            const selection = window.getSelection()?.toString() || "";
-            lens.focus(lensId, selection, versionRef.current);
-          }}
           onRethink={lens.rethink}
           onReset={lens.resetLens}
         />
