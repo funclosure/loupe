@@ -169,14 +169,25 @@ body {
   font-style: italic !important;
 }
 
-.loupe-editor div[contenteditable="true"] ul,
+.loupe-editor div[contenteditable="true"] ul {
+  margin: 0 0 20px 0 !important;
+  padding-left: 28px !important;
+  list-style-type: disc !important;
+}
+
 .loupe-editor div[contenteditable="true"] ol {
   margin: 0 0 20px 0 !important;
   padding-left: 28px !important;
+  list-style-type: decimal !important;
 }
 
 .loupe-editor div[contenteditable="true"] li {
   margin-bottom: 6px !important;
+  display: list-item !important;
+}
+
+.loupe-editor div[contenteditable="true"] li::marker {
+  color: var(--loupe-text-tertiary) !important;
 }
 
 .loupe-editor div[contenteditable="true"] code {
