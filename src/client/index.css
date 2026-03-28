@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* ============================================================
+   Loupe — Monochrome Zen Theme
+   All editor overrides use high-specificity selectors to win
+   over Milkdown's injected prose/nord classes.
+   ============================================================ */
+
 :root {
   --loupe-bg: #1a1a1f;
   --loupe-surface: #232329;
@@ -8,7 +14,6 @@
   --loupe-text-muted: #71717a;
   --loupe-text-dim: #3f3f46;
   --loupe-chrome-bg: #232329;
-  --loupe-chrome-opacity: 1;
   --loupe-save-color: #52525b;
   --loupe-editor-font: Georgia, "Times New Roman", serif;
   --loupe-editor-max-width: 720px;
@@ -26,6 +31,7 @@
   --loupe-save-color: #a1a1aa;
 }
 
+/* -- Zen mode ------------------------------------------------ */
 .zen .chrome {
   opacity: 0;
   transition: opacity var(--loupe-fade-duration) ease;
@@ -34,6 +40,7 @@
   opacity: 1;
 }
 
+/* -- Global layout ------------------------------------------- */
 body {
   background: var(--loupe-bg);
   color: var(--loupe-text);
@@ -55,45 +62,146 @@ body {
   display: flex;
   justify-content: center;
   padding: 48px 24px;
+  cursor: text;
 }
 
 .editor-column {
   width: 100%;
   max-width: var(--loupe-editor-max-width);
+}
+
+.loupe-editor {
+  min-height: 100%;
+  cursor: text;
+  position: relative;
+}
+
+/* -- ProseMirror overrides -----------------------------------
+   Milkdown injects .prose, .milkdown-theme-nord, .editor classes.
+   We use .loupe-editor ancestor + !important to override them. */
+
+/* Strip all focus chrome */
+.loupe-editor [contenteditable] {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Core editor styling — must beat .prose specificity */
+.loupe-editor div[contenteditable="true"] {
+  background: transparent !important;
+  font-family: var(--loupe-editor-font) !important;
+  font-size: 16px !important;
+  line-height: 1.8 !important;
+  color: var(--loupe-text) !important;
+  min-height: 70vh;
+  caret-color: var(--loupe-text);
+  max-width: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* -- Placeholder (React-managed DOM element) ----------------- */
+.loupe-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--loupe-text-dim);
   font-family: var(--loupe-editor-font);
   font-size: 16px;
   line-height: 1.8;
+  font-style: italic;
+  pointer-events: none;
+  user-select: none;
 }
 
-.editor-column .milkdown {
-  outline: none;
+/* -- Typography ---------------------------------------------- */
+.loupe-editor div[contenteditable="true"] h1 {
+  font-size: 28px !important;
+  font-weight: 600 !important;
+  margin: 0 0 24px 0 !important;
+  color: var(--loupe-text) !important;
+  line-height: 1.3 !important;
 }
 
-.editor-column .milkdown h1 {
-  font-size: 28px;
-  font-weight: 600;
-  margin-bottom: 24px;
-  color: var(--loupe-text);
+.loupe-editor div[contenteditable="true"] h2 {
+  font-size: 22px !important;
+  font-weight: 600 !important;
+  margin: 32px 0 16px 0 !important;
+  color: var(--loupe-text) !important;
+  line-height: 1.4 !important;
 }
 
-.editor-column .milkdown h2 {
-  font-size: 22px;
-  font-weight: 600;
-  margin-top: 32px;
-  margin-bottom: 16px;
+.loupe-editor div[contenteditable="true"] h3 {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  margin: 24px 0 12px 0 !important;
+  color: var(--loupe-text) !important;
+  line-height: 1.4 !important;
 }
 
-.editor-column .milkdown p {
-  margin-bottom: 16px;
-  color: var(--loupe-text);
+.loupe-editor div[contenteditable="true"] p {
+  margin: 0 0 16px 0 !important;
+  color: var(--loupe-text) !important;
 }
 
-.editor-column .milkdown blockquote {
-  border-left: 2px solid var(--loupe-border);
-  padding-left: 16px;
-  color: var(--loupe-text-muted);
+.loupe-editor div[contenteditable="true"] blockquote {
+  border-left: 2px solid var(--loupe-text-dim) !important;
+  padding-left: 16px !important;
+  margin: 0 0 16px 0 !important;
+  color: var(--loupe-text-muted) !important;
 }
 
+.loupe-editor div[contenteditable="true"] ul,
+.loupe-editor div[contenteditable="true"] ol {
+  margin: 0 0 16px 0 !important;
+  padding-left: 24px !important;
+}
+
+.loupe-editor div[contenteditable="true"] li {
+  margin-bottom: 4px !important;
+}
+
+.loupe-editor div[contenteditable="true"] code {
+  background: var(--loupe-surface) !important;
+  padding: 2px 6px !important;
+  border-radius: 3px !important;
+  font-family: ui-monospace, monospace !important;
+  font-size: 14px !important;
+  color: var(--loupe-text) !important;
+}
+
+.loupe-editor div[contenteditable="true"] pre {
+  background: var(--loupe-surface) !important;
+  padding: 16px !important;
+  border-radius: 6px !important;
+  margin: 0 0 16px 0 !important;
+  overflow-x: auto;
+}
+
+.loupe-editor div[contenteditable="true"] pre code {
+  background: none !important;
+  padding: 0 !important;
+}
+
+.loupe-editor div[contenteditable="true"] a {
+  color: #6b9cfc !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px;
+}
+
+.loupe-editor div[contenteditable="true"] strong {
+  font-weight: 700 !important;
+}
+
+.loupe-editor div[contenteditable="true"] hr {
+  border: none !important;
+  border-top: 1px solid var(--loupe-border) !important;
+  margin: 32px 0 !important;
+}
+
+/* -- Scrollbar ----------------------------------------------- */
 .editor-surface::-webkit-scrollbar {
   width: 6px;
 }

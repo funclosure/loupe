@@ -90,7 +90,16 @@ export function App() {
         onOpenFile={handleOpenFile}
       />
 
-      <div className="editor-surface relative">
+      <div
+        className="editor-surface relative"
+        onClick={(e) => {
+          // Click on empty space focuses the editor
+          if (e.target === e.currentTarget) {
+            const view = editorRef.current?.getEditorView();
+            if (view) view.focus();
+          }
+        }}
+      >
         <div className="editor-column">
           <Editor
             defaultValue=""
