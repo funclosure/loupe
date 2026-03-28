@@ -413,12 +413,9 @@ body {
   gap: 2px;
 }
 
-/* Language dropdown */
+/* Language dropdown — portaled to document.body, positioned via JS */
 .loupe-code-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 4px;
-  z-index: 50;
+  z-index: 100;
   background: var(--loupe-elevated);
   border: 1px solid var(--loupe-border-strong);
   border-radius: 8px;

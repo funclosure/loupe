@@ -46,8 +46,9 @@ class CodeBlockNodeView {
     this.dom.className = "loupe-code-block";
     if (this.isWrapped) this.dom.classList.add("wrapped");
 
-    // Toolbar
+    // Toolbar — contentEditable=false so inputs work inside contenteditable editor
     this.toolbar = this.createToolbar();
+    this.toolbar.contentEditable = "false";
     this.dom.appendChild(this.toolbar);
 
     // Code container — CSS Grid stacks both layers in same cell
@@ -59,6 +60,7 @@ class CodeBlockNodeView {
     this.highlightPre = document.createElement("pre");
     this.highlightPre.className = "loupe-code-highlight";
     this.highlightPre.setAttribute("aria-hidden", "true");
+    this.highlightPre.contentEditable = "false";
     container.appendChild(this.highlightPre);
 
     // Editable layer (foreground) — ProseMirror contentDOM
@@ -178,14 +180,25 @@ class CodeBlockNodeView {
     }
     this.dropdown.appendChild(list);
 
-    this.toolbar.appendChild(this.dropdown);
+    // Portal to document.body — outside ProseMirror's DOM so it can't steal focus
+    document.body.appendChild(this.dropdown);
+
+    // Position relative to the language button
+    const rect = this.langBtn.getBoundingClientRect();
+    this.dropdown.style.position = "fixed";
+    this.dropdown.style.top = `${rect.bottom + 4}px`;
+    this.dropdown.style.left = `${rect.left}px`;
 
     // Focus search after render
     requestAnimationFrame(() => searchInput.focus());
 
     // Close on click outside
     this.outsideClickHandler = (e: MouseEvent) => {
-      if (this.dropdown && !this.dropdown.contains(e.target as HTMLElement)) {
+      if (
+        this.dropdown &&
+        !this.dropdown.contains(e.target as HTMLElement) &&
+        !this.langBtn.contains(e.target as HTMLElement)
+      ) {
         this.closeDropdown();
       }
     };
