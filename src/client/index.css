@@ -365,34 +365,32 @@ body {
 
 /* Bubble shape is now rendered by LoupeIcon component */
 
-/* Dismiss button — appears on hover */
+/* Dismiss button — in flex row, appears on hover */
 .loupe-bubble-dismiss {
-  position: absolute;
-  top: -6px;
-  right: -10px;
-  z-index: 2;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   border: none;
-  background: var(--loupe-surface);
+  background: transparent;
   color: var(--loupe-text-tertiary);
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .loupe-bubble-wrap:hover .loupe-bubble-dismiss {
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .loupe-bubble-dismiss:hover {
   opacity: 1 !important;
   background: var(--loupe-elevated);
+  border-radius: 50%;
 }
 
 /* Name label — appears on hover */

@@ -39,7 +39,7 @@ export function LensLayer({
   if (entries.length === 0) return null;
 
   return (
-    <div className="fixed right-4 top-14 bottom-4 w-[320px] max-w-[35vw] flex flex-col gap-4 pointer-events-none z-10 overflow-y-auto overflow-x-hidden">
+    <div className="fixed top-14 bottom-4 w-[320px] max-w-[35vw] flex flex-col gap-3 pointer-events-none z-10 overflow-y-auto overflow-x-hidden" style={{ right: "max(1rem, calc(50% - 420px))" }}>
       {entries.map(([lensId, state]) => {
         const def = definitions.find((d) => d.id === state.definitionId);
         if (!def) return null;
