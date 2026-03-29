@@ -1,4 +1,5 @@
 import type { LensDefinition } from "@shared/types";
+import { LoupeIcon } from "../lenses/LoupeIcon";
 
 interface LensPickerProps {
   available: LensDefinition[];
@@ -119,12 +120,9 @@ function LensEntry({
                  disabled:opacity-40 hover:enabled:bg-white/[0.03]"
       style={{ background: "transparent" }}
     >
-      <span
-        className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
-        style={{ background: `${lens.color}18`, color: lens.color }}
-      >
-        {lens.icon}
-      </span>
+      <div className="shrink-0">
+        <LoupeIcon size={32} color={lens.color} icon={lens.icon} />
+      </div>
       <div className="flex-1 min-w-0 text-left">
         <div
           className="text-[13px] font-medium"
