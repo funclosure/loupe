@@ -75,7 +75,7 @@ export class LensSession {
     if (focusedParagraph) {
       prompt += `\n\nThe writer is currently focused on this passage:\n\n${focusedParagraph}`;
     }
-    prompt += `\n\nKeep responses concise and conversational. You are a companion, not a lecturer.`;
+    prompt += `\n\nRespond in 1–3 sentences. Be direct — no preamble, no bullet lists, no summaries.\nIf the writer asks you to elaborate or go deeper, then expand fully.\nYou are a writing companion, not an essay generator.`;
     return prompt;
   }
 
