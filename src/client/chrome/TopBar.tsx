@@ -1,7 +1,7 @@
 interface TopBarProps {
   filename: string;
   activeLensCount: number;
-  saveState: "saved" | "saving" | "unsaved" | "unavailable";
+  saveState: "saved" | "saving" | "unsaved";
   onOpenLensPicker: () => void;
   onOpenFile: () => void;
 }
@@ -35,11 +35,11 @@ export function TopBar({
         className="text-[11px] transition-opacity duration-[2s]"
         style={{
           color: "var(--loupe-save-color)",
-          opacity: saveState === "saving" ? 1 : saveState === "saved" ? 0 : 0.7,
+          opacity: saveState === "saving" ? 1 : saveState === "saved" ? 0.6 : 0,
         }}
       >
         {saveState === "saving" && "saving..."}
-        {saveState === "unavailable" && "download to save"}
+        {saveState === "saved" && "saved"}
       </div>
 
       {/* Right: lens count + add button */}

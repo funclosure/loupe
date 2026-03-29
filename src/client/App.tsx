@@ -3,6 +3,7 @@ import { Editor } from "./editor/Editor";
 import { TopBar } from "./chrome/TopBar";
 import { LensLayer } from "./lenses/LensLayer";
 import { LensPicker } from "./chrome/LensPicker";
+import { FilePicker } from "./chrome/FilePicker";
 import { useFile } from "./hooks/use-file";
 import { useZenMode } from "./hooks/use-zen-mode";
 import { useLenses } from "./hooks/use-lenses";
@@ -15,7 +16,11 @@ export function App() {
   const versionRef = useRef(0);
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { filename, initialContent, saveState, openFile, saveFileAs, updateContent, persistFilename } = useFile();
+  const {
+    filename, initialContent, saveState, save, saveAs, updateContent,
+    filePath, persistFilename, loadFromServer,
+  } = useFile();
+  const [filePickerOpen, setFilePickerOpen] = useState(false);
   const { zenMode } = useZenMode();
   const lens = useLenses();
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
@@ -33,30 +38,20 @@ export function App() {
   // Load file from ?file= query param (CLI: `loupe sample.md`)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const filePath = params.get("file");
-    if (!filePath) return;
+    const fileParam = params.get("file");
+    if (!fileParam) return;
 
-    // Clear query param immediately so refresh uses localStorage
-    window.history.replaceState({}, "", "/");
-
-    fetch(`/api/file?path=${encodeURIComponent(filePath)}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (!data.content) return;
-        updateContent(data.content);
-        if (data.filename) persistFilename(data.filename);
-
-        // Wait for editor to mount, then load content
-        function tryLoad() {
-          if (editorRef.current) {
-            editorRef.current.setMarkdown(data.content);
-          } else {
-            setTimeout(tryLoad, 100);
-          }
+    loadFromServer(fileParam).then((text) => {
+      if (text == null) return;
+      function tryLoad() {
+        if (editorRef.current) {
+          editorRef.current.setMarkdown(text!);
+        } else {
+          setTimeout(tryLoad, 100);
         }
-        tryLoad();
-      })
-      .catch(() => {});
+      }
+      tryLoad();
+    });
   }, []);
 
   // Sync document to server (debounced)
@@ -79,8 +74,8 @@ export function App() {
   }, [updateContent, syncToServer]);
 
   // Open file and load content into editor
-  const handleOpenFile = useCallback(async () => {
-    const text = await openFile();
+  const handleFileSelected = useCallback(async (path: string) => {
+    const text = await loadFromServer(path);
     if (text != null && editorRef.current) {
       editorRef.current.setMarkdown(text);
     }
@@ -88,7 +83,7 @@ export function App() {
     for (const [lensId] of lens.lenses) {
       await lens.resetLens(lensId);
     }
-  }, [openFile, lens.lenses, lens.resetLens]);
+  }, [loadFromServer, lens.lenses, lens.resetLens]);
 
   // Keyboard shortcuts (centralized — useZenMode handles Cmd+. internally)
   useEffect(() => {
@@ -99,16 +94,23 @@ export function App() {
         lens.setPickerOpen((prev) => !prev);
       } else if (mod && e.key === "o") {
         e.preventDefault();
-        handleOpenFile();
+        setFilePickerOpen(true);
       } else if (mod && e.key === "s") {
         e.preventDefault();
-        saveFileAs();
+        if (filePath) {
+          save();
+        } else {
+          const name = window.prompt("Save as:", "untitled.md");
+          if (name) saveAs(name);
+        }
       } else if (mod && e.key === "/") {
         e.preventDefault();
         setShortcutsOpen((prev) => !prev);
       } else if (e.key === "Escape") {
         if (shortcutsOpen) {
           setShortcutsOpen(false);
+        } else if (filePickerOpen) {
+          setFilePickerOpen(false);
         } else if (lens.pickerOpen) {
           lens.setPickerOpen(false);
         } else {
@@ -120,7 +122,7 @@ export function App() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [handleOpenFile, saveFileAs, lens.pickerOpen, lens.lenses, shortcutsOpen]);
+  }, [save, saveAs, filePath, lens.pickerOpen, lens.lenses, shortcutsOpen, filePickerOpen]);
 
   return (
     <div className={zenMode ? "zen h-full flex flex-col" : "h-full flex flex-col"}>
@@ -129,7 +131,7 @@ export function App() {
         activeLensCount={lens.lenses.size}
         saveState={saveState}
         onOpenLensPicker={() => lens.setPickerOpen(true)}
-        onOpenFile={handleOpenFile}
+        onOpenFile={() => setFilePickerOpen(true)}
       />
 
       <div
@@ -219,6 +221,13 @@ export function App() {
           activeLensCount={lens.lenses.size}
           onActivate={lens.activate}
           onClose={() => lens.setPickerOpen(false)}
+        />
+      )}
+
+      {filePickerOpen && (
+        <FilePicker
+          onSelect={(path) => handleFileSelected(path)}
+          onClose={() => setFilePickerOpen(false)}
         />
       )}
 
