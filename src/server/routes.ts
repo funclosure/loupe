@@ -2,11 +2,16 @@ import type { DocumentSyncBody, LensFocusBody, LensAskBody } from "@shared/types
 import { DocumentStore } from "./document";
 import { LensManager } from "./lens-manager";
 import type { LensSession } from "./lens-session";
+import { FileStore } from "./file-store";
+import { resolve, basename } from "path";
+import { readdirSync, readFileSync, writeFileSync } from "fs";
 
 export class RouteHandler {
   constructor(
     private document: DocumentStore,
-    private lensManager: LensManager
+    private lensManager: LensManager,
+    private fileStore: FileStore,
+    private cwd: string = process.cwd(),
   ) {}
 
   async handle(req: Request): Promise<Response | null> {
@@ -17,12 +22,48 @@ export class RouteHandler {
       const filePath = url.searchParams.get("path");
       if (!filePath) return Response.json({ error: "path required" }, { status: 400 });
       try {
-        const resolved = require("path").resolve(filePath);
-        const text = await Bun.file(resolved).text();
-        const name = require("path").basename(resolved);
-        return Response.json({ content: text, filename: name });
+        const resolved = resolve(this.cwd, filePath);
+        const text = readFileSync(resolved, "utf8");
+        this.fileStore.setActive(resolved);
+        return Response.json({ content: text, filename: basename(resolved), path: resolved });
       } catch {
         return Response.json({ error: "File not found" }, { status: 404 });
+      }
+    }
+
+    // Write file
+    if (url.pathname === "/api/file" && req.method === "POST") {
+      const body = await req.json();
+      const { content, path: newPath } = body;
+
+      let targetPath = this.fileStore.activePath;
+      if (newPath) {
+        targetPath = resolve(this.cwd, newPath);
+        this.fileStore.setActive(targetPath);
+      }
+      if (!targetPath) {
+        return Response.json({ error: "No active file. Provide a path." }, { status: 400 });
+      }
+
+      try {
+        writeFileSync(targetPath, content, "utf8");
+        return Response.json({ ok: true, path: targetPath, filename: basename(targetPath) });
+      } catch {
+        return Response.json({ error: "Write failed" }, { status: 500 });
+      }
+    }
+
+    // List markdown files in CWD
+    if (url.pathname === "/api/files" && req.method === "GET") {
+      try {
+        const entries = readdirSync(this.cwd);
+        const mdFiles = entries
+          .filter((f: string) => f.endsWith(".md"))
+          .sort()
+          .map((name: string) => ({ name, path: name }));
+        return Response.json({ files: mdFiles });
+      } catch {
+        return Response.json({ files: [] });
       }
     }
 

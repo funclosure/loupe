@@ -1,6 +1,7 @@
 import { DocumentStore } from "./document";
 import { LensManager } from "./lens-manager";
 import { RouteHandler } from "./routes";
+import { FileStore } from "./file-store";
 import { LENS_PRESETS } from "@shared/lens-presets";
 import { loadUserLenses } from "./lens-loader";
 import { join } from "path";
@@ -16,7 +17,8 @@ export async function startServer() {
 
   const document = new DocumentStore();
   const lensManager = new LensManager([...LENS_PRESETS, ...userLenses], MODEL);
-  const router = new RouteHandler(document, lensManager);
+  const fileStore = new FileStore();
+  const router = new RouteHandler(document, lensManager, fileStore);
 
   // In production, serve Vite-built static files
   const distDir = join(import.meta.dir, "../../dist");
