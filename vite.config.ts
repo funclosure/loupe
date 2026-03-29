@@ -11,7 +11,7 @@ export default defineConfig({
     VitePWA({
       selfDestroying: true, // Disable SW during development — re-enable for production
       registerType: "autoUpdate",
-      includeAssets: ["favicon.svg"],
+      includeAssets: ["favicon.svg", "logo.svg"],
       workbox: {
         navigateFallbackDenylist: [/^\/api\//],
       },
@@ -19,8 +19,8 @@ export default defineConfig({
         name: "Loupe",
         short_name: "Loupe",
         description: "A zen writing app with AI lenses",
-        theme_color: "#1a1a1f",
-        background_color: "#1a1a1f",
+        theme_color: "#1a1816",
+        background_color: "#1a1816",
         display: "standalone",
         start_url: "/",
         file_handlers: [
