@@ -1,8 +1,18 @@
-# Loupe
+<p align="center">
+  <img src="public/logo.svg" width="80" alt="Loupe" />
+</p>
 
-A zen writing app where floating AI lenses offer different perspectives on your text.
+<h1 align="center">Loupe</h1>
 
-![Loupe](https://img.shields.io/badge/runtime-Bun-f472b6) ![React 19](https://img.shields.io/badge/React-19-61dafb) ![Claude](https://img.shields.io/badge/AI-Claude-cc785c)
+<p align="center">
+  A zen writing app where floating AI lenses offer different perspectives on your text.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/runtime-Bun-f472b6" alt="Bun" />
+  <img src="https://img.shields.io/badge/React-19-61dafb" alt="React 19" />
+  <img src="https://img.shields.io/badge/AI-Claude-cc785c" alt="Claude" />
+</p>
 
 ## What is it?
 
@@ -17,6 +27,7 @@ You write. Lenses watch. Drag one onto a paragraph to focus its attention. It re
 - **Drag-to-inspect** — drag a lens onto any paragraph to start a conversation
 - **Syntax highlighting** — Shiki-powered code blocks with language selector, copy, wrap
 - **Zen mode** — Cmd+. fades all chrome, hover to reveal
+- **Undo/redo** — full history with Cmd+Z / Cmd+Shift+Z
 - **File handling** — File System Access API for native open/save, localStorage persistence
 - **No API key needed** — authenticates through Claude Code session
 
