@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/logo.svg" width="80" alt="Loupe" />
+  <img src="public/favicon.svg" width="80" alt="Loupe" />
 </p>
 
 <h1 align="center">Loupe</h1>
