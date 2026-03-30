@@ -39,7 +39,11 @@ export function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const fileParam = params.get("file");
-    if (!fileParam) return;
+    if (!fileParam) {
+      // No file specified — show file picker on launch
+      setFilePickerOpen(true);
+      return;
+    }
 
     loadFromServer(fileParam).then((text) => {
       if (text == null) return;
