@@ -75,6 +75,7 @@ export function useFile(): UseFileReturn {
 
   const updateContent = useCallback((newContent: string) => {
     latestContentRef.current = newContent;
+    if (filePath) setSaveState("unsaved");
 
     if (localSaveTimeoutRef.current) clearTimeout(localSaveTimeoutRef.current);
     localSaveTimeoutRef.current = setTimeout(() => {

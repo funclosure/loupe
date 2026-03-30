@@ -28,11 +28,11 @@ describe("LensSession", () => {
     expect(system).toContain("Focused paragraph.");
   });
 
-  it("builds system prompt with brevity instruction", () => {
+  it("builds system prompt with thinking companion instruction", () => {
     const system = session.buildSystemPrompt("Hello world document.");
-    expect(system).toContain("Respond in 1–3 sentences");
-    expect(system).toContain("writing companion, not an essay generator");
-    expect(system).not.toContain("You are a companion, not a lecturer");
+    expect(system).toContain("Help them think");
+    expect(system).toContain("the question they haven't asked yet");
+    expect(system).toContain("1–3 sentences unless they ask for more");
   });
 
   it("resets history and state", () => {

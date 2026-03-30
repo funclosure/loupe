@@ -1,3 +1,5 @@
+import { LoupeIcon } from "../lenses/LoupeIcon";
+
 interface TopBarProps {
   filename: string;
   activeLensCount: number;
@@ -21,50 +23,55 @@ export function TopBar({
         borderBottom: "1px solid var(--loupe-border)",
       }}
     >
-      {/* Left: filename */}
+      {/* Left: filename + sync dot */}
       <button
         onClick={onOpenFile}
-        className="text-[13px] tracking-wide hover:opacity-70 transition-opacity cursor-pointer"
+        className="flex items-center gap-2 hover:opacity-70 transition-opacity cursor-pointer"
         style={{ color: "var(--loupe-text-tertiary)" }}
       >
-        {filename}
+        <span className="text-[13px] tracking-wide">{filename}</span>
+        <span
+          style={{
+            width: 6,
+            height: 6,
+            borderRadius: "50%",
+            background: saveState === "saving"
+              ? "var(--loupe-save-color)"
+              : saveState === "unsaved"
+                ? "var(--loupe-save-color)"
+                : "var(--loupe-text-ghost)",
+            opacity: saveState === "saving" ? 1 : saveState === "unsaved" ? 0.6 : 0,
+            transition: saveState === "saved" ? "opacity 1.5s ease-out 0.3s" : "opacity 0.15s ease-in",
+            animation: saveState === "saving" ? "loupe-pulse 1s ease-in-out infinite" : "none",
+          }}
+        />
       </button>
 
-      {/* Center: save indicator */}
-      <div
-        className="text-[11px] transition-opacity duration-[2s]"
-        style={{
-          color: "var(--loupe-save-color)",
-          opacity: saveState === "saving" ? 1 : saveState === "saved" ? 0.6 : 0,
-        }}
+      {/* Right: add lens button */}
+      <button
+        onClick={onOpenLensPicker}
+        className="relative transition-opacity cursor-pointer hover:opacity-80"
+        style={{ opacity: 0.6 }}
       >
-        {saveState === "saving" && "saving..."}
-        {saveState === "saved" && "saved"}
-      </div>
-
-      {/* Right: lens count + add button */}
-      <div className="flex items-center gap-3">
+        <LoupeIcon
+          size={24}
+          color="#9ca3af"
+          icon="+"
+        />
         {activeLensCount > 0 && (
           <span
-            className="text-[11px]"
-            style={{ color: "var(--loupe-text-ghost)" }}
+            className="absolute -top-1 -right-1 text-[9px] min-w-[14px] h-[14px]
+                       flex items-center justify-center rounded-full font-medium"
+            style={{
+              background: "var(--loupe-surface)",
+              color: "var(--loupe-text-tertiary)",
+              border: "1px solid var(--loupe-border)",
+            }}
           >
-            {activeLensCount} lens{activeLensCount !== 1 ? "es" : ""}
+            {activeLensCount}
           </span>
         )}
-        <button
-          onClick={onOpenLensPicker}
-          className="w-6 h-6 rounded-full flex items-center justify-center text-xs
-                     transition-all cursor-pointer hover:opacity-80"
-          style={{
-            border: "1px solid var(--loupe-border-strong)",
-            color: "var(--loupe-text-tertiary)",
-            background: "transparent",
-          }}
-        >
-          +
-        </button>
-      </div>
+      </button>
     </div>
   );
 }
