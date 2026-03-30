@@ -40,7 +40,18 @@ export function App() {
     const params = new URLSearchParams(window.location.search);
     const fileParam = params.get("file");
     if (!fileParam) {
-      // No file specified — show file picker on launch
+      // No file specified — clear stale cache, show empty editor + file picker
+      localStorage.removeItem("loupe-draft");
+      localStorage.removeItem("loupe-filename");
+      persistFilename("Untitled");
+      function tryClear() {
+        if (editorRef.current) {
+          editorRef.current.setMarkdown("");
+        } else {
+          setTimeout(tryClear, 100);
+        }
+      }
+      tryClear();
       setFilePickerOpen(true);
       return;
     }
