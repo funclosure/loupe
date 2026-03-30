@@ -193,6 +193,16 @@ export function App() {
           onReset={lens.resetLens}
           onBubbleDragStart={handleDragStart}
           draggingLensId={drag?.lensId ?? null}
+          onCreateLens={async (proposal) => {
+            await lens.createLens(proposal);
+            // Deactivate the Lens Creator after successful creation
+            for (const [lensId, state] of lens.lenses) {
+              if (state.definitionId === "lens-creator") {
+                lens.deactivate(lensId);
+                break;
+              }
+            }
+          }}
         />
       </div>
 
@@ -251,6 +261,7 @@ export function App() {
           available={lens.available}
           activeLensCount={lens.lenses.size}
           onActivate={lens.activate}
+          onCreateLens={lens.activateCreator}
           onClose={() => lens.setPickerOpen(false)}
         />
       )}

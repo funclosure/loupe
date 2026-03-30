@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Markdown from "react-markdown";
 import type { LensDefinition, ChatMessage } from "@shared/types";
 import { LoupeIcon } from "./LoupeIcon";
+import { parseLensProposal, stripProposalBlock, LensProposalCard } from "./LensProposalCard";
 
 interface LensChatProps {
   lensId: string;
@@ -13,6 +14,7 @@ interface LensChatProps {
   onRethink: () => void;
   onReset: () => void;
   onClose: () => void;
+  onCreateLens?: (proposal: { name: string; description: string; icon: string; color: string; systemPrompt: string }) => void;
 }
 
 export function LensChat({
@@ -24,6 +26,7 @@ export function LensChat({
   onRethink,
   onReset,
   onClose,
+  onCreateLens,
 }: LensChatProps) {
   const [input, setInput] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -134,17 +137,36 @@ export function LensChat({
 
       {/* Messages */}
       <div ref={scrollRef} className="loupe-chat-messages">
-        {messages.map((msg, i) => (
-          msg.role === "user" ? (
-            <div key={i} className="loupe-chat-user-msg">
-              <div>{msg.content}</div>
-            </div>
-          ) : (
+        {messages.map((msg, i) => {
+          if (msg.role === "user") {
+            return (
+              <div key={i} className="loupe-chat-user-msg">
+                <div>{msg.content}</div>
+              </div>
+            );
+          }
+
+          const proposal = parseLensProposal(msg.content);
+          const textWithoutProposal = proposal ? stripProposalBlock(msg.content) : msg.content;
+          const isLatestProposal = proposal && !messages.slice(i + 1).some(
+            (m) => m.role === "lens" && parseLensProposal(m.content)
+          );
+
+          return (
             <div key={i} className="loupe-chat-lens-msg">
-              <Markdown className="lens-markdown">{msg.content}</Markdown>
+              {textWithoutProposal && (
+                <Markdown className="lens-markdown">{textWithoutProposal}</Markdown>
+              )}
+              {proposal && (
+                <LensProposalCard
+                  proposal={proposal}
+                  isLatest={!!isLatestProposal}
+                  onCreate={(p) => onCreateLens?.(p)}
+                />
+              )}
             </div>
-          )
-        ))}
+          );
+        })}
 
         {streamingContent && (
           <div className="loupe-chat-lens-msg">

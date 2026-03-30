@@ -81,16 +81,16 @@ export function useLenses() {
     }
   }, []);
 
-  const activate = useCallback(async (definitionId: string) => {
+  const activate = useCallback(async (definitionId: string): Promise<string | undefined> => {
     const res = await fetch("/api/lenses/activate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ definitionId }),
     });
     const { lensId, error } = await res.json();
-    if (error) return;
+    if (error) return undefined;
     const def = available.find((d) => d.id === definitionId);
-    if (!def) return;
+    if (!def) return undefined;
     setLenses((prev) => {
       const next = new Map(prev);
       next.set(lensId, {
@@ -102,9 +102,11 @@ export function useLenses() {
         messages: [],
         streamingContent: "",
         expanded: false,
+        seen: false,
       });
       return next;
     });
+    return lensId;
   }, [available]);
 
   const deactivate = useCallback(async (lensId: string) => {
@@ -289,6 +291,28 @@ export function useLenses() {
     });
   }, []);
 
+  const createLens = useCallback(async (proposal: {
+    name: string; description: string; icon: string; color: string; systemPrompt: string;
+  }) => {
+    try {
+      const res = await fetch("/api/lenses/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(proposal),
+      });
+      if (!res.ok) return;
+      await fetchLenses();
+    } catch {}
+  }, [fetchLenses]);
+
+  const activateCreator = useCallback(async () => {
+    const lensId = await activate("lens-creator");
+    if (lensId) {
+      await ask(lensId, "I want to create a new lens.");
+      toggleExpanded(lensId);
+    }
+  }, [activate, ask, toggleExpanded]);
+
   return {
     available,
     lenses,
@@ -302,5 +326,7 @@ export function useLenses() {
     rethink,
     resetLens,
     toggleExpanded,
+    createLens,
+    activateCreator,
   };
 }

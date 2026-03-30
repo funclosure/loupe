@@ -23,6 +23,7 @@ interface LensLayerProps {
   onReset: (lensId: string) => void;
   onBubbleDragStart?: (lensId: string, e: React.PointerEvent) => void;
   draggingLensId?: string | null;
+  onCreateLens?: (proposal: { name: string; description: string; icon: string; color: string; systemPrompt: string }) => void;
 }
 
 export function LensLayer({
@@ -35,6 +36,7 @@ export function LensLayer({
   onReset,
   onBubbleDragStart,
   draggingLensId,
+  onCreateLens,
 }: LensLayerProps) {
   const entries = Array.from(lenses.entries());
   if (entries.length === 0) return null;
@@ -88,6 +90,7 @@ export function LensLayer({
               onRethink={() => onRethink(lensId)}
               onReset={() => onReset(lensId)}
               onClose={() => onToggleExpanded(lensId)}
+              onCreateLens={onCreateLens}
             />
           </div>
         );
