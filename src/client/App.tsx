@@ -79,6 +79,8 @@ export function App() {
     if (text != null && editorRef.current) {
       editorRef.current.setMarkdown(text);
     }
+    // Update URL to reflect the new file
+    window.history.replaceState({}, "", `/?file=${encodeURIComponent(path)}`);
     // Reset all active lens conversations for new document context
     for (const [lensId] of lens.lenses) {
       await lens.resetLens(lensId);
@@ -227,14 +229,18 @@ export function App() {
       {filePickerOpen && (
         <FilePicker
           onSelect={(path) => handleFileSelected(path)}
-          onCreate={(path) => {
-            saveAs(path).then(() => {
-              loadFromServer(path).then((text) => {
-                if (text != null && editorRef.current) {
-                  editorRef.current.setMarkdown(text);
-                }
-              });
+          onCreate={async (path) => {
+            // Create empty file on server
+            await fetch("/api/file", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ content: "", path }),
             });
+            // Load it (sets filePath + filename in hook)
+            await loadFromServer(path);
+            // Clear editor and update URL
+            if (editorRef.current) editorRef.current.setMarkdown("");
+            window.history.replaceState({}, "", `/?file=${encodeURIComponent(path)}`);
           }}
           onClose={() => setFilePickerOpen(false)}
         />
