@@ -8,6 +8,15 @@ interface FilePickerProps {
   onClose: () => void;
 }
 
+function TrashIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 4h12M5.33 4V2.67a1.33 1.33 0 0 1 1.34-1.34h2.66a1.33 1.33 0 0 1 1.34 1.34V4M6.67 7.33v4M9.33 7.33v4" />
+      <path d="M3.33 4h9.34l-.67 9.33a1.33 1.33 0 0 1-1.33 1.34H5.33A1.33 1.33 0 0 1 4 13.33L3.33 4Z" />
+    </svg>
+  );
+}
+
 export function FilePicker({ currentFile, onSelect, onCreate, onDelete, onClose }: FilePickerProps) {
   const [files, setFiles] = useState<{ name: string; path: string }[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,7 +100,13 @@ export function FilePicker({ currentFile, onSelect, onCreate, onDelete, onClose 
                 return (
                   <div
                     key={file.path}
-                    className="group flex items-center rounded-lg transition-colors hover:bg-white/[0.03]"
+                    className="group flex items-center rounded-lg transition-colors"
+                    style={isCurrent ? {
+                      background: "var(--loupe-surface)",
+                      border: "1px solid var(--loupe-border)",
+                    } : {
+                      border: "1px solid transparent",
+                    }}
                   >
                     {isConfirming ? (
                       <div className="flex-1 flex items-center justify-between px-3 py-2">
@@ -122,31 +137,22 @@ export function FilePicker({ currentFile, onSelect, onCreate, onDelete, onClose 
                       <>
                         <button
                           onClick={() => { if (!isCurrent) { onSelect(file.path); onClose(); } }}
-                          className="flex-1 text-left px-3 py-2 text-[13px] cursor-pointer"
-                          style={{
-                            color: isCurrent ? "var(--loupe-text)" : "var(--loupe-text)",
-                            opacity: isCurrent ? 1 : 0.7,
-                          }}
+                          className={`flex-1 text-left px-3 py-2 text-[13px] ${isCurrent ? "cursor-default" : "cursor-pointer hover:bg-white/[0.03]"} rounded-lg`}
+                          style={{ color: "var(--loupe-text)" }}
                         >
                           {file.name}
-                          {isCurrent && (
-                            <span
-                              className="ml-2 text-[10px]"
-                              style={{ color: "var(--loupe-text-ghost)" }}
-                            >
-                              current
-                            </span>
-                          )}
                         </button>
-                        <button
-                          onClick={() => setConfirmDelete(file.path)}
-                          className="shrink-0 w-6 h-6 flex items-center justify-center rounded
-                                     opacity-0 group-hover:opacity-40 hover:!opacity-80
-                                     cursor-pointer text-[11px] mr-1 transition-opacity"
-                          style={{ color: "var(--loupe-text-secondary)" }}
-                        >
-                          &times;
-                        </button>
+                        {!isCurrent && (
+                          <button
+                            onClick={() => setConfirmDelete(file.path)}
+                            className="shrink-0 w-6 h-6 flex items-center justify-center rounded
+                                       opacity-0 group-hover:opacity-40 hover:!opacity-80
+                                       cursor-pointer mr-1 transition-opacity"
+                            style={{ color: "var(--loupe-text-secondary)" }}
+                          >
+                            <TrashIcon />
+                          </button>
+                        )}
                       </>
                     )}
                   </div>
