@@ -228,19 +228,20 @@ export function App() {
 
       {filePickerOpen && (
         <FilePicker
+          currentFile={filename}
           onSelect={(path) => handleFileSelected(path)}
           onCreate={async (path) => {
-            // Create empty file on server
             await fetch("/api/file", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ content: "", path }),
             });
-            // Load it (sets filePath + filename in hook)
             await loadFromServer(path);
-            // Clear editor and update URL
             if (editorRef.current) editorRef.current.setMarkdown("");
             window.history.replaceState({}, "", `/?file=${encodeURIComponent(path)}`);
+          }}
+          onDelete={async (path) => {
+            await fetch(`/api/file?path=${encodeURIComponent(path)}`, { method: "DELETE" });
           }}
           onClose={() => setFilePickerOpen(false)}
         />

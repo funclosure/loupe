@@ -4,7 +4,7 @@ import { LensManager } from "./lens-manager";
 import type { LensSession } from "./lens-session";
 import { FileStore } from "./file-store";
 import { resolve, basename } from "path";
-import { readdirSync, readFileSync, writeFileSync } from "fs";
+import { readdirSync, readFileSync, writeFileSync, mkdirSync, renameSync } from "fs";
 
 export class RouteHandler {
   constructor(
@@ -64,6 +64,23 @@ export class RouteHandler {
         return Response.json({ files: mdFiles });
       } catch {
         return Response.json({ files: [] });
+      }
+    }
+
+    // Delete file (soft — moves to .recently-deleted/)
+    if (url.pathname === "/api/file" && req.method === "DELETE") {
+      const filePath = url.searchParams.get("path");
+      if (!filePath) return Response.json({ error: "path required" }, { status: 400 });
+      try {
+        const resolved = resolve(this.cwd, filePath);
+        const trashDir = resolve(this.cwd, ".recently-deleted");
+        mkdirSync(trashDir, { recursive: true });
+        renameSync(resolved, resolve(trashDir, basename(resolved)));
+        // Clear active path if we just deleted the active file
+        if (this.fileStore.activePath === resolved) this.fileStore.clear();
+        return Response.json({ ok: true });
+      } catch {
+        return Response.json({ error: "Delete failed" }, { status: 500 });
       }
     }
 
