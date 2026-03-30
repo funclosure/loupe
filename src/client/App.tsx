@@ -227,6 +227,15 @@ export function App() {
       {filePickerOpen && (
         <FilePicker
           onSelect={(path) => handleFileSelected(path)}
+          onCreate={(path) => {
+            saveAs(path).then(() => {
+              loadFromServer(path).then((text) => {
+                if (text != null && editorRef.current) {
+                  editorRef.current.setMarkdown(text);
+                }
+              });
+            });
+          }}
           onClose={() => setFilePickerOpen(false)}
         />
       )}
