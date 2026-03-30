@@ -58,7 +58,7 @@ export class RouteHandler {
       try {
         const entries = readdirSync(this.cwd);
         const mdFiles = entries
-          .filter((f: string) => f.endsWith(".md"))
+          .filter((f: string) => f.endsWith(".md") || f.endsWith(".mdx"))
           .sort()
           .map((name: string) => ({ name, path: name }));
         return Response.json({ files: mdFiles });

@@ -39,7 +39,7 @@ export function FilePicker({ currentFile, onSelect, onCreate, onDelete, onClose 
   const handleCreate = () => {
     const name = newName.trim();
     if (!name) return;
-    const filename = name.endsWith(".md") ? name : `${name}.md`;
+    const filename = (name.endsWith(".md") || name.endsWith(".mdx")) ? name : `${name}.md`;
     onCreate(filename);
     onClose();
   };
