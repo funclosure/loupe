@@ -8,7 +8,8 @@ export interface LensDefinition {
   description: string;
   systemPrompt: string;
   model?: string; // optional per-lens model override
-  source: "preset" | "user";
+  source: "preset" | "user" | "system";
+  skipDocumentContext?: boolean;
 }
 
 // -- Document state --

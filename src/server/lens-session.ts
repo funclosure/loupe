@@ -70,6 +70,9 @@ export class LensSession {
   }
 
   buildSystemPrompt(documentContent: string, focusedParagraph?: string): string {
+    if (this.definition.skipDocumentContext) {
+      return this.definition.systemPrompt;
+    }
     let prompt = this.definition.systemPrompt;
     prompt += `\n\nYou are reading the following document:\n\n${documentContent}`;
     if (focusedParagraph) {

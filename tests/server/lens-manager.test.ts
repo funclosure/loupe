@@ -7,7 +7,7 @@ describe("LensManager", () => {
   beforeEach(() => { manager = new LensManager(LENS_PRESETS, "claude-sonnet-4-6"); });
 
   it("lists available lenses (presets + user)", () => {
-    expect(manager.availableLenses()).toHaveLength(5);
+    expect(manager.availableLenses()).toHaveLength(6);
   });
   it("activates a lens and returns session id", () => {
     const id = manager.activate("devils-advocate");

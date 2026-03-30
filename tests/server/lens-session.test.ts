@@ -54,4 +54,17 @@ describe("LensSession", () => {
     const session2 = new LensSession(lensWithModel, "claude-sonnet-4-6");
     expect(session2.model).toBe("claude-haiku-4-5-20251001");
   });
+
+  it("skips document context when skipDocumentContext is true", () => {
+    const metaLens = {
+      ...testLens,
+      skipDocumentContext: true,
+      systemPrompt: "You help create lenses.",
+    };
+    const metaSession = new LensSession(metaLens, "claude-sonnet-4-6");
+    const system = metaSession.buildSystemPrompt("Some document text.");
+    expect(system).toBe("You help create lenses.");
+    expect(system).not.toContain("Some document text");
+    expect(system).not.toContain("Help them think");
+  });
 });

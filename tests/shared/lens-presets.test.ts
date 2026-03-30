@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest";
 import { LENS_PRESETS } from "../../src/shared/lens-presets";
 
 describe("LENS_PRESETS", () => {
-  it("has 5 built-in presets", () => {
-    expect(LENS_PRESETS).toHaveLength(5);
+  it("has 6 built-in presets", () => {
+    expect(LENS_PRESETS).toHaveLength(6);
   });
 
   it("each preset has required fields", () => {
@@ -14,7 +14,7 @@ describe("LENS_PRESETS", () => {
       expect(preset.color).toMatch(/^#[0-9a-fA-F]{6}$/);
       expect(preset.description).toBeTruthy();
       expect(preset.systemPrompt).toBeTruthy();
-      expect(preset.source).toBe("preset");
+      expect(["preset", "system"]).toContain(preset.source);
     }
   });
 });
