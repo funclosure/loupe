@@ -43,6 +43,8 @@ export function App() {
 
     loadFromServer(fileParam).then((text) => {
       if (text == null) return;
+      // Sync to DocumentStore immediately so lenses have content
+      syncToServerNow(text);
       function tryLoad() {
         if (editorRef.current) {
           editorRef.current.setMarkdown(text!);
@@ -52,6 +54,17 @@ export function App() {
       }
       tryLoad();
     });
+  }, []);
+
+  // Sync document to server immediately (for file loads)
+  const syncToServerNow = useCallback((content: string) => {
+    if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+    versionRef.current++;
+    fetch("/api/document", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content, version: versionRef.current }),
+    }).catch(() => {});
   }, []);
 
   // Sync document to server (debounced)
@@ -76,8 +89,9 @@ export function App() {
   // Open file and load content into editor
   const handleFileSelected = useCallback(async (path: string) => {
     const text = await loadFromServer(path);
-    if (text != null && editorRef.current) {
-      editorRef.current.setMarkdown(text);
+    if (text != null) {
+      syncToServerNow(text);
+      if (editorRef.current) editorRef.current.setMarkdown(text);
     }
     // Update URL to reflect the new file
     window.history.replaceState({}, "", `/?file=${encodeURIComponent(path)}`);
