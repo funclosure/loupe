@@ -1,5 +1,6 @@
 import type { LensDefinition } from "@shared/types";
 import { readdir } from "fs/promises";
+import { mkdirSync, writeFileSync } from "fs";
 import { join } from "path";
 
 export function parseLensMd(raw: string, id: string): LensDefinition | null {
@@ -34,6 +35,25 @@ export function parseLensMd(raw: string, id: string): LensDefinition | null {
     model: fields.model || undefined,
     source: "user",
   };
+}
+
+export function writeLensMd(
+  lensesDir: string,
+  id: string,
+  definition: { name: string; description: string; icon: string; color: string; systemPrompt: string }
+): void {
+  const dir = join(lensesDir, id);
+  mkdirSync(dir, { recursive: true });
+  const content = `---
+name: ${definition.name}
+description: ${definition.description}
+icon: ${definition.icon}
+color: "${definition.color}"
+---
+
+${definition.systemPrompt}
+`;
+  writeFileSync(join(dir, "LENS.md"), content, "utf8");
 }
 
 export async function loadUserLenses(lensesDir: string): Promise<LensDefinition[]> {

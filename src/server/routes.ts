@@ -1,10 +1,11 @@
-import type { DocumentSyncBody, LensFocusBody, LensAskBody } from "@shared/types";
+import type { DocumentSyncBody, LensFocusBody, LensAskBody, LensDefinition } from "@shared/types";
 import { DocumentStore } from "./document";
 import { LensManager } from "./lens-manager";
 import type { LensSession } from "./lens-session";
 import { FileStore } from "./file-store";
+import { writeLensMd } from "./lens-loader";
 import { resolve, basename } from "path";
-import { readdirSync, readFileSync, writeFileSync, mkdirSync, renameSync } from "fs";
+import { readdirSync, readFileSync, writeFileSync, mkdirSync, renameSync, existsSync } from "fs";
 
 export class RouteHandler {
   constructor(
@@ -81,6 +82,45 @@ export class RouteHandler {
         return Response.json({ ok: true });
       } catch {
         return Response.json({ error: "Delete failed" }, { status: 500 });
+      }
+    }
+
+    // Create lens
+    if (url.pathname === "/api/lenses/create" && req.method === "POST") {
+      const body = await req.json();
+      const { name, description, icon, color, systemPrompt } = body;
+      if (!name || !systemPrompt) {
+        return Response.json({ error: "name and systemPrompt required" }, { status: 400 });
+      }
+
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const lensesDir = resolve(this.cwd, ".loupe", "lenses");
+
+      let finalSlug = slug;
+      let suffix = 2;
+      while (existsSync(resolve(lensesDir, finalSlug))) {
+        finalSlug = `${slug}-${suffix++}`;
+      }
+
+      const def = {
+        name,
+        description: description || name,
+        icon: icon || name[0],
+        color: color || "#6b7280",
+        systemPrompt,
+      };
+
+      try {
+        writeLensMd(lensesDir, finalSlug, def);
+        const lensDef: LensDefinition = {
+          id: finalSlug,
+          ...def,
+          source: "user" as const,
+        };
+        this.lensManager.addDefinitions([lensDef]);
+        return Response.json({ ok: true, lens: lensDef }, { status: 201 });
+      } catch {
+        return Response.json({ error: "Failed to create lens" }, { status: 500 });
       }
     }
 

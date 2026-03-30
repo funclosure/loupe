@@ -8,11 +8,14 @@ import { join } from "path";
 
 const PORT = Number(process.env.LOUPE_PORT) || 4460;
 const MODEL = process.env.LOUPE_MODEL || "claude-sonnet-4-6";
-const LENSES_DIR = join(process.cwd(), "lenses");
+const LENSES_DIR = join(process.cwd(), ".loupe", "lenses");
+const LEGACY_LENSES_DIR = join(process.cwd(), "lenses");
 
 export async function startServer() {
-  // Load user lenses from lenses/ directory
-  const userLenses = await loadUserLenses(LENSES_DIR);
+  const userLenses = [
+    ...(await loadUserLenses(LENSES_DIR)),
+    ...(await loadUserLenses(LEGACY_LENSES_DIR)),
+  ];
   console.log(`Loaded ${userLenses.length} user lens(es)`);
 
   const document = new DocumentStore();

@@ -23,10 +23,10 @@ export class LensManager {
   }
 
   activate(definitionId: string): string {
-    if (this.sessions.size >= MAX_LENSES)
-      throw new Error("Maximum 5 concurrent lenses");
     const definition = this.definitions.get(definitionId);
     if (!definition) throw new Error(`Unknown lens: ${definitionId}`);
+    if (definition.source !== "system" && this.sessions.size >= MAX_LENSES)
+      throw new Error("Maximum 5 concurrent lenses");
     const lensId = nanoid(8);
     this.sessions.set(lensId, new LensSession(definition, this.defaultModel));
     return lensId;
