@@ -839,13 +839,13 @@ body {
 .outline-content {
   flex: 1;
   min-height: 0;
-  padding: 0 24px;
   display: flex;
 }
 
 .outline-textarea {
   width: 100%;
   flex: 1;
+  padding: 0 24px;
   background: transparent;
   border: none;
   outline: none;
