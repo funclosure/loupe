@@ -173,12 +173,21 @@ Only include the update block when you're actually changing the outline. For dis
 
       const { query } = await import("@anthropic-ai/claude-agent-sdk");
 
+      // Create a one-shot message channel (same pattern as LensSession)
+      const userMsg = {
+        type: "user" as const,
+        message: { role: "user" as const, content: message },
+        parent_tool_use_id: null,
+        session_id: "outline",
+      };
+      async function* singleMessage() { yield userMsg; }
+
       const stream = new ReadableStream({
         async start(controller) {
           const encoder = new TextEncoder();
           try {
             const q = query({
-              prompt: message,
+              prompt: singleMessage() as any,
               options: {
                 systemPrompt,
                 model: process.env.LOUPE_MODEL || "claude-sonnet-4-6",
@@ -189,6 +198,7 @@ Only include the update block when you're actually changing the outline. For dis
                   "Bash", "Read", "Write", "Edit", "Glob", "Grep",
                   "Agent", "WebFetch", "WebSearch", "NotebookEdit",
                 ],
+                includePartialMessages: true,
               },
             });
 
