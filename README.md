@@ -23,12 +23,15 @@ You write. Lenses watch. Drag one onto a paragraph to focus its attention. It re
 ## Features
 
 - **WYSIWYG markdown editing** — Milkdown/ProseMirror with warm ink theme
-- **AI lenses** — 5 built-in + create your own with a simple markdown file
+- **AI lenses** — 5 built-in perspectives + create your own through conversation
+- **Lens Creator** — describe the lens you want, the AI builds it for you
+- **Intention outline** — a left panel to capture what you're trying to convey; lenses check alignment
 - **Drag-to-inspect** — drag a lens onto any paragraph to start a conversation
 - **Syntax highlighting** — Shiki-powered code blocks with language selector, copy, wrap
+- **Frontmatter handling** — YAML frontmatter hidden from editor, editable via bottom-right bar
+- **Server-side file I/O** — open, save, create, delete files through the server
 - **Zen mode** — Cmd+. fades all chrome, hover to reveal
 - **Undo/redo** — full history with Cmd+Z / Cmd+Shift+Z
-- **File handling** — File System Access API for native open/save, localStorage persistence
 - **No API key needed** — authenticates through Claude Code session
 
 ## Quick Start
@@ -49,16 +52,19 @@ Or use the CLI:
 
 ```bash
 bun link          # Register the CLI globally (once)
-loupe             # Start server + open browser
+loupe             # Start server + open file picker
 loupe draft.md    # Open with a file pre-loaded
+loupe .           # Same as loupe (browse current directory)
 ```
 
 ## Creating Lenses
 
-Drop a `LENS.md` file in the `lenses/` directory:
+**Through the app:** Open the lens picker (Cmd+L), type a description at the bottom, and the Lens Creator will guide you through building it via conversation. Saved to `.loupe/lenses/`.
+
+**Manually:** Drop a `LENS.md` file in `.loupe/lenses/` (or `lenses/` for legacy):
 
 ```
-lenses/my-lens/LENS.md
+.loupe/lenses/my-lens/LENS.md
 ```
 
 ```markdown
@@ -73,13 +79,12 @@ Your system prompt here. The lens sees the full document
 and responds based on this persona.
 ```
 
-See `lenses/README.md` for details.
-
 ## Keyboard Shortcuts
 
 | Shortcut | Action |
 |----------|--------|
 | `Cmd + L` | Open lens picker |
+| `Cmd + Shift + E` | Toggle intention outline |
 | `Cmd + O` | Open file |
 | `Cmd + S` | Save file |
 | `Cmd + .` | Toggle zen mode |
@@ -103,12 +108,13 @@ Client + thin Bun server in one process. Bun serves Vite-built static files and 
 
 ```
 src/
-├── server/          # Bun.serve, REST + SSE routes, lens sessions
+├── server/          # Bun.serve, REST + SSE routes, lens sessions, file I/O
 ├── client/
 │   ├── editor/      # Milkdown setup, Shiki code blocks
-│   ├── lenses/      # LoupeIcon, LensBubble, LensChat, LensLayer
-│   ├── hooks/       # useLenses, useLensDrag, useFile, useZenMode
-│   └── chrome/      # TopBar, LensPicker
+│   ├── lenses/      # LoupeIcon, LensBubble, LensChat, LensLayer, LensProposalCard
+│   ├── outline/     # OutlinePanel — intention editor with inline chat
+│   ├── hooks/       # useLenses, useLensDrag, useFile, useOutline, useZenMode
+│   └── chrome/      # TopBar, LensPicker, FilePicker, FrontmatterBar
 └── shared/          # Types, lens presets
 ```
 
