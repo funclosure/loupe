@@ -821,6 +821,7 @@ body {
   border-right: 1px solid var(--loupe-border);
   background: var(--loupe-bg);
   z-index: 15;
+  overflow: hidden;
 }
 
 .outline-header {
