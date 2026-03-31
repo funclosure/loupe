@@ -811,17 +811,20 @@ body {
 
 /* -- Outline Panel ------------------------------------------- */
 .outline-panel {
-  width: 280px;
-  min-width: 280px;
-  height: 100%;
+  position: fixed;
+  top: 44px; /* below TopBar */
+  left: 0;
+  bottom: 0;
+  width: 360px;
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--loupe-border);
-  background: var(--loupe-chrome-bg);
+  background: var(--loupe-bg);
+  z-index: 15;
 }
 
 .outline-header {
-  padding: 14px 16px 8px;
+  padding: 20px 24px 12px;
   flex-shrink: 0;
 }
 
@@ -836,21 +839,21 @@ body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 0 16px;
+  padding: 0 24px;
 }
 
 .outline-textarea {
   width: 100%;
-  min-height: 80px;
+  min-height: 120px;
   background: transparent;
   border: none;
   outline: none;
   resize: none;
   font-family: var(--loupe-editor-font);
-  font-size: 13px;
-  line-height: 1.7;
+  font-size: 15px;
+  line-height: 1.75;
   color: var(--loupe-text);
-  caret-color: var(--loupe-text-tertiary);
+  caret-color: var(--loupe-text-secondary);
 }
 
 .outline-textarea::placeholder {
@@ -860,38 +863,38 @@ body {
 
 .outline-chat-messages {
   flex-shrink: 0;
-  max-height: 200px;
+  max-height: 240px;
   overflow-y: auto;
-  padding: 8px 16px;
+  padding: 12px 24px;
   border-top: 1px solid var(--loupe-border);
 }
 
 .outline-chat-user {
-  font-size: 11px;
-  color: var(--loupe-text-ghost);
+  font-size: 12px;
+  color: var(--loupe-text-tertiary);
   background: var(--loupe-surface);
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 6px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   text-align: right;
 }
 
 .outline-chat-ai {
-  font-size: 11px;
-  color: var(--loupe-text-secondary);
-  margin-bottom: 8px;
-  line-height: 1.5;
+  font-size: 13px;
+  color: var(--loupe-text);
+  margin-bottom: 10px;
+  line-height: 1.6;
 }
 
 .outline-chat-ai .lens-markdown {
-  font-size: 11px !important;
+  font-size: 13px !important;
 }
 
 .outline-chat-input-wrap {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: 8px;
+  padding: 12px 24px;
   border-top: 1px solid var(--loupe-border);
   flex-shrink: 0;
 }
@@ -901,9 +904,9 @@ body {
   background: transparent;
   border: none;
   outline: none;
-  font-size: 11px;
-  color: var(--loupe-text-tertiary);
-  caret-color: var(--loupe-text-tertiary);
+  font-size: 13px;
+  color: var(--loupe-text-secondary);
+  caret-color: var(--loupe-text-secondary);
 }
 
 .outline-chat-input::placeholder {

@@ -180,27 +180,27 @@ export function App() {
         onOpenFile={() => setFilePickerOpen(true)}
       />
 
+      {outline.isOpen && (
+        <OutlinePanel
+          content={outline.content}
+          onContentChange={outline.setContent}
+          messages={outline.messages}
+          streamingContent={outline.streamingContent}
+          isThinking={outline.isThinking}
+          onChat={outline.chat}
+        />
+      )}
+
       <div
-        className="editor-surface relative flex"
+        className="editor-surface relative"
         onClick={(e) => {
-          // Click on empty space focuses the editor
           if (e.target === e.currentTarget) {
             const view = editorRef.current?.getEditorView();
             if (view) view.focus();
           }
         }}
       >
-        {outline.isOpen && (
-          <OutlinePanel
-            content={outline.content}
-            onContentChange={outline.setContent}
-            messages={outline.messages}
-            streamingContent={outline.streamingContent}
-            isThinking={outline.isThinking}
-            onChat={outline.chat}
-          />
-        )}
-        <div className="editor-column flex-1 min-w-0">
+        <div className="editor-column">
           <Editor
             defaultValue={initialContent}
             onChange={handleEditorChange}

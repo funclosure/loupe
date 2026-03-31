@@ -154,9 +154,12 @@ export class RouteHandler {
       const body = await req.json();
       const { message, outline } = body;
 
+      // Also read the current document for context
+      const doc = this.document.get();
+
       const systemPrompt = `You help a writer refine the intention outline for their piece. The outline captures what they want to convey — their thesis, goals for each section, the feeling they want the reader to have.
 
-Current outline:
+${doc.content ? `The writer's current document:\n\n${doc.content}\n\n` : ""}Current outline:
 
 ${outline || "(empty)"}
 
