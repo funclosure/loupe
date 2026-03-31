@@ -139,7 +139,7 @@ export function App() {
           const name = window.prompt("Save as:", "untitled.md");
           if (name) saveAs(name);
         }
-      } else if (mod && e.key === "e") {
+      } else if (mod && e.shiftKey && e.key === "e") {
         e.preventDefault();
         outline.setIsOpen(!outline.isOpen);
       } else if (mod && e.key === "/") {
@@ -169,6 +169,8 @@ export function App() {
         filename={filename}
         activeLensCount={lens.lenses.size}
         saveState={saveState}
+        outlineOpen={outline.isOpen}
+        onToggleOutline={() => outline.setIsOpen(!outline.isOpen)}
         onOpenLensPicker={() => lens.setPickerOpen(true)}
         onOpenFile={() => setFilePickerOpen(true)}
       />
@@ -326,7 +328,7 @@ export function App() {
             <div className="space-y-2.5 text-[12.5px]" style={{ color: "var(--loupe-text-secondary)" }}>
               {[
                 ["Cmd + L", "Open lens picker"],
-                ["Cmd + E", "Toggle outline"],
+                ["Cmd + Shift + E", "Toggle outline"],
                 ["Cmd + O", "Open file"],
                 ["Cmd + S", "Save file"],
                 ["Cmd + .", "Toggle zen mode"],
