@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { LensDefinition } from "@shared/types";
 import { LoupeIcon } from "../lenses/LoupeIcon";
 
@@ -5,11 +6,12 @@ interface LensPickerProps {
   available: LensDefinition[];
   activeLensCount: number;
   onActivate: (definitionId: string) => void;
-  onCreateLens: () => void;
+  onCreateLens: (initialPrompt: string) => void;
   onClose: () => void;
 }
 
 export function LensPicker({ available, activeLensCount, onActivate, onCreateLens, onClose }: LensPickerProps) {
+  const [createInput, setCreateInput] = useState("");
   const atLimit = activeLensCount >= 5;
   const presets = available.filter((l) => l.source === "preset");
   const userLenses = available.filter((l) => l.source === "user");
@@ -99,16 +101,27 @@ export function LensPicker({ available, activeLensCount, onActivate, onCreateLen
           </div>
         )}
 
-        <div className="mt-4 pt-3" style={{ borderTop: "1px solid var(--loupe-border)" }}>
-          <button
-            onClick={() => { onCreateLens(); onClose(); }}
-            className="w-full text-left px-3 py-2.5 rounded-lg text-[13px]
-                       transition-colors cursor-pointer hover:bg-white/[0.03]"
-            style={{ color: "var(--loupe-text-tertiary)" }}
-          >
-            + Create your own...
-          </button>
-        </div>
+        <form
+          className="mt-4 pt-3"
+          style={{ borderTop: "1px solid var(--loupe-border)" }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            const prompt = createInput.trim() || "I want to create a new lens.";
+            onCreateLens(prompt);
+            onClose();
+          }}
+        >
+          <div className="flex items-center gap-2 px-3">
+            <input
+              value={createInput}
+              onChange={(e) => setCreateInput(e.target.value)}
+              placeholder="Describe a lens you want..."
+              className="flex-1 bg-transparent text-[13px] outline-none py-2"
+              style={{ color: "var(--loupe-text)", caretColor: "var(--loupe-text-tertiary)" }}
+            />
+            <span className="text-[11px] shrink-0" style={{ color: "var(--loupe-text-ghost)" }}>↵</span>
+          </div>
+        </form>
       </div>
     </div>
   );
