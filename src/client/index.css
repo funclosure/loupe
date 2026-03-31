@@ -956,3 +956,80 @@ body {
 .outline-chat-input::placeholder {
   color: var(--loupe-text-ghost);
 }
+
+/* -- Frontmatter Bar ----------------------------------------- */
+.frontmatter-bar {
+  position: fixed;
+  bottom: 12px;
+  right: 16px;
+  z-index: 10;
+  max-width: 500px;
+}
+
+.frontmatter-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.frontmatter-display:hover {
+  background: var(--loupe-surface);
+}
+
+.frontmatter-fields {
+  font-size: 11px;
+  color: var(--loupe-text-ghost);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.frontmatter-key {
+  color: var(--loupe-text-tertiary);
+}
+
+.frontmatter-value {
+  color: var(--loupe-text-ghost);
+}
+
+.frontmatter-sep {
+  color: var(--loupe-text-ghost);
+  opacity: 0.4;
+}
+
+.frontmatter-icon {
+  flex-shrink: 0;
+  color: var(--loupe-text-ghost);
+  opacity: 0.5;
+}
+
+.frontmatter-display:hover .frontmatter-icon {
+  opacity: 0.8;
+}
+
+.frontmatter-editor {
+  background: var(--loupe-elevated);
+  border: 1px solid var(--loupe-border-strong);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.frontmatter-textarea {
+  width: 320px;
+  min-height: 80px;
+  max-height: 200px;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: vertical;
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--loupe-text-secondary);
+  caret-color: var(--loupe-text-secondary);
+}

@@ -24,6 +24,8 @@ interface UseFileReturn {
   filename: string;
   initialContent: string;
   saveState: "saved" | "saving" | "unsaved";
+  frontmatter: string;
+  setFrontmatter: (fm: string) => void;
   save: () => Promise<void>;
   saveAs: (path: string) => Promise<void>;
   updateContent: (content: string) => void;
@@ -43,16 +45,19 @@ export function useFile(): UseFileReturn {
   });
   const [saveState, setSaveState] = useState<UseFileReturn["saveState"]>("unsaved");
   const [filePath, setFilePath] = useState<string | null>(null);
+  const [frontmatter, setFrontmatterState] = useState(() => {
+    const raw = localStorage.getItem(STORAGE_KEY_CONTENT) || "";
+    return splitFrontmatter(raw).frontmatter;
+  });
 
-  const frontmatterRef = useRef(""); // preserved frontmatter, re-prepended on save
+  const frontmatterRef = useRef(frontmatter); // keep ref in sync for save callbacks
   const latestContentRef = useRef(initialContent);
   const localSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const serverSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Initialize frontmatter from localStorage
-  useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY_CONTENT) || "";
-    frontmatterRef.current = splitFrontmatter(raw).frontmatter;
+  const setFrontmatter = useCallback((fm: string) => {
+    setFrontmatterState(fm);
+    frontmatterRef.current = fm;
   }, []);
 
   const persistFilename = useCallback((name: string) => {
@@ -125,8 +130,8 @@ export function useFile(): UseFileReturn {
       if (data.filename) persistFilename(data.filename);
 
       // Split frontmatter — store it, return only the body for the editor
-      const { frontmatter, body } = splitFrontmatter(data.content);
-      frontmatterRef.current = frontmatter;
+      const { frontmatter: fm, body } = splitFrontmatter(data.content);
+      setFrontmatter(fm);
 
       latestContentRef.current = body;
       localStorage.setItem(STORAGE_KEY_CONTENT, data.content);
@@ -145,7 +150,7 @@ export function useFile(): UseFileReturn {
   }, []);
 
   return {
-    filename, initialContent, saveState, save, saveAs, updateContent,
-    filePath, setFilePath, persistFilename, loadFromServer,
+    filename, initialContent, saveState, frontmatter, setFrontmatter,
+    save, saveAs, updateContent, filePath, setFilePath, persistFilename, loadFromServer,
   };
 }

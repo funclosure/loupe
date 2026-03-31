@@ -5,6 +5,7 @@ import { LensLayer } from "./lenses/LensLayer";
 import { LensPicker } from "./chrome/LensPicker";
 import { FilePicker } from "./chrome/FilePicker";
 import { OutlinePanel } from "./outline/OutlinePanel";
+import { FrontmatterBar } from "./chrome/FrontmatterBar";
 import { useFile } from "./hooks/use-file";
 import { useZenMode } from "./hooks/use-zen-mode";
 import { useLenses } from "./hooks/use-lenses";
@@ -20,8 +21,8 @@ export function App() {
   const fileLoadedRef = useRef(false); // Guard: don't auto-save until server file is loaded
 
   const {
-    filename, initialContent, saveState, save, saveAs, updateContent,
-    filePath, persistFilename, loadFromServer,
+    filename, initialContent, saveState, frontmatter, setFrontmatter,
+    save, saveAs, updateContent, filePath, persistFilename, loadFromServer,
   } = useFile();
   const [filePickerOpen, setFilePickerOpen] = useState(false);
   const { zenMode } = useZenMode();
@@ -280,6 +281,11 @@ export function App() {
           />
         </div>
       )}
+
+      <FrontmatterBar
+        frontmatter={frontmatter}
+        onUpdate={setFrontmatter}
+      />
 
       {lens.pickerOpen && (
         <LensPicker
