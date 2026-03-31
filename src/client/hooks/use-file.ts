@@ -3,6 +3,22 @@ import { useState, useRef, useCallback, useEffect } from "react";
 const STORAGE_KEY_CONTENT = "loupe-draft";
 const STORAGE_KEY_FILENAME = "loupe-filename";
 
+const FM_REGEX = /^---\n([\s\S]*?)\n---\n?/;
+
+function splitFrontmatter(raw: string): { frontmatter: string; body: string } {
+  const match = raw.match(FM_REGEX);
+  if (!match) return { frontmatter: "", body: raw };
+  return {
+    frontmatter: match[0],
+    body: raw.slice(match[0].length),
+  };
+}
+
+function joinFrontmatter(frontmatter: string, body: string): string {
+  if (!frontmatter) return body;
+  return frontmatter + body;
+}
+
 interface UseFileReturn {
   filename: string;
   initialContent: string;
@@ -20,25 +36,34 @@ export function useFile(): UseFileReturn {
   const [filename, setFilename] = useState(
     () => localStorage.getItem(STORAGE_KEY_FILENAME) || "Untitled"
   );
-  const [initialContent] = useState(
-    () => localStorage.getItem(STORAGE_KEY_CONTENT) || ""
-  );
+  const [initialContent] = useState(() => {
+    const raw = localStorage.getItem(STORAGE_KEY_CONTENT) || "";
+    return splitFrontmatter(raw).body;
+  });
   const [saveState, setSaveState] = useState<UseFileReturn["saveState"]>("unsaved");
   const [filePath, setFilePath] = useState<string | null>(null);
 
+  const frontmatterRef = useRef(""); // preserved frontmatter, re-prepended on save
   const latestContentRef = useRef(initialContent);
   const localSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const serverSaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Initialize frontmatter from localStorage
+  useEffect(() => {
+    const raw = localStorage.getItem(STORAGE_KEY_CONTENT) || "";
+    frontmatterRef.current = splitFrontmatter(raw).frontmatter;
+  }, []);
 
   const persistFilename = useCallback((name: string) => {
     setFilename(name);
     localStorage.setItem(STORAGE_KEY_FILENAME, name);
   }, []);
 
-  const writeToServer = useCallback(async (content: string, path?: string): Promise<boolean> => {
+  const writeToServer = useCallback(async (bodyContent: string, path?: string): Promise<boolean> => {
     try {
       setSaveState("saving");
-      const body: Record<string, string> = { content };
+      const fullContent = joinFrontmatter(frontmatterRef.current, bodyContent);
+      const body: Record<string, string> = { content: fullContent };
       if (path) body.path = path;
       const res = await fetch("/api/file", {
         method: "POST",
@@ -79,7 +104,7 @@ export function useFile(): UseFileReturn {
 
     if (localSaveTimeoutRef.current) clearTimeout(localSaveTimeoutRef.current);
     localSaveTimeoutRef.current = setTimeout(() => {
-      localStorage.setItem(STORAGE_KEY_CONTENT, newContent);
+      localStorage.setItem(STORAGE_KEY_CONTENT, joinFrontmatter(frontmatterRef.current, newContent));
     }, 500);
 
     if (filePath) {
@@ -97,10 +122,15 @@ export function useFile(): UseFileReturn {
       const data = await res.json();
       if (data.path) setFilePath(data.path);
       if (data.filename) persistFilename(data.filename);
-      latestContentRef.current = data.content;
+
+      // Split frontmatter — store it, return only the body for the editor
+      const { frontmatter, body } = splitFrontmatter(data.content);
+      frontmatterRef.current = frontmatter;
+
+      latestContentRef.current = body;
       localStorage.setItem(STORAGE_KEY_CONTENT, data.content);
       setSaveState("saved");
-      return data.content;
+      return body;
     } catch {
       return null;
     }
