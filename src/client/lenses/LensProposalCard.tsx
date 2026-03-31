@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { LoupeIcon } from "./LoupeIcon";
 
 interface LensProposal {
   name: string;
@@ -49,7 +48,12 @@ export function LensProposalCard({ proposal, isLatest, onCreate }: LensProposalC
       }}
     >
       <div className="flex items-center gap-2.5 mb-2">
-        <LoupeIcon size={28} color={proposal.color} icon={proposal.icon} />
+        <div
+          className="w-7 h-7 rounded-full flex items-center justify-center text-[13px] font-medium shrink-0"
+          style={{ background: proposal.color + "33", color: proposal.color }}
+        >
+          {proposal.icon}
+        </div>
         <div>
           <div className="text-[13px] font-medium" style={{ color: "var(--loupe-text)" }}>
             {proposal.name}

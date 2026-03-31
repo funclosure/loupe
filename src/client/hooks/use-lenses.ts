@@ -308,8 +308,9 @@ export function useLenses() {
   const activateCreator = useCallback(async () => {
     const lensId = await activate("lens-creator");
     if (lensId) {
-      await ask(lensId, "I want to create a new lens.");
+      // Expand chat immediately so user sees streaming response
       toggleExpanded(lensId);
+      ask(lensId, "I want to create a new lens.");
     }
   }, [activate, ask, toggleExpanded]);
 
