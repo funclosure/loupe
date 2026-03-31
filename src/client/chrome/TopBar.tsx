@@ -12,13 +12,13 @@ interface TopBarProps {
 
 function OutlineIcon({ active }: { active: boolean }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor"
-      strokeWidth="1.5" strokeLinecap="round" style={{ opacity: active ? 1 : 0.5 }}>
-      <line x1="3" y1="3" x2="13" y2="3" />
-      <line x1="5" y1="7" x2="13" y2="7" />
-      <line x1="5" y1="11" x2="13" y2="11" />
-      <circle cx="3" cy="7" r="0.8" fill="currentColor" stroke="none" />
-      <circle cx="3" cy="11" r="0.8" fill="currentColor" stroke="none" />
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+      strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"
+      style={{ opacity: active ? 1 : 0.4 }}>
+      <rect x="2" y="1" width="12" height="14" rx="1.5" />
+      <line x1="5" y1="4.5" x2="11" y2="4.5" />
+      <line x1="5" y1="7.5" x2="11" y2="7.5" />
+      <line x1="5" y1="10.5" x2="9" y2="10.5" />
     </svg>
   );
 }
@@ -40,31 +40,7 @@ export function TopBar({
         borderBottom: "1px solid var(--loupe-border)",
       }}
     >
-      {/* Left: filename + sync dot */}
-      <button
-        onClick={onOpenFile}
-        className="flex items-center gap-2 hover:opacity-70 transition-opacity cursor-pointer"
-        style={{ color: "var(--loupe-text-tertiary)" }}
-      >
-        <span className="text-[13px] tracking-wide">{filename}</span>
-        <span
-          style={{
-            width: 6,
-            height: 6,
-            borderRadius: "50%",
-            background: saveState === "saving"
-              ? "var(--loupe-save-color)"
-              : saveState === "unsaved"
-                ? "var(--loupe-save-color)"
-                : "var(--loupe-text-ghost)",
-            opacity: saveState === "saving" ? 1 : saveState === "unsaved" ? 0.6 : 0,
-            transition: saveState === "saved" ? "opacity 1.5s ease-out 0.3s" : "opacity 0.15s ease-in",
-            animation: saveState === "saving" ? "loupe-pulse 1s ease-in-out infinite" : "none",
-          }}
-        />
-      </button>
-
-      {/* Right: outline toggle + add lens */}
+      {/* Left: outline toggle + filename + sync dot */}
       <div className="flex items-center gap-3">
         <button
           onClick={onToggleOutline}
@@ -75,6 +51,32 @@ export function TopBar({
           <OutlineIcon active={outlineOpen} />
         </button>
 
+        <button
+          onClick={onOpenFile}
+          className="flex items-center gap-2 hover:opacity-70 transition-opacity cursor-pointer"
+          style={{ color: "var(--loupe-text-tertiary)" }}
+        >
+          <span className="text-[13px] tracking-wide">{filename}</span>
+          <span
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: "50%",
+              background: saveState === "saving"
+                ? "var(--loupe-save-color)"
+                : saveState === "unsaved"
+                  ? "var(--loupe-save-color)"
+                  : "var(--loupe-text-ghost)",
+              opacity: saveState === "saving" ? 1 : saveState === "unsaved" ? 0.6 : 0,
+              transition: saveState === "saved" ? "opacity 1.5s ease-out 0.3s" : "opacity 0.15s ease-in",
+              animation: saveState === "saving" ? "loupe-pulse 1s ease-in-out infinite" : "none",
+            }}
+          />
+        </button>
+      </div>
+
+      {/* Right: add lens */}
+      <div className="flex items-center gap-3">
         <button
           onClick={onOpenLensPicker}
           className="relative transition-opacity cursor-pointer hover:opacity-80"
