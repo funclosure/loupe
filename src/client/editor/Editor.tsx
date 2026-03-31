@@ -5,9 +5,10 @@ interface EditorProps {
   defaultValue: string;
   onChange: (markdown: string) => void;
   editorRef?: React.MutableRefObject<MilkdownInstance | null>;
+  placeholder?: string | false;
 }
 
-export function Editor({ defaultValue, onChange, editorRef }: EditorProps) {
+export function Editor({ defaultValue, onChange, editorRef, placeholder = "Start writing..." }: EditorProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const instanceRef = useRef<MilkdownInstance | null>(null);
@@ -68,9 +69,9 @@ export function Editor({ defaultValue, onChange, editorRef }: EditorProps) {
 
   return (
     <div ref={wrapperRef} className="loupe-editor" onClick={handleClick}>
-      {isEmpty && (
+      {isEmpty && placeholder && (
         <div className="loupe-placeholder">
-          Start writing...
+          {placeholder}
         </div>
       )}
       <div ref={containerRef} />

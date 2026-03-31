@@ -102,6 +102,7 @@ export function OutlinePanel({
           defaultValue={content}
           onChange={handleEditorChange}
           editorRef={outlineEditorRef}
+          placeholder={false}
         />
       </div>
 
