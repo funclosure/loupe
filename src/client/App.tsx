@@ -17,6 +17,7 @@ export function App() {
   const editorRef = useRef<MilkdownInstance | null>(null);
   const versionRef = useRef(0);
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fileLoadedRef = useRef(false); // Guard: don't auto-save until server file is loaded
 
   const {
     filename, initialContent, saveState, save, saveAs, updateContent,
@@ -47,6 +48,7 @@ export function App() {
       localStorage.removeItem("loupe-draft");
       localStorage.removeItem("loupe-filename");
       persistFilename("Untitled");
+      fileLoadedRef.current = true; // No file to load — safe to edit
       function tryClear() {
         if (editorRef.current) {
           editorRef.current.setMarkdown("");
@@ -67,6 +69,7 @@ export function App() {
       function tryLoad() {
         if (editorRef.current) {
           editorRef.current.setMarkdown(text!);
+          fileLoadedRef.current = true; // Now safe to auto-save
         } else {
           setTimeout(tryLoad, 100);
         }
@@ -101,6 +104,7 @@ export function App() {
 
   // Editor change handler: save to file + sync to server
   const handleEditorChange = useCallback((markdown: string) => {
+    if (!fileLoadedRef.current) return; // Don't auto-save stale localStorage content
     updateContent(markdown);
     syncToServer(markdown);
   }, [updateContent, syncToServer]);
@@ -112,6 +116,7 @@ export function App() {
       syncToServerNow(text);
       outline.load();
       if (editorRef.current) editorRef.current.setMarkdown(text);
+      fileLoadedRef.current = true;
     }
     // Update URL to reflect the new file
     window.history.replaceState({}, "", `/?file=${encodeURIComponent(path)}`);
