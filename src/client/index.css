@@ -808,3 +808,104 @@ body {
 .loupe-code-editable ::selection {
   background: rgba(255, 245, 230, 0.15);
 }
+
+/* -- Outline Panel ------------------------------------------- */
+.outline-panel {
+  width: 280px;
+  min-width: 280px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--loupe-border);
+  background: var(--loupe-chrome-bg);
+}
+
+.outline-header {
+  padding: 14px 16px 8px;
+  flex-shrink: 0;
+}
+
+.outline-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--loupe-text-ghost);
+}
+
+.outline-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 16px;
+}
+
+.outline-textarea {
+  width: 100%;
+  min-height: 80px;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: var(--loupe-editor-font);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--loupe-text);
+  caret-color: var(--loupe-text-tertiary);
+}
+
+.outline-textarea::placeholder {
+  color: var(--loupe-text-ghost);
+  font-style: italic;
+}
+
+.outline-chat-messages {
+  flex-shrink: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 8px 16px;
+  border-top: 1px solid var(--loupe-border);
+}
+
+.outline-chat-user {
+  font-size: 11px;
+  color: var(--loupe-text-ghost);
+  background: var(--loupe-surface);
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  text-align: right;
+}
+
+.outline-chat-ai {
+  font-size: 11px;
+  color: var(--loupe-text-secondary);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.outline-chat-ai .lens-markdown {
+  font-size: 11px !important;
+}
+
+.outline-chat-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-top: 1px solid var(--loupe-border);
+  flex-shrink: 0;
+}
+
+.outline-chat-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 11px;
+  color: var(--loupe-text-tertiary);
+  caret-color: var(--loupe-text-tertiary);
+}
+
+.outline-chat-input::placeholder {
+  color: var(--loupe-text-ghost);
+}

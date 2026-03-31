@@ -4,10 +4,12 @@ import { TopBar } from "./chrome/TopBar";
 import { LensLayer } from "./lenses/LensLayer";
 import { LensPicker } from "./chrome/LensPicker";
 import { FilePicker } from "./chrome/FilePicker";
+import { OutlinePanel } from "./outline/OutlinePanel";
 import { useFile } from "./hooks/use-file";
 import { useZenMode } from "./hooks/use-zen-mode";
 import { useLenses } from "./hooks/use-lenses";
 import { useLensDrag } from "./hooks/use-lens-drag";
+import { useOutline } from "./hooks/use-outline";
 import { LoupeIcon } from "./lenses/LoupeIcon";
 import type { MilkdownInstance } from "./editor/milkdown-setup";
 
@@ -23,6 +25,7 @@ export function App() {
   const [filePickerOpen, setFilePickerOpen] = useState(false);
   const { zenMode } = useZenMode();
   const lens = useLenses();
+  const outline = useOutline();
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const { drag, highlight, snapBack, handleDragStart } = useLensDrag({
     editorRef,
@@ -60,6 +63,7 @@ export function App() {
       if (text == null) return;
       // Sync to DocumentStore immediately so lenses have content
       syncToServerNow(text);
+      outline.load();
       function tryLoad() {
         if (editorRef.current) {
           editorRef.current.setMarkdown(text!);
@@ -106,6 +110,7 @@ export function App() {
     const text = await loadFromServer(path);
     if (text != null) {
       syncToServerNow(text);
+      outline.load();
       if (editorRef.current) editorRef.current.setMarkdown(text);
     }
     // Update URL to reflect the new file
@@ -134,6 +139,9 @@ export function App() {
           const name = window.prompt("Save as:", "untitled.md");
           if (name) saveAs(name);
         }
+      } else if (mod && e.key === "e") {
+        e.preventDefault();
+        outline.setIsOpen(!outline.isOpen);
       } else if (mod && e.key === "/") {
         e.preventDefault();
         setShortcutsOpen((prev) => !prev);
@@ -153,7 +161,7 @@ export function App() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [save, saveAs, filePath, lens.pickerOpen, lens.lenses, shortcutsOpen, filePickerOpen]);
+  }, [save, saveAs, filePath, lens.pickerOpen, lens.lenses, shortcutsOpen, filePickerOpen, outline.isOpen, outline]);
 
   return (
     <div className={zenMode ? "zen h-full flex flex-col" : "h-full flex flex-col"}>
@@ -166,7 +174,7 @@ export function App() {
       />
 
       <div
-        className="editor-surface relative"
+        className="editor-surface relative flex"
         onClick={(e) => {
           // Click on empty space focuses the editor
           if (e.target === e.currentTarget) {
@@ -175,7 +183,17 @@ export function App() {
           }
         }}
       >
-        <div className="editor-column">
+        {outline.isOpen && (
+          <OutlinePanel
+            content={outline.content}
+            onContentChange={outline.setContent}
+            messages={outline.messages}
+            streamingContent={outline.streamingContent}
+            isThinking={outline.isThinking}
+            onChat={outline.chat}
+          />
+        )}
+        <div className="editor-column flex-1 min-w-0">
           <Editor
             defaultValue={initialContent}
             onChange={handleEditorChange}
@@ -308,6 +326,7 @@ export function App() {
             <div className="space-y-2.5 text-[12.5px]" style={{ color: "var(--loupe-text-secondary)" }}>
               {[
                 ["Cmd + L", "Open lens picker"],
+                ["Cmd + E", "Toggle outline"],
                 ["Cmd + O", "Open file"],
                 ["Cmd + S", "Save file"],
                 ["Cmd + .", "Toggle zen mode"],
