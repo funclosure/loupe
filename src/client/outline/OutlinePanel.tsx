@@ -72,7 +72,7 @@ export function OutlinePanel({
   const hasChatContent = messages.length > 0 || streamingContent || isThinking;
 
   return (
-    <div ref={panelRef} className="outline-panel">
+    <div className="outline-panel">
       {/* Header */}
       <div className="outline-header">
         <span className="outline-label">Intention</span>
