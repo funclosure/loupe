@@ -55,6 +55,12 @@ describe("LensSession", () => {
     expect(session2.model).toBe("claude-haiku-4-5-20251001");
   });
 
+  it("includes outline content in system prompt when provided", () => {
+    const system = session.buildSystemPrompt("Doc text.", undefined, "Core thesis: time is presence.");
+    expect(system).toContain("Core thesis: time is presence.");
+    expect(system).toContain("stated intention");
+  });
+
   it("skips document context when skipDocumentContext is true", () => {
     const metaLens = {
       ...testLens,

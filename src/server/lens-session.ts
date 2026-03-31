@@ -69,7 +69,7 @@ export class LensSession {
     this.model = definition.model || defaultModel;
   }
 
-  buildSystemPrompt(documentContent: string, focusedParagraph?: string): string {
+  buildSystemPrompt(documentContent: string, focusedParagraph?: string, outlineContent?: string): string {
     if (this.definition.skipDocumentContext) {
       return this.definition.systemPrompt;
     }
@@ -78,12 +78,15 @@ export class LensSession {
     if (focusedParagraph) {
       prompt += `\n\nThe writer is currently focused on this passage:\n\n${focusedParagraph}`;
     }
+    if (outlineContent) {
+      prompt += `\n\nThe writer's stated intention for this piece:\n\n${outlineContent}\n\nCheck if the writing aligns with this intention.`;
+    }
     prompt += `\n\nRead the full document to understand the writer's voice and intent.\nFocus your response on the passage they're working on.\nHelp them think — don't give answers, ask the question they haven't asked yet.\n1–3 sentences unless they ask for more.`;
     return prompt;
   }
 
-  async start(documentContent: string, initialMessage: string, focusedParagraph?: string): Promise<void> {
-    const systemPrompt = this.buildSystemPrompt(documentContent, focusedParagraph);
+  async start(documentContent: string, initialMessage: string, focusedParagraph?: string, outlineContent?: string): Promise<void> {
+    const systemPrompt = this.buildSystemPrompt(documentContent, focusedParagraph, outlineContent);
 
     this.channel.push(initialMessage);
 

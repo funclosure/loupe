@@ -124,6 +124,107 @@ export class RouteHandler {
       }
     }
 
+    // GET /api/outline — read sidecar file
+    if (url.pathname === "/api/outline" && req.method === "GET") {
+      const outlinePath = this.fileStore.outlinePath;
+      if (!outlinePath) return Response.json({ content: "" });
+      try {
+        const text = readFileSync(outlinePath, "utf8");
+        return Response.json({ content: text });
+      } catch {
+        return Response.json({ content: "" });
+      }
+    }
+
+    // POST /api/outline — write sidecar file
+    if (url.pathname === "/api/outline" && req.method === "POST") {
+      const outlinePath = this.fileStore.outlinePath;
+      if (!outlinePath) return Response.json({ error: "No active file" }, { status: 400 });
+      const body = await req.json();
+      try {
+        writeFileSync(outlinePath, body.content, "utf8");
+        return Response.json({ ok: true });
+      } catch {
+        return Response.json({ error: "Write failed" }, { status: 500 });
+      }
+    }
+
+    // POST /api/outline/chat — SSE stream for refining the outline
+    if (url.pathname === "/api/outline/chat" && req.method === "POST") {
+      const body = await req.json();
+      const { message, outline } = body;
+
+      const systemPrompt = `You help a writer refine the intention outline for their piece. The outline captures what they want to convey — their thesis, goals for each section, the feeling they want the reader to have.
+
+Current outline:
+
+${outline || "(empty)"}
+
+Help them sharpen, expand, or restructure their intentions. Be concise and direct. If you suggest changes to the outline, output the updated full outline in a :::outline-update block:
+
+:::outline-update
+[the complete updated outline text]
+:::
+
+Only include the update block when you're actually changing the outline. For discussion or questions, just respond normally.`;
+
+      const { query } = await import("@anthropic-ai/claude-agent-sdk");
+
+      const stream = new ReadableStream({
+        async start(controller) {
+          const encoder = new TextEncoder();
+          try {
+            const q = query({
+              prompt: message,
+              options: {
+                systemPrompt,
+                model: process.env.LOUPE_MODEL || "claude-sonnet-4-6",
+                permissionMode: "bypassPermissions",
+                allowDangerouslySkipPermissions: true,
+                allowedTools: [],
+                disallowedTools: [
+                  "Bash", "Read", "Write", "Edit", "Glob", "Grep",
+                  "Agent", "WebFetch", "WebSearch", "NotebookEdit",
+                ],
+              },
+            });
+
+            for await (const msg of q as AsyncIterable<any>) {
+              if (msg.type === "stream_event" && msg.event) {
+                const delta = msg.event.delta;
+                if (
+                  msg.event.type === "content_block_delta" &&
+                  delta?.type === "text_delta" &&
+                  delta.text
+                ) {
+                  controller.enqueue(
+                    encoder.encode(`data: ${JSON.stringify({ text: delta.text })}\n\n`)
+                  );
+                }
+              }
+              if (msg.type === "result") break;
+            }
+
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true })}\n\n`));
+          } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : String(err);
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({ error: errorMsg })}\n\n`)
+            );
+          }
+          controller.close();
+        },
+      });
+
+      return new Response(stream, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "Connection": "keep-alive",
+        },
+      });
+    }
+
     // Document sync
     if (url.pathname === "/api/document" && req.method === "POST") {
       const body: DocumentSyncBody = await req.json();
@@ -216,6 +317,11 @@ export class RouteHandler {
     focusedParagraph?: string
   ): Response {
     const doc = this.document.get();
+    let outlineContent = "";
+    const outlinePath = this.fileStore.outlinePath;
+    if (outlinePath) {
+      try { outlineContent = readFileSync(outlinePath, "utf8"); } catch {}
+    }
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -224,7 +330,7 @@ export class RouteHandler {
         try {
           // Start or continue the session
           if (!session.isStarted) {
-            await session.start(doc.content, message, focusedParagraph);
+            await session.start(doc.content, message, focusedParagraph, outlineContent);
           } else {
             // For follow-up turns, update context by prepending document state
             const contextMessage = focusedParagraph
