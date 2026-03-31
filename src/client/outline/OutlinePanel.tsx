@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Markdown from "react-markdown";
+import { Editor } from "../editor/Editor";
+import type { MilkdownInstance } from "../editor/milkdown-setup";
 import type { ChatMessage } from "@shared/types";
 
 interface OutlinePanelProps {
@@ -24,7 +26,23 @@ export function OutlinePanel({
     () => Number(localStorage.getItem("loupe-outline-chat-height")) || 200
   );
   const scrollRef = useRef<HTMLDivElement>(null);
+  const outlineEditorRef = useRef<MilkdownInstance | null>(null);
   const dragging = useRef(false);
+
+  // When content changes externally (e.g. from chat :::outline-update), update the editor
+  const lastExternalContent = useRef(content);
+  useEffect(() => {
+    if (content !== lastExternalContent.current && outlineEditorRef.current) {
+      outlineEditorRef.current.setMarkdown(content);
+      lastExternalContent.current = content;
+    }
+  }, [content]);
+
+  // Track editor changes
+  const handleEditorChange = useCallback((markdown: string) => {
+    lastExternalContent.current = markdown;
+    onContentChange(markdown);
+  }, [onContentChange]);
 
   // Auto-scroll chat on new messages
   useEffect(() => {
@@ -78,13 +96,12 @@ export function OutlinePanel({
         <span className="outline-label">Intention</span>
       </div>
 
-      {/* Outline text */}
+      {/* Outline editor (Milkdown) */}
       <div className="outline-content">
-        <textarea
-          value={content}
-          onChange={(e) => onContentChange(e.target.value)}
-          placeholder="What are you trying to convey?"
-          className="outline-textarea"
+        <Editor
+          defaultValue={content}
+          onChange={handleEditorChange}
+          editorRef={outlineEditorRef}
         />
       </div>
 

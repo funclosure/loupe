@@ -839,28 +839,36 @@ body {
 .outline-content {
   flex: 1;
   min-height: 0;
-  display: flex;
-}
-
-.outline-textarea {
-  width: 100%;
-  flex: 1;
-  padding: 0 24px;
-  background: transparent;
-  border: none;
-  outline: none;
-  resize: none;
-  font-family: var(--loupe-editor-font);
-  font-size: 15px;
-  line-height: 1.75;
-  color: var(--loupe-text);
-  caret-color: var(--loupe-text-secondary);
   overflow-y: auto;
+  padding: 0 16px;
 }
 
-.outline-textarea::placeholder {
-  color: var(--loupe-text-ghost);
-  font-style: italic;
+.outline-content .loupe-editor {
+  min-height: 100%;
+}
+
+.outline-content .loupe-editor div[contenteditable="true"] {
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+}
+
+.outline-content .loupe-editor div[contenteditable="true"] h1 {
+  font-size: 20px !important;
+  margin: 0 0 16px 0 !important;
+}
+
+.outline-content .loupe-editor div[contenteditable="true"] h2 {
+  font-size: 16px !important;
+  margin: 24px 0 10px 0 !important;
+}
+
+.outline-content .loupe-editor div[contenteditable="true"] h3 {
+  font-size: 14px !important;
+  margin: 20px 0 8px 0 !important;
+}
+
+.outline-content .loupe-editor div[contenteditable="true"] p {
+  margin: 0 0 12px 0 !important;
 }
 
 .outline-divider {
