@@ -3,7 +3,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 const STORAGE_KEY_CONTENT = "loupe-draft";
 const STORAGE_KEY_FILENAME = "loupe-filename";
 
-const FM_REGEX = /^---\n([\s\S]*?)\n---\n?/;
+const FM_REGEX = /^-{3,}\n([\s\S]*?)\n-{3,}\n?/;
 
 function splitFrontmatter(raw: string): { frontmatter: string; body: string } {
   const match = raw.match(FM_REGEX);
