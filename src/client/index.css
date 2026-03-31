@@ -838,13 +838,12 @@ body {
 .outline-content {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
   padding: 0 24px;
 }
 
 .outline-textarea {
   width: 100%;
-  min-height: 120px;
+  height: 100%;
   background: transparent;
   border: none;
   outline: none;
@@ -854,6 +853,7 @@ body {
   line-height: 1.75;
   color: var(--loupe-text);
   caret-color: var(--loupe-text-secondary);
+  overflow-y: auto;
 }
 
 .outline-textarea::placeholder {

@@ -24,9 +24,7 @@ export function OutlinePanel({
     () => Number(localStorage.getItem("loupe-outline-chat-height")) || 200
   );
   const scrollRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dragging = useRef(false);
-  const panelRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll chat on new messages
   useEffect(() => {
@@ -34,14 +32,6 @@ export function OutlinePanel({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, streamingContent]);
-
-  // Auto-resize textarea
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
-    }
-  }, [content]);
 
   const handleChatSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
@@ -91,7 +81,6 @@ export function OutlinePanel({
       {/* Outline text */}
       <div className="outline-content">
         <textarea
-          ref={textareaRef}
           value={content}
           onChange={(e) => onContentChange(e.target.value)}
           placeholder="What are you trying to convey?"
