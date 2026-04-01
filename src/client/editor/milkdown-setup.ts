@@ -51,7 +51,7 @@ export async function createEditor(
     if (pm) {
       // Keep only ProseMirror — strip prose, theme-nord, editor, dark:prose-invert
       pm.className = "ProseMirror";
-      pm.setAttribute("data-placeholder", "Start writing...");
+      pm.removeAttribute("data-placeholder");
     }
   };
 
