@@ -16,12 +16,17 @@ bunx vitest run        # Run tests (48 tests)
 
 ## Tech Stack
 
-- **Runtime:** Bun
-- **Frontend:** React 19 + Vite + Tailwind CSS
-- **Editor:** Milkdown (ProseMirror-based WYSIWYG markdown)
-- **AI:** `@anthropic-ai/claude-agent-sdk` — authenticates through Claude Code session, no API key needed
-- **Testing:** Vitest
-- **PWA:** VitePWA (currently `selfDestroying: true` for dev — re-enable for production)
+* **Runtime:** Bun
+
+* **Frontend:** React 19 + Vite + Tailwind CSS
+
+* **Editor:** Milkdown (ProseMirror-based WYSIWYG markdown)
+
+* **AI:** `@anthropic-ai/claude-agent-sdk` — authenticates through Claude Code session, no API key needed
+
+* **Testing:** Vitest
+
+* **PWA:** VitePWA (currently `selfDestroying: true` for dev — re-enable for production)
 
 ## Architecture
 
@@ -68,30 +73,47 @@ src/
 
 ## Conventions
 
-- Use `Bun.serve()` for the server, `fs` (readFileSync/writeFileSync) for file I/O
-- Use Vite for frontend build (NOT Bun's HTML imports)
-- Use Vitest for tests (NOT `bun test`)
-- `@shared/*` path alias → `src/shared/*` (configured in tsconfig, vite, vitest)
-- AI uses `@anthropic-ai/claude-agent-sdk` with `query()` + `MessageChannel` pattern
-- Per-request SSE: each lens interaction is POST → stream response → close (NOT persistent EventSource)
-- Client reads SSE with `fetch()` + `res.body.getReader()` (NOT EventSource API)
-- Milkdown injects `prose`/`milkdown-theme-nord` classes — use MutationObserver to strip them
-- Frontmatter stripped from editor on load, preserved in memory, re-attached on save
-- `fileLoadedRef` guard prevents stale localStorage from overwriting files on launch
-- Service worker disabled during dev (`selfDestroying: true` in vite.config.ts)
-- Server sends `Cache-Control: no-cache` on all static files during dev
+* Use `Bun.serve()` for the server, `fs` (readFileSync/writeFileSync) for file I/O
+
+* Use Vite for frontend build (NOT Bun's HTML imports)
+
+* Use Vitest for tests (NOT `bun test`)
+
+* `@shared/*` path alias → `src/shared/*` (configured in tsconfig, vite, vitest)
+
+* AI uses `@anthropic-ai/claude-agent-sdk` with `query()` + `MessageChannel` pattern
+
+* Per-request SSE: each lens interaction is POST → stream response → close (NOT persistent EventSource)
+
+* Client reads SSE with `fetch()` + `res.body.getReader()` (NOT EventSource API)
+
+* Milkdown injects `prose`/`milkdown-theme-nord` classes — use MutationObserver to strip them
+
+* Frontmatter stripped from editor on load, preserved in memory, re-attached on save
+
+* `fileLoadedRef` guard prevents stale localStorage from overwriting files on launch
+
+* Service worker disabled during dev (`selfDestroying: true` in vite.config.ts)
+
+* Server sends `Cache-Control: no-cache` on all static files during dev
 
 ## File I/O
 
 All file I/O goes through the server (no browser File System Access API):
 
-- `GET /api/file?path=...` — read file, set as active
-- `POST /api/file` — write to active path (or new path via `{ content, path }`)
-- `GET /api/files` — list `.md`/`.mdx` files in CWD
-- `DELETE /api/file?path=...` — soft delete to `.recently-deleted/`
-- `GET /api/outline` / `POST /api/outline` — read/write `.outline.md` sidecar
-- `POST /api/outline/chat` — SSE stream for outline refinement
-- `POST /api/lenses/create` — create user lens in `.loupe/lenses/`
+* `GET /api/file?path=...` — read file, set as active
+
+* `POST /api/file` — write to active path (or new path via `{ content, path }`)
+
+* `GET /api/files` — list `.md`/`.mdx` files in CWD
+
+* `DELETE /api/file?path=...` — soft delete to `.recently-deleted/`
+
+* `GET /api/outline` / `POST /api/outline` — read/write `.outline.md` sidecar
+
+* `POST /api/outline/chat` — SSE stream for outline refinement
+
+* `POST /api/lenses/create` — create user lens in `.loupe/lenses/`
 
 ## Creating Lenses
 
@@ -119,24 +141,37 @@ Sidecar file: `essay.md` → `essay.outline.md`. Toggled via Cmd+Shift+E or TopB
 
 ## Design
 
-- **Theme:** "Warm Ink" — amber-tinted dark (`#1a1816` bg), warm white text (`#ede8e3`)
-- **Editor:** Georgia serif, 17px, centered 680px column, 50vh bottom padding
-- **Lenses:** monochrome UI, lens color only on avatar and action buttons
-- **Outline:** fixed left panel (360px), Milkdown editor + chat below draggable divider
-- **Frontmatter:** bottom-right bar showing fields, click info icon to edit
-- **Zen mode:** Cmd+. fades chrome, hover to reveal
+* **Theme:** "Warm Ink" — amber-tinted dark (`#1a1816` bg), warm white text (`#ede8e3`)
+
+* **Editor:** Georgia serif, 17px, centered 680px column, 50vh bottom padding
+
+* **Lenses:** monochrome UI, lens color only on avatar and action buttons
+
+* **Outline:** fixed left panel (360px), Milkdown editor + chat below draggable divider
+
+* **Frontmatter:** bottom-right bar showing fields, click info icon to edit
+
+* **Zen mode:** Cmd+. fades chrome, hover to reveal
 
 ## Specs & Plans
 
-- Original spec: `docs/superpowers/specs/2026-03-28-loupe-design.md`
-- Implementation plan: `docs/superpowers/plans/2026-03-28-loupe-implementation.md`
-- Lens migration spec: `docs/superpowers/specs/2026-03-28-lens-migration-design.md`
-- Phase 1.6+1.7 spec: `docs/superpowers/specs/2026-03-29-phase-1.6-1.7-design.md`
-- Lens Creator spec: `docs/superpowers/specs/2026-03-30-lens-creator-design.md`
-- Intention outline spec: `docs/superpowers/specs/2026-03-31-intention-outline-design.md`
+* Original spec: `docs/superpowers/specs/2026-03-28-loupe-design.md`
+
+* Implementation plan: `docs/superpowers/plans/2026-03-28-loupe-implementation.md`
+
+* Lens migration spec: `docs/superpowers/specs/2026-03-28-lens-migration-design.md`
+
+* Phase 1.6+1.7 spec: `docs/superpowers/specs/2026-03-29-phase-1.6-1.7-design.md`
+
+* Lens Creator spec: `docs/superpowers/specs/2026-03-30-lens-creator-design.md`
+
+* Intention outline spec: `docs/superpowers/specs/2026-03-31-intention-outline-design.md`
 
 ## Known Issues
 
-- Milkdown's nord theme injects unwanted CSS classes — stripped via MutationObserver but occasionally flickers
-- ProseMirror `white-space` warning in console (cosmetic, doesn't affect behavior)
-- Heading level input rule bug: typing `##` inside an existing heading stacks levels instead of replacing
+* Milkdown's nord theme injects unwanted CSS classes — stripped via MutationObserver but occasionally flickers
+
+* ProseMirror `white-space` warning in console (cosmetic, doesn't affect behavior)
+
+* Heading level input rule bug: typing `##` inside an existing heading stacks levels instead of replacing
+
