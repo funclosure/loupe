@@ -40,10 +40,10 @@ export function App() {
   // Fetch available lenses on mount
   useEffect(() => { lens.fetchLenses(); }, []);
 
-  // Load file from ?file= query param (CLI: `loupe sample.md`)
+  // Load file from /w/<path> URL (CLI: `loupe sample.md`)
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const fileParam = params.get("file");
+    const match = window.location.pathname.match(/^\/w\/(.+)$/);
+    const fileParam = match ? decodeURIComponent(match[1]) : null;
     if (!fileParam) {
       // No file specified — clear stale cache, show empty editor + file picker
       localStorage.removeItem("loupe-draft");
@@ -120,7 +120,7 @@ export function App() {
       fileLoadedRef.current = true;
     }
     // Update URL to reflect the new file
-    window.history.replaceState({}, "", `/?file=${encodeURIComponent(path)}`);
+    window.history.replaceState({}, "", `/w/${encodeURIComponent(path)}`);
     // Reset all active lens conversations for new document context
     for (const [lensId] of lens.lenses) {
       await lens.resetLens(lensId);
@@ -309,7 +309,7 @@ export function App() {
             });
             await loadFromServer(path);
             if (editorRef.current) editorRef.current.setMarkdown("");
-            window.history.replaceState({}, "", `/?file=${encodeURIComponent(path)}`);
+            window.history.replaceState({}, "", `/w/${encodeURIComponent(path)}`);
           }}
           onDelete={async (path) => {
             await fetch(`/api/file?path=${encodeURIComponent(path)}`, { method: "DELETE" });

@@ -5,7 +5,7 @@ const args = process.argv.slice(2);
 const filePath = args.find((a) => !a.startsWith("-") && a !== ".");
 
 const server = await startServer();
-const url = `http://localhost:${server.port}${filePath ? `?file=${encodeURIComponent(filePath)}` : ""}`;
+const url = `http://localhost:${server.port}/w/${filePath ? encodeURIComponent(filePath) : ""}`;
 
 // Open browser
 const { $ } = await import("bun");

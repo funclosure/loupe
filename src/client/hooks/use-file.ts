@@ -65,16 +65,19 @@ export function useFile(): UseFileReturn {
     localStorage.setItem(STORAGE_KEY_FILENAME, name);
   }, []);
 
+  const filePathRef = useRef(filePath);
+  filePathRef.current = filePath;
+
   const writeToServer = useCallback(async (bodyContent: string, path?: string): Promise<boolean> => {
+    const targetPath = path || filePathRef.current;
+    if (!targetPath) return false; // No file to save to
     try {
       setSaveState("saving");
       const fullContent = joinFrontmatter(frontmatterRef.current, bodyContent);
-      const body: Record<string, string> = { content: fullContent };
-      if (path) body.path = path;
       const res = await fetch("/api/file", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ content: fullContent, path: targetPath }),
       });
       if (!res.ok) { setSaveState("unsaved"); return false; }
       const data = await res.json();
