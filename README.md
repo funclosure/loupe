@@ -45,7 +45,7 @@ bun install
 # Build and run
 bun run build && bun run start
 
-# Open http://localhost:4460
+# Open http://localhost:4460/w/
 ```
 
 Or use the CLI:
