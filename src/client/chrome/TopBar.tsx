@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from "react";
 import { LoupeIcon } from "../lenses/LoupeIcon";
 
 interface TopBarProps {
@@ -8,6 +9,26 @@ interface TopBarProps {
   onToggleOutline: () => void;
   onOpenLensPicker: () => void;
   onOpenFile: () => void;
+}
+
+function HamburgerIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+      strokeWidth="1.4" strokeLinecap="round">
+      <line x1="2.5" y1="4" x2="13.5" y2="4" />
+      <line x1="2.5" y1="8" x2="13.5" y2="8" />
+      <line x1="2.5" y1="12" x2="13.5" y2="12" />
+    </svg>
+  );
+}
+
+function FolderIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+      strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 3.5A1.5 1.5 0 0 1 3.5 2H6l1.5 2H12.5A1.5 1.5 0 0 1 14 5.5v7a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 12.5z" />
+    </svg>
+  );
 }
 
 function OutlineIcon({ active }: { active: boolean }) {
@@ -23,6 +44,53 @@ function OutlineIcon({ active }: { active: boolean }) {
   );
 }
 
+function AppMenu({ cwdName, onClose }: { cwdName: string; onClose: () => void }) {
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) onClose();
+    };
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [onClose]);
+
+  const openFinder = () => {
+    fetch("/api/open-finder", { method: "POST" }).catch(() => {});
+    onClose();
+  };
+
+  return (
+    <div
+      ref={menuRef}
+      className="absolute top-full left-0 mt-1 min-w-[200px] py-1 rounded-lg z-50"
+      style={{
+        background: "var(--loupe-elevated)",
+        border: "1px solid var(--loupe-border-strong)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+      }}
+    >
+      <button
+        onClick={openFinder}
+        className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px]
+                   cursor-pointer hover:bg-white/[0.05] transition-colors"
+        style={{ color: "var(--loupe-text-secondary)" }}
+      >
+        <FolderIcon />
+        <span className="flex-1">Open in Finder</span>
+        <span className="text-[11px]" style={{ color: "var(--loupe-text-ghost)" }}>
+          {cwdName}
+        </span>
+      </button>
+    </div>
+  );
+}
+
 export function TopBar({
   filename,
   activeLensCount,
@@ -32,6 +100,13 @@ export function TopBar({
   onOpenLensPicker,
   onOpenFile,
 }: TopBarProps) {
+  const [cwdName, setCwdName] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/cwd").then(r => r.json()).then(d => setCwdName(d.name)).catch(() => {});
+  }, []);
+
   return (
     <div
       className="chrome flex items-center justify-between px-6 h-11 shrink-0"
@@ -40,8 +115,19 @@ export function TopBar({
         borderBottom: "1px solid var(--loupe-border)",
       }}
     >
-      {/* Left: outline toggle + filename + sync dot */}
+      {/* Left: menu + outline toggle + filename + sync dot */}
       <div className="flex items-center gap-3">
+        <div className="relative">
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="transition-opacity cursor-pointer hover:opacity-80"
+            style={{ color: "var(--loupe-text-tertiary)", opacity: 0.5 }}
+          >
+            <HamburgerIcon />
+          </button>
+          {menuOpen && <AppMenu cwdName={cwdName} onClose={() => setMenuOpen(false)} />}
+        </div>
+
         <button
           onClick={onToggleOutline}
           className="transition-opacity cursor-pointer hover:opacity-80"

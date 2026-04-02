@@ -6,6 +6,7 @@ import { FileStore } from "./file-store";
 import { writeLensMd } from "./lens-loader";
 import { resolve, basename } from "path";
 import { readdirSync, readFileSync, writeFileSync, mkdirSync, renameSync, existsSync } from "fs";
+import { spawn } from "child_process";
 
 export class RouteHandler {
   constructor(
@@ -52,6 +53,17 @@ export class RouteHandler {
       } catch {
         return Response.json({ error: "Write failed" }, { status: 500 });
       }
+    }
+
+    // Get CWD info
+    if (url.pathname === "/api/cwd" && req.method === "GET") {
+      return Response.json({ path: this.cwd, name: basename(this.cwd) });
+    }
+
+    // Open CWD in Finder
+    if (url.pathname === "/api/open-finder" && req.method === "POST") {
+      spawn("open", [this.cwd]);
+      return Response.json({ ok: true });
     }
 
     // List markdown files in CWD
