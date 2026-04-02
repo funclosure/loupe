@@ -36,7 +36,7 @@ Client + thin Bun server in one process. Bun serves Vite-built static files AND 
 src/
 ├── server/
 │   ├── index.ts            # Bun.serve entry (port 4460, idleTimeout: 120)
-│   ├── routes.ts           # REST + per-request SSE streaming, file I/O, outline, lens create
+│   ├── routes.ts           # REST + SSE streaming, file I/O, outline, lens, image upload/serve, config
 │   ├── document.ts         # In-memory document store (version-gated)
 │   ├── file-store.ts       # Active file path tracking + outline sidecar path
 │   ├── lens-manager.ts     # Activates/deactivates lens sessions (max 5, system lenses exempt)
@@ -45,7 +45,7 @@ src/
 ├── client/
 │   ├── App.tsx             # Main shell — wires editor, lenses, outline, file handling
 │   ├── editor/
-│   │   ├── Editor.tsx      # React wrapper with optional placeholder + click-to-focus
+│   │   ├── Editor.tsx      # React wrapper with placeholder, click-to-focus, image paste
 │   │   └── milkdown-setup.ts  # Milkdown plugins: commonmark, listener, trailing, clipboard
 │   ├── hooks/
 │   │   ├── use-file.ts     # Server-backed file I/O, frontmatter stripping, localStorage backup
@@ -54,7 +54,7 @@ src/
 │   │   ├── use-zen-mode.ts # Cmd+. toggle, persisted to localStorage
 │   │   └── use-paragraph-focus.ts  # 2s dwell detection for auto-suggest
 │   ├── chrome/
-│   │   ├── TopBar.tsx      # Outline toggle, filename, sync dot, lens add button
+│   │   ├── TopBar.tsx      # App menu (hamburger), outline toggle, filename, image folder dialog
 │   │   ├── LensPicker.tsx  # Modal with presets + user lenses + lens creator input
 │   │   ├── FilePicker.tsx  # File browser — open, create, delete (soft)
 │   │   └── FrontmatterBar.tsx  # Bottom-right metadata display + editor
@@ -89,7 +89,7 @@ src/
 
 * Milkdown injects `prose`/`milkdown-theme-nord` classes — use MutationObserver to strip them
 
-* Frontmatter stripped from editor on load, preserved in memory, re-attached on save
+* Frontmatter stripped from editor on load, preserved in memory, re-attached on save (supports `---` and `***` delimiters)
 
 * `fileLoadedRef` guard prevents stale localStorage from overwriting files on launch
 
@@ -115,6 +115,20 @@ All file I/O goes through the server (no browser File System Access API):
 
 * `POST /api/lenses/create` — create user lens in `.loupe/lenses/`
 
+* `GET /api/cwd` — current working directory + project root
+
+* `POST /api/open-finder` — open CWD in macOS Finder
+
+* `GET /api/config` / `POST /api/config` — read/write `.loupe/config.json`
+
+* `POST /api/pick-folder` — native macOS folder picker via osascript
+
+* `POST /api/image` — upload image (paste), save to configured imageDir
+
+* `POST /api/image/detect` — auto-detect image folder from document content
+
+* `{imagePrefix}/*` — serves images from configured imageDir
+
 ## Creating Lenses
 
 **Through the app:** Cmd+L → type a description → Lens Creator guides you through conversation.
@@ -134,6 +148,22 @@ Your system prompt here.
 ```
 
 User lenses stored in `.loupe/lenses/` (project-scoped). Legacy `lenses/` directory also scanned.
+
+## Image Folder
+
+Configure via hamburger menu → Image folder. Settings stored in `.loupe/config.json`:
+
+* `imageDir` — where images live on disk (relative to project root, or absolute)
+* `imagePrefix` — what path to use in markdown `![](prefix/file.png)`
+
+Three ways to set it:
+* **Auto-detect** — scans document for `![](path)` refs, finds matching dir under project root (`public/`, `static/`, etc.)
+* **Browse** — native macOS folder picker (osascript), auto-derives prefix
+* **Manual** — type paths directly
+
+When configured, pasting an image in the editor uploads it to imageDir and inserts markdown. Images are served by the server matching the prefix.
+
+Project root is auto-detected by walking up from CWD to find `package.json` or `.git`.
 
 ## Intention Outline
 

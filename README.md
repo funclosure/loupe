@@ -28,8 +28,10 @@ You write. Lenses watch. Drag one onto a paragraph to focus its attention. It re
 - **Intention outline** — a left panel to capture what you're trying to convey; lenses check alignment
 - **Drag-to-inspect** — drag a lens onto any paragraph to start a conversation
 - **Syntax highlighting** — Shiki-powered code blocks with language selector, copy, wrap
-- **Frontmatter handling** — YAML frontmatter hidden from editor, editable via bottom-right bar
+- **Image paste & folder config** — paste images directly into the editor; auto-detect, browse, or manually set image folder
+- **Frontmatter handling** — YAML frontmatter hidden from editor, editable via bottom-right bar (`---` and `***` delimiters)
 - **Server-side file I/O** — open, save, create, delete files through the server
+- **App menu** — hamburger menu with Open in Finder, image folder settings
 - **Zen mode** — Cmd+. fades all chrome, hover to reveal
 - **Undo/redo** — full history with Cmd+Z / Cmd+Shift+Z
 - **No API key needed** — authenticates through Claude Code session
@@ -114,7 +116,7 @@ src/
 │   ├── lenses/      # LoupeIcon, LensBubble, LensChat, LensLayer, LensProposalCard
 │   ├── outline/     # OutlinePanel — intention editor with inline chat
 │   ├── hooks/       # useLenses, useLensDrag, useFile, useOutline, useZenMode
-│   └── chrome/      # TopBar, LensPicker, FilePicker, FrontmatterBar
+│   └── chrome/      # TopBar (app menu), LensPicker, FilePicker, FrontmatterBar
 └── shared/          # Types, lens presets
 ```
 
