@@ -31,6 +31,17 @@ function FolderIcon() {
   );
 }
 
+function ImageIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+      strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" />
+      <circle cx="5" cy="6" r="1.5" />
+      <path d="M1.5 11l3.5-3.5 2.5 2.5 2-2L14.5 11" />
+    </svg>
+  );
+}
+
 function OutlineIcon({ active }: { active: boolean }) {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor"
@@ -44,7 +55,200 @@ function OutlineIcon({ active }: { active: boolean }) {
   );
 }
 
-function AppMenu({ cwdName, onClose }: { cwdName: string; onClose: () => void }) {
+function ImageFolderDialog({ onClose }: { onClose: () => void }) {
+  const [imageDir, setImageDir] = useState("");
+  const [imagePrefix, setImagePrefix] = useState("");
+  const [projectRoot, setProjectRoot] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/config").then(r => r.json()),
+      fetch("/api/cwd").then(r => r.json()),
+    ]).then(([config, cwd]) => {
+      setImageDir(config.imageDir || "");
+      setImagePrefix(config.imagePrefix || "");
+      setProjectRoot(cwd.projectRoot || cwd.path || "");
+      setLoading(false);
+    }).catch(() => setLoading(false));
+  }, []);
+
+  const handleDirChange = (dir: string, prefix: string) => {
+    setImageDir(dir);
+    setImagePrefix(prefix);
+  };
+
+  const handleDirInput = (val: string) => {
+    setImageDir(val);
+    const publicIdx = val.indexOf("public/");
+    if (publicIdx !== -1) {
+      setImagePrefix("/" + val.slice(publicIdx + 7));
+    } else if (val && !imagePrefix) {
+      setImagePrefix("/" + val.split("/").pop());
+    }
+  };
+
+  const handleBrowse = async () => {
+    const res = await fetch("/api/pick-folder", { method: "POST" });
+    const data = await res.json();
+    if (data.cancelled) return;
+    handleDirChange(data.path, data.prefix);
+  };
+
+  const [detecting, setDetecting] = useState(false);
+  const handleDetect = async () => {
+    setDetecting(true);
+    try {
+      const res = await fetch("/api/image/detect", { method: "POST" });
+      const data = await res.json();
+      if (data.imageDir && data.imagePrefix) {
+        handleDirChange(data.imageDir, data.imagePrefix);
+      }
+    } catch {}
+    setDetecting(false);
+  };
+
+  const handleSave = () => {
+    fetch("/api/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageDir, imagePrefix }),
+    }).then(() => window.location.reload()).catch(() => {});
+  };
+
+  const handleReset = () => {
+    fetch("/api/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageDir: "", imagePrefix: "" }),
+    }).then(() => { setImageDir(""); setImagePrefix(""); }).catch(() => {});
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/60" />
+      <div
+        className="relative w-[380px] flex flex-col rounded-lg p-5"
+        style={{
+          background: "var(--loupe-elevated)",
+          border: "1px solid var(--loupe-border-strong)",
+          boxShadow: "0 16px 48px rgba(0,0,0,0.5)",
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-[14px] font-medium" style={{ color: "var(--loupe-text)" }}>
+            Image Folder
+          </h2>
+          <button
+            onClick={handleDetect}
+            disabled={detecting}
+            className="text-[11px] px-2 py-1 rounded cursor-pointer hover:opacity-80 disabled:opacity-40"
+            style={{
+              color: "var(--loupe-text-secondary)",
+              background: "var(--loupe-surface)",
+              border: "1px solid var(--loupe-border)",
+            }}
+          >
+            {detecting ? "Scanning..." : "Auto-detect"}
+          </button>
+        </div>
+
+        {loading ? (
+          <p className="text-[13px] py-2" style={{ color: "var(--loupe-text-tertiary)" }}>Loading...</p>
+        ) : (
+          <div className="space-y-3">
+            {projectRoot && (
+              <p className="text-[11px] -mt-1 break-all" style={{ color: "var(--loupe-text-ghost)" }}>
+                Project root: {projectRoot}
+              </p>
+            )}
+            <div>
+              <label className="block text-[11px] mb-1 tracking-wide"
+                style={{ color: "var(--loupe-text-ghost)" }}>
+                Directory
+              </label>
+              <div className="flex gap-2">
+                <input
+                  value={imageDir}
+                  onChange={e => handleDirInput(e.target.value)}
+                  placeholder="public/images/my-project"
+                  className="flex-1 min-w-0 bg-transparent text-[13px] px-2.5 py-1.5 rounded outline-none"
+                  style={{
+                    color: "var(--loupe-text)",
+                    border: "1px solid var(--loupe-border-strong)",
+                    background: "var(--loupe-surface)",
+                  }}
+                  onKeyDown={e => { if (e.key === "Escape") onClose(); if (e.key === "Enter") handleSave(); }}
+                />
+                <button
+                  onClick={handleBrowse}
+                  className="shrink-0 text-[12px] px-2.5 py-1.5 rounded cursor-pointer hover:opacity-80"
+                  style={{
+                    color: "var(--loupe-text-secondary)",
+                    background: "var(--loupe-surface)",
+                    border: "1px solid var(--loupe-border)",
+                  }}
+                >
+                  Browse...
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="block text-[11px] mb-1 tracking-wide"
+                style={{ color: "var(--loupe-text-ghost)" }}>
+                Markdown path prefix
+              </label>
+              <input
+                value={imagePrefix}
+                onChange={e => setImagePrefix(e.target.value)}
+                placeholder="/images/my-project"
+                className="w-full bg-transparent text-[13px] px-2.5 py-1.5 rounded outline-none"
+                style={{
+                  color: "var(--loupe-text)",
+                  border: "1px solid var(--loupe-border-strong)",
+                  background: "var(--loupe-surface)",
+                }}
+                onKeyDown={e => { if (e.key === "Escape") onClose(); if (e.key === "Enter") handleSave(); }}
+              />
+            </div>
+            <div className="flex items-center justify-between pt-1">
+              <button
+                onClick={handleReset}
+                className="text-[12px] px-2 py-1.5 rounded cursor-pointer hover:opacity-80"
+                style={{ color: "var(--loupe-text-ghost)" }}
+              >
+                Reset
+              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={onClose}
+                  className="text-[12px] px-3 py-1.5 rounded cursor-pointer hover:opacity-80"
+                  style={{ color: "var(--loupe-text-tertiary)" }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="text-[12px] px-3 py-1.5 rounded cursor-pointer hover:opacity-80"
+                  style={{
+                    color: "var(--loupe-text)",
+                    background: "var(--loupe-surface)",
+                    border: "1px solid var(--loupe-border)",
+                  }}
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AppMenu({ cwdName, onClose, onOpenImageFolder }: { cwdName: string; onClose: () => void; onOpenImageFolder: () => void }) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -87,6 +291,15 @@ function AppMenu({ cwdName, onClose }: { cwdName: string; onClose: () => void })
           {cwdName}
         </span>
       </button>
+      <button
+        onClick={() => { onOpenImageFolder(); onClose(); }}
+        className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-[13px]
+                   cursor-pointer hover:bg-white/[0.05] transition-colors"
+        style={{ color: "var(--loupe-text-secondary)" }}
+      >
+        <ImageIcon />
+        <span className="flex-1">Image folder...</span>
+      </button>
     </div>
   );
 }
@@ -102,9 +315,17 @@ export function TopBar({
 }: TopBarProps) {
   const [cwdName, setCwdName] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/cwd").then(r => r.json()).then(d => setCwdName(d.name)).catch(() => {});
+  }, []);
+
+  // Open image folder dialog when editor tries to paste without config
+  useEffect(() => {
+    const handler = () => setImageDialogOpen(true);
+    window.addEventListener("loupe-configure-images", handler);
+    return () => window.removeEventListener("loupe-configure-images", handler);
   }, []);
 
   return (
@@ -125,7 +346,7 @@ export function TopBar({
           >
             <HamburgerIcon />
           </button>
-          {menuOpen && <AppMenu cwdName={cwdName} onClose={() => setMenuOpen(false)} />}
+          {menuOpen && <AppMenu cwdName={cwdName} onClose={() => setMenuOpen(false)} onOpenImageFolder={() => setImageDialogOpen(true)} />}
         </div>
 
         <button
@@ -188,6 +409,9 @@ export function TopBar({
           )}
         </button>
       </div>
+      {imageDialogOpen && (
+        <ImageFolderDialog onClose={() => setImageDialogOpen(false)} />
+      )}
     </div>
   );
 }

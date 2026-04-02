@@ -19,8 +19,8 @@ function InfoIcon() {
 /** Extract key-value pairs from frontmatter for display */
 function parseFmFields(fm: string): { key: string; value: string }[] {
   const fields: { key: string; value: string }[] = [];
-  // Strip delimiters (--- lines)
-  const lines = fm.replace(/^-{3,}\n?/gm, "").trim().split("\n");
+  // Strip delimiters (--- or *** lines)
+  const lines = fm.replace(/^[-*]{3,}\n?/gm, "").trim().split("\n");
   for (const line of lines) {
     const idx = line.indexOf(":");
     if (idx === -1) continue;
@@ -31,20 +31,25 @@ function parseFmFields(fm: string): { key: string; value: string }[] {
   return fields;
 }
 
-/** Get the raw YAML content (without --- delimiters) for editing */
+/** Get the raw YAML content (without delimiters) for editing */
 function getRawYaml(fm: string): string {
-  return fm.replace(/^-{3,}\n?/gm, "").trim();
+  return fm.replace(/^[-*]{3,}\n?/gm, "").trim();
 }
 
 /** Wrap raw YAML back into frontmatter format */
 function wrapYaml(raw: string, originalFm: string): string {
-  // Detect if original used opening --- or bare format
-  if (originalFm.startsWith("---")) {
-    return `---\n${raw.trim()}\n---\n`;
-  }
-  // Bare format — detect closing delimiter length
+  // Detect opening delimiter style
+  const openMatch = originalFm.match(/^([-*]{3,})/);
   const closingMatch = originalFm.match(/\n(-{3,})\n?$/);
   const closing = closingMatch ? closingMatch[1] : "---";
+
+  if (openMatch) {
+    const opener = openMatch[1];
+    // Preserve blank line after *** if original had one
+    const hasBlankLine = originalFm.startsWith(opener + "\n\n");
+    return `${opener}\n${hasBlankLine ? "\n" : ""}${raw.trim()}\n${closing}\n`;
+  }
+  // Bare format
   return `${raw.trim()}\n${closing}\n`;
 }
 

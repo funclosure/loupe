@@ -4,9 +4,9 @@ import { LensManager } from "./lens-manager";
 import type { LensSession } from "./lens-session";
 import { FileStore } from "./file-store";
 import { writeLensMd } from "./lens-loader";
-import { resolve, basename } from "path";
+import { resolve, basename, dirname } from "path";
 import { readdirSync, readFileSync, writeFileSync, mkdirSync, renameSync, existsSync } from "fs";
-import { spawn } from "child_process";
+import { spawn, execSync } from "child_process";
 
 export class RouteHandler {
   constructor(
@@ -15,6 +15,40 @@ export class RouteHandler {
     private fileStore: FileStore,
     private cwd: string = process.cwd(),
   ) {}
+
+  private get configPath() {
+    return resolve(this.cwd, ".loupe", "config.json");
+  }
+
+  private readConfig(): { imageDir?: string; imagePrefix?: string } {
+    try {
+      return JSON.parse(readFileSync(this.configPath, "utf8"));
+    } catch {
+      return {};
+    }
+  }
+
+  private writeConfig(config: Record<string, any>) {
+    const dir = resolve(this.cwd, ".loupe");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(this.configPath, JSON.stringify(config, null, 2), "utf8");
+  }
+
+  private get projectRoot(): string {
+    let dir = this.cwd;
+    while (dir !== dirname(dir)) {
+      if (existsSync(resolve(dir, "package.json")) || existsSync(resolve(dir, ".git"))) {
+        return dir;
+      }
+      dir = dirname(dir);
+    }
+    return this.cwd;
+  }
+
+  private resolveImageDir(imageDir: string): string {
+    if (imageDir.startsWith("/")) return imageDir;
+    return resolve(this.projectRoot, imageDir);
+  }
 
   async handle(req: Request): Promise<Response | null> {
     const url = new URL(req.url);
@@ -57,13 +91,126 @@ export class RouteHandler {
 
     // Get CWD info
     if (url.pathname === "/api/cwd" && req.method === "GET") {
-      return Response.json({ path: this.cwd, name: basename(this.cwd) });
+      return Response.json({ path: this.cwd, name: basename(this.cwd), projectRoot: this.projectRoot });
     }
 
     // Open CWD in Finder
     if (url.pathname === "/api/open-finder" && req.method === "POST") {
       spawn("open", [this.cwd]);
       return Response.json({ ok: true });
+    }
+
+    // Read config
+    if (url.pathname === "/api/config" && req.method === "GET") {
+      return Response.json(this.readConfig());
+    }
+
+    // Native folder picker (macOS)
+    if (url.pathname === "/api/pick-folder" && req.method === "POST") {
+      try {
+        const root = this.projectRoot;
+        const result = execSync(
+          `osascript -e 'POSIX path of (choose folder with prompt "Select image folder" default location POSIX file "${root}")'`,
+          { encoding: "utf8", timeout: 60000 }
+        ).trim().replace(/\/$/, "");
+
+        // Make relative to project root if inside it
+        const dir = result.startsWith(root + "/") ? result.slice(root.length + 1) : result;
+
+        // Auto-derive prefix: strip up to and including "public" if present
+        const publicIdx = result.indexOf("/public/");
+        const prefix = publicIdx !== -1
+          ? result.slice(publicIdx + "/public".length)
+          : "/" + basename(result);
+
+        return Response.json({ path: dir, prefix });
+      } catch {
+        // User cancelled the dialog
+        return Response.json({ cancelled: true });
+      }
+    }
+
+    // Write config
+    if (url.pathname === "/api/config" && req.method === "POST") {
+      const body = await req.json();
+      const existing = this.readConfig();
+      this.writeConfig({ ...existing, ...body });
+      return Response.json({ ok: true });
+    }
+
+    // Auto-detect image folder from current document
+    if (url.pathname === "/api/image/detect" && req.method === "POST") {
+      const doc = this.document.get();
+      if (!doc.content) return Response.json({ error: "No document content" }, { status: 400 });
+
+      // Extract image paths from markdown: ![alt](path)
+      const imgRegex = /!\[[^\]]*\]\(([^)]+)\)/g;
+      const paths: string[] = [];
+      let match;
+      while ((match = imgRegex.exec(doc.content)) !== null) {
+        const src = match[1].split(/[?#]/)[0]; // strip query/hash
+        if (src && !src.startsWith("http") && !src.startsWith("data:")) {
+          paths.push(src);
+        }
+      }
+
+      if (paths.length === 0) return Response.json({ error: "No local images found in document" }, { status: 404 });
+
+      // Find common prefix directory
+      const dirs = paths.map(p => p.split("/").slice(0, -1).join("/"));
+      let commonPrefix = dirs[0];
+      for (const dir of dirs.slice(1)) {
+        while (commonPrefix && !dir.startsWith(commonPrefix)) {
+          commonPrefix = commonPrefix.split("/").slice(0, -1).join("/");
+        }
+      }
+      if (!commonPrefix) commonPrefix = dirs[0];
+
+      // Search project root for matching directory
+      const root = this.projectRoot;
+      const candidates = [
+        resolve(root, "public" + commonPrefix),
+        resolve(root, "static" + commonPrefix),
+        resolve(root, "assets" + commonPrefix),
+        resolve(root, commonPrefix.startsWith("/") ? commonPrefix.slice(1) : commonPrefix),
+      ];
+
+      let imageDir: string | null = null;
+      for (const candidate of candidates) {
+        if (existsSync(candidate)) {
+          // Make relative to project root
+          imageDir = candidate.startsWith(root + "/") ? candidate.slice(root.length + 1) : candidate;
+          break;
+        }
+      }
+
+      if (!imageDir) {
+        return Response.json({ error: "Could not find image directory on disk", prefix: commonPrefix }, { status: 404 });
+      }
+
+      return Response.json({ imageDir, imagePrefix: commonPrefix });
+    }
+
+    // Upload image (paste/drop)
+    if (url.pathname === "/api/image" && req.method === "POST") {
+      const config = this.readConfig();
+      if (!config.imageDir) {
+        return Response.json({ error: "Image folder not configured" }, { status: 400 });
+      }
+
+      const imageDir = this.resolveImageDir(config.imageDir);
+      mkdirSync(imageDir, { recursive: true });
+
+      const contentType = req.headers.get("content-type") || "";
+      const ext = contentType.includes("png") ? "png" : contentType.includes("gif") ? "gif" : "jpg";
+      const ts = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 14);
+      const filename = `paste-${ts}.${ext}`;
+
+      const buffer = await req.arrayBuffer();
+      writeFileSync(resolve(imageDir, filename), Buffer.from(buffer));
+
+      const prefix = config.imagePrefix || `/${config.imageDir}`;
+      return Response.json({ ok: true, path: `${prefix}/${filename}`, filename });
     }
 
     // List markdown files in CWD
@@ -327,6 +474,18 @@ Only include the update block when you're actually changing the outline. For dis
       const session = this.lensManager.getSession(resetMatch[1]);
       if (session) session.reset();
       return Response.json({ ok: true });
+    }
+
+    // Serve images from configured image directory
+    const config = this.readConfig();
+    if (config.imageDir && config.imagePrefix && url.pathname.startsWith(config.imagePrefix + "/")) {
+      const relativePath = url.pathname.slice(config.imagePrefix.length + 1);
+      const baseDir = this.resolveImageDir(config.imageDir);
+      const filePath = resolve(baseDir, relativePath);
+      const file = Bun.file(filePath);
+      if (await file.exists()) {
+        return new Response(file);
+      }
     }
 
     return null; // Not an API route

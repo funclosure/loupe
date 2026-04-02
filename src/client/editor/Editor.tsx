@@ -48,6 +48,51 @@ export function Editor({ defaultValue, onChange, editorRef, placeholder = "Start
     };
   }, []);
 
+  // Handle image paste — upload to server, insert markdown image
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handlePaste = async (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (const item of items) {
+        if (item.type.startsWith("image/")) {
+          e.preventDefault();
+          const blob = item.getAsFile();
+          if (!blob) return;
+
+          const res = await fetch("/api/image", {
+            method: "POST",
+            headers: { "Content-Type": blob.type },
+            body: blob,
+          });
+
+          if (!res.ok) {
+            window.dispatchEvent(new CustomEvent("loupe-configure-images"));
+            return;
+          }
+          const { path } = await res.json();
+
+          const view = instanceRef.current?.getEditorView();
+          if (!view) return;
+
+          const { state, dispatch } = view;
+          const imageType = state.schema.nodes.image;
+          if (!imageType) return;
+
+          const node = imageType.create({ src: path, alt: "" });
+          dispatch(state.tr.replaceSelectionWith(node));
+          return;
+        }
+      }
+    };
+
+    container.addEventListener("paste", handlePaste);
+    return () => container.removeEventListener("paste", handlePaste);
+  }, []);
+
   // Hide placeholder instantly on first input — don't wait for markdownUpdated
   useEffect(() => {
     if (!isEmpty) return;

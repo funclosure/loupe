@@ -3,13 +3,16 @@ import { useState, useRef, useCallback, useEffect } from "react";
 const STORAGE_KEY_CONTENT = "loupe-draft";
 const STORAGE_KEY_FILENAME = "loupe-filename";
 
-// Standard: ---\n...\n---  |  Non-standard: key: val\n...\n-----
+// Standard: ---\n...\n---  |  Stars: ***\n...\n-----  |  Non-standard: key: val\n...\n-----
 const FM_REGEX_STANDARD = /^-{3,}\n([\s\S]*?)\n-{3,}\n?/;
+const FM_REGEX_STARS = /^\*{3,}\n\n?([\s\S]*?)\n-{3,}\n?/;
 const FM_REGEX_BARE = /^([a-zA-Z][a-zA-Z0-9_-]*:[\s\S]*?)\n-{3,}\n?/;
 
 function splitFrontmatter(raw: string): { frontmatter: string; body: string } {
   const standard = raw.match(FM_REGEX_STANDARD);
   if (standard) return { frontmatter: standard[0], body: raw.slice(standard[0].length) };
+  const stars = raw.match(FM_REGEX_STARS);
+  if (stars) return { frontmatter: stars[0], body: raw.slice(stars[0].length) };
   const bare = raw.match(FM_REGEX_BARE);
   if (bare) return { frontmatter: bare[0], body: raw.slice(bare[0].length) };
   return { frontmatter: "", body: raw };
