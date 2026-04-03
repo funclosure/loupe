@@ -7,226 +7,246 @@
    ============================================================ */
 
 :root {
-  /* Warm dark — lifted from pure black, subtle amber warmth */
-  --loupe-bg: #1a1816;
-  --loupe-surface: #232120;
-  --loupe-elevated: #2b2927;
-  --loupe-border: rgba(255, 245, 230, 0.07);
-  --loupe-border-strong: rgba(255, 245, 230, 0.12);
+    /* Warm dark — lifted from pure black, subtle amber warmth */
+    --loupe-bg: #1a1816;
+    --loupe-surface: #232120;
+    --loupe-elevated: #2b2927;
+    --loupe-border: rgba(255, 245, 230, 0.07);
+    --loupe-border-strong: rgba(255, 245, 230, 0.12);
 
-  /* Text — warm whites, high contrast */
-  --loupe-text: #ede8e3;
-  --loupe-text-secondary: #a8a29e;
-  --loupe-text-tertiary: #6b6560;
-  --loupe-text-ghost: #3d3935;
+    /* Text — warm whites, high contrast */
+    --loupe-text: #ede8e3;
+    --loupe-text-secondary: #a8a29e;
+    --loupe-text-tertiary: #6b6560;
+    --loupe-text-ghost: #3d3935;
 
-  /* Chrome */
-  --loupe-chrome-bg: #1c1a18;
-  --loupe-save-color: #6b6560;
+    /* Chrome */
+    --loupe-chrome-bg: #1c1a18;
+    --loupe-save-color: #6b6560;
 
-  /* Editor */
-  --loupe-editor-font: Georgia, "Times New Roman", serif;
-  --loupe-editor-max-width: 680px;
+    /* Editor */
+    --loupe-editor-font: Georgia, "Times New Roman", serif;
+    --loupe-editor-max-width: 680px;
 
-  /* Transitions */
-  --loupe-fade: 0.3s ease;
+    /* Transitions */
+    --loupe-fade: 0.3s ease;
 }
 
 .light {
-  --loupe-bg: #faf8f6;
-  --loupe-surface: #f2efec;
-  --loupe-elevated: #ffffff;
-  --loupe-border: rgba(0, 0, 0, 0.06);
-  --loupe-border-strong: rgba(0, 0, 0, 0.10);
-  --loupe-text: #1c1a18;
-  --loupe-text-secondary: #6b6560;
-  --loupe-text-tertiary: #a8a29e;
-  --loupe-text-ghost: #d6d3d0;
-  --loupe-chrome-bg: #f2efec;
-  --loupe-save-color: #a8a29e;
+    --loupe-bg: #faf8f6;
+    --loupe-surface: #f2efec;
+    --loupe-elevated: #ffffff;
+    --loupe-border: rgba(0, 0, 0, 0.06);
+    --loupe-border-strong: rgba(0, 0, 0, 0.1);
+    --loupe-text: #1c1a18;
+    --loupe-text-secondary: #6b6560;
+    --loupe-text-tertiary: #a8a29e;
+    --loupe-text-ghost: #d6d3d0;
+    --loupe-chrome-bg: #f2efec;
+    --loupe-save-color: #a8a29e;
 }
 
 /* -- Zen mode ------------------------------------------------ */
 .zen .chrome {
-  opacity: 0;
-  transition: opacity var(--loupe-fade);
+    opacity: 0;
+    transition: opacity var(--loupe-fade);
 }
 .zen .chrome:hover {
-  opacity: 1;
+    opacity: 1;
 }
 
 /* -- Global -------------------------------------------------- */
 body {
-  background: var(--loupe-bg);
-  color: var(--loupe-text);
-  font-family: system-ui, -apple-system, sans-serif;
-  margin: 0;
-  overflow: hidden;
-  height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    background: var(--loupe-bg);
+    color: var(--loupe-text);
+    font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
+    margin: 0;
+    overflow: hidden;
+    height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* -- Editor surface ------------------------------------------ */
 .editor-surface {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  justify-content: center;
-  padding: 64px 32px 50vh;
-  cursor: text;
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    padding: 64px 32px 50vh;
+    cursor: text;
 }
 
 .editor-column {
-  width: 100%;
-  max-width: var(--loupe-editor-max-width);
+    width: 100%;
+    max-width: var(--loupe-editor-max-width);
 }
 
 /* Extra space after content so last line isn't stuck at bottom */
 .editor-column::after {
-  content: "";
-  display: block;
-  height: 50vh;
+    content: "";
+    display: block;
+    height: 50vh;
 }
 
 .loupe-editor {
-  min-height: 100%;
-  cursor: text;
-  position: relative;
+    min-height: 100%;
+    cursor: text;
+    position: relative;
 }
 
 /* -- ProseMirror overrides ----------------------------------- */
 .loupe-editor [contenteditable] {
-  outline: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  -webkit-tap-highlight-color: transparent !important;
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent !important;
 }
 
 .loupe-editor div[contenteditable="true"] {
-  background: transparent !important;
-  font-family: var(--loupe-editor-font) !important;
-  font-size: 17px !important;
-  line-height: 1.85 !important;
-  color: var(--loupe-text) !important;
-  min-height: 60vh;
-  caret-color: var(--loupe-text-secondary);
-  max-width: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  letter-spacing: 0.01em !important;
+    background: transparent !important;
+    font-family: var(--loupe-editor-font) !important;
+    font-size: 17px !important;
+    line-height: 1.85 !important;
+    color: var(--loupe-text) !important;
+    min-height: 60vh;
+    caret-color: var(--loupe-text-secondary);
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    letter-spacing: 0.01em !important;
 }
 
 /* -- Placeholder --------------------------------------------- */
 .loupe-placeholder {
-  position: absolute;
-  top: 0;
-  left: 4px;
-  color: var(--loupe-text-ghost);
-  font-family: var(--loupe-editor-font);
-  font-size: 17px;
-  line-height: 1.85;
-  font-style: italic;
-  pointer-events: none;
-  user-select: none;
+    position: absolute;
+    top: 0;
+    left: 4px;
+    color: var(--loupe-text-ghost);
+    font-family: var(--loupe-editor-font);
+    font-size: 17px;
+    line-height: 1.85;
+    font-style: italic;
+    pointer-events: none;
+    user-select: none;
 }
 
 /* -- Typography ---------------------------------------------- */
 .loupe-editor div[contenteditable="true"] h1 {
-  font-size: 32px !important;
-  font-weight: 600 !important;
-  margin: 0 0 28px 0 !important;
-  color: var(--loupe-text) !important;
-  line-height: 1.25 !important;
-  letter-spacing: -0.01em !important;
+    font-size: 32px !important;
+    font-weight: 600 !important;
+    margin: 0 0 28px 0 !important;
+    color: var(--loupe-text) !important;
+    line-height: 1.25 !important;
+    letter-spacing: -0.01em !important;
 }
 
 .loupe-editor div[contenteditable="true"] h2 {
-  font-size: 24px !important;
-  font-weight: 600 !important;
-  margin: 40px 0 16px 0 !important;
-  color: var(--loupe-text) !important;
-  line-height: 1.35 !important;
+    font-size: 24px !important;
+    font-weight: 600 !important;
+    margin: 40px 0 16px 0 !important;
+    color: var(--loupe-text) !important;
+    line-height: 1.35 !important;
 }
 
 .loupe-editor div[contenteditable="true"] h3 {
-  font-size: 19px !important;
-  font-weight: 600 !important;
-  margin: 32px 0 12px 0 !important;
-  color: var(--loupe-text) !important;
-  line-height: 1.4 !important;
+    font-size: 19px !important;
+    font-weight: 600 !important;
+    margin: 32px 0 12px 0 !important;
+    color: var(--loupe-text) !important;
+    line-height: 1.4 !important;
 }
 
 .loupe-editor div[contenteditable="true"] p {
-  margin: 0 0 20px 0 !important;
-  color: var(--loupe-text) !important;
+    margin: 0 0 20px 0 !important;
+    color: var(--loupe-text) !important;
 }
 
 .loupe-editor div[contenteditable="true"] blockquote {
-  border-left: 2px solid var(--loupe-text-ghost) !important;
-  padding-left: 20px !important;
-  margin: 0 0 20px 0 !important;
-  color: var(--loupe-text-secondary) !important;
-  font-style: italic !important;
+    border-left: 2px solid var(--loupe-text-ghost) !important;
+    padding-left: 20px !important;
+    margin: 0 0 20px 0 !important;
+    color: var(--loupe-text-secondary) !important;
+    font-style: italic !important;
 }
 
 .loupe-editor div[contenteditable="true"] ul {
-  margin: 0 0 20px 0 !important;
-  padding-left: 28px !important;
-  list-style-type: disc !important;
+    margin: 0 0 20px 0 !important;
+    padding-left: 28px !important;
+    list-style-type: disc !important;
 }
 
 .loupe-editor div[contenteditable="true"] ol {
-  margin: 0 0 20px 0 !important;
-  padding-left: 28px !important;
-  list-style-type: decimal !important;
+    margin: 0 0 20px 0 !important;
+    padding-left: 28px !important;
+    list-style-type: decimal !important;
 }
 
 .loupe-editor div[contenteditable="true"] li {
-  margin-bottom: 6px !important;
-  display: list-item !important;
+    margin-bottom: 12px !important;
+    line-height: 1.65 !important;
+    display: list-item !important;
+}
+
+.loupe-editor div[contenteditable="true"] li p {
+    margin: 0 !important;
+}
+
+.loupe-editor div[contenteditable="true"] li li {
+    margin-bottom: 12px !important;
+}
+
+.loupe-editor div[contenteditable="true"] li ul,
+.loupe-editor div[contenteditable="true"] li ol {
+    margin-top: 12px !important;
+    margin-bottom: 0 !important;
 }
 
 .loupe-editor div[contenteditable="true"] li::marker {
-  color: var(--loupe-text-tertiary) !important;
+    color: var(--loupe-text-tertiary) !important;
 }
 
 /* Inline code — scoped to exclude code blocks managed by the node view */
 .loupe-editor div[contenteditable="true"] code:not(.loupe-code-block *) {
-  background: var(--loupe-elevated) !important;
-  padding: 2px 7px !important;
-  border-radius: 4px !important;
-  font-family: "SF Mono", "Fira Code", ui-monospace, monospace !important;
-  font-size: 0.875em !important;
-  color: var(--loupe-text) !important;
-  border: 1px solid var(--loupe-border-strong) !important;
+    background: var(--loupe-elevated) !important;
+    padding: 2px 7px !important;
+    border-radius: 4px !important;
+    font-family: "SF Mono", "Fira Code", ui-monospace, monospace !important;
+    font-size: 0.875em !important;
+    color: var(--loupe-text) !important;
+    border: 1px solid var(--loupe-border-strong) !important;
 }
 
 /* Code block — fallback for any pre NOT managed by the code block view */
-.loupe-editor div[contenteditable="true"] pre:not(.loupe-code-highlight):not(.loupe-code-editable) {
-  background: #1e1c1a !important;
-  padding: 20px 24px !important;
-  border-radius: 8px !important;
-  margin: 4px 0 24px 0 !important;
-  overflow-x: auto;
-  border: 1px solid rgba(255, 245, 230, 0.06) !important;
-  outline: none !important;
-  box-shadow: none !important;
+.loupe-editor
+    div[contenteditable="true"]
+    pre:not(.loupe-code-highlight):not(.loupe-code-editable) {
+    background: #1e1c1a !important;
+    padding: 20px 24px !important;
+    border-radius: 8px !important;
+    margin: 4px 0 24px 0 !important;
+    overflow-x: auto;
+    border: 1px solid rgba(255, 245, 230, 0.06) !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .loupe-editor div[contenteditable="true"] pre:not(.loupe-code-editable) code {
-  background: none !important;
-  padding: 0 !important;
-  border: none !important;
-  font-size: 14px !important;
-  line-height: 1.6 !important;
-  color: #b8b0a8 !important;
+    background: none !important;
+    padding: 0 !important;
+    border: none !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    color: #b8b0a8 !important;
 }
 
 /* Nuke ALL Milkdown wrapper styling on code blocks and their parents.
@@ -234,844 +254,878 @@ body {
 .loupe-editor [class*="code"],
 .loupe-editor [data-type*="code"],
 .loupe-editor .milkdown > div > div {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* Be more aggressive — any direct child div of ProseMirror that contains a pre */
 .loupe-editor div[contenteditable="true"] > div:has(> pre) {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
 }
 
 .loupe-editor div[contenteditable="true"] a {
-  color: #c9a87c !important;
-  text-decoration: underline !important;
-  text-underline-offset: 3px;
-  text-decoration-color: rgba(201, 168, 124, 0.3) !important;
+    color: #c9a87c !important;
+    text-decoration: underline !important;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(201, 168, 124, 0.3) !important;
 }
 
 .loupe-editor div[contenteditable="true"] a:hover {
-  text-decoration-color: rgba(201, 168, 124, 0.8) !important;
+    text-decoration-color: rgba(201, 168, 124, 0.8) !important;
 }
 
 .loupe-editor div[contenteditable="true"] strong {
-  font-weight: 700 !important;
-  color: var(--loupe-text) !important;
+    font-weight: 700 !important;
+    color: var(--loupe-text) !important;
 }
 
 .loupe-editor div[contenteditable="true"] hr {
-  border: none !important;
-  border-top: 1px solid var(--loupe-border-strong) !important;
-  margin: 40px 0 !important;
+    border: none !important;
+    border-top: 1px solid var(--loupe-border-strong) !important;
+    margin: 40px 0 !important;
 }
 
 /* -- Scrollbar ----------------------------------------------- */
 .editor-surface::-webkit-scrollbar {
-  width: 5px;
+    width: 5px;
 }
 .editor-surface::-webkit-scrollbar-track {
-  background: transparent;
+    background: transparent;
 }
 .editor-surface::-webkit-scrollbar-thumb {
-  background: var(--loupe-text-ghost);
-  border-radius: 3px;
+    background: var(--loupe-text-ghost);
+    border-radius: 3px;
 }
 .editor-surface::-webkit-scrollbar-thumb:hover {
-  background: var(--loupe-text-tertiary);
+    background: var(--loupe-text-tertiary);
 }
 
 /* -- Lens chat markdown -------------------------------------- */
 .lens-markdown p {
-  margin: 0 0 0.75em 0;
+    margin: 0 0 0.75em 0;
 }
 .lens-markdown p:last-child {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
 .lens-markdown strong {
-  font-weight: 700;
-  color: var(--loupe-text);
+    font-weight: 700;
+    color: var(--loupe-text);
 }
 .lens-markdown em {
-  font-style: italic;
+    font-style: italic;
 }
 .lens-markdown code {
-  background: var(--loupe-bg);
-  padding: 1px 5px;
-  border-radius: 3px;
-  font-family: "SF Mono", ui-monospace, monospace;
-  font-size: 0.85em;
+    background: var(--loupe-bg);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: "SF Mono", ui-monospace, monospace;
+    font-size: 0.85em;
 }
-.lens-markdown ul, .lens-markdown ol {
-  margin: 0.5em 0;
-  padding-left: 1.25em;
+.lens-markdown ul,
+.lens-markdown ol {
+    margin: 0.5em 0;
+    padding-left: 1.25em;
 }
 .lens-markdown li {
-  margin-bottom: 0.25em;
+    margin-bottom: 0.25em;
 }
 .lens-markdown blockquote {
-  border-left: 2px solid var(--loupe-text-ghost);
-  padding-left: 0.75em;
-  margin: 0.5em 0;
-  color: var(--loupe-text-secondary);
-  font-style: italic;
+    border-left: 2px solid var(--loupe-text-ghost);
+    padding-left: 0.75em;
+    margin: 0.5em 0;
+    color: var(--loupe-text-secondary);
+    font-style: italic;
 }
 .lens-markdown a {
-  color: #c9a87c;
-  text-decoration: underline;
+    color: #c9a87c;
+    text-decoration: underline;
 }
-.lens-markdown h1, .lens-markdown h2, .lens-markdown h3,
-.lens-markdown h4, .lens-markdown h5, .lens-markdown h6 {
-  font-weight: 600;
-  margin: 1em 0 0.5em 0;
-  color: var(--loupe-text);
+.lens-markdown h1,
+.lens-markdown h2,
+.lens-markdown h3,
+.lens-markdown h4,
+.lens-markdown h5,
+.lens-markdown h6 {
+    font-weight: 600;
+    margin: 1em 0 0.5em 0;
+    color: var(--loupe-text);
 }
 .lens-markdown pre {
-  background: var(--loupe-bg);
-  padding: 0.75em;
-  border-radius: 6px;
-  overflow-x: auto;
-  margin: 0.5em 0;
+    background: var(--loupe-bg);
+    padding: 0.75em;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 0.5em 0;
 }
 .lens-markdown pre code {
-  background: none;
-  padding: 0;
-  font-size: 0.8em;
+    background: none;
+    padding: 0;
+    font-size: 0.8em;
 }
 
 /* -- Pulse animation for lens thinking ----------------------- */
 @keyframes loupe-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
 }
 
 /* -- Loupe bubble ------------------------------------------- */
 .loupe-bubble {
-  position: relative;
-  width: 44px;
-  height: 44px;
-  cursor: grab;
+    position: relative;
+    width: 44px;
+    height: 44px;
+    cursor: grab;
 }
 
 .loupe-bubble:active {
-  cursor: grabbing;
+    cursor: grabbing;
 }
 
 /* Bubble shape is now rendered by LoupeIcon component */
 
 /* Dismiss button — in flex row, appears on hover */
 .loupe-bubble-dismiss {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
-  color: var(--loupe-text-tertiary);
-  font-size: 13px;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--loupe-text-tertiary);
+    font-size: 13px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 .loupe-bubble-wrap:hover .loupe-bubble-dismiss {
-  opacity: 0.5;
+    opacity: 0.5;
 }
 
 .loupe-bubble-dismiss:hover {
-  opacity: 1 !important;
-  background: var(--loupe-elevated);
-  border-radius: 50%;
+    opacity: 1 !important;
+    background: var(--loupe-elevated);
+    border-radius: 50%;
 }
 
 /* Name label — pill with background, appears on hover */
 .loupe-bubble-name {
-  font-size: 11px;
-  color: var(--loupe-text-secondary);
-  background: var(--loupe-surface);
-  padding: 3px 10px;
-  border-radius: 8px;
-  opacity: 0;
-  transition: opacity 0.15s;
-  white-space: nowrap;
+    font-size: 11px;
+    color: var(--loupe-text-secondary);
+    background: var(--loupe-surface);
+    padding: 3px 10px;
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.15s;
+    white-space: nowrap;
 }
 
 .loupe-bubble-wrap:hover .loupe-bubble-name {
-  opacity: 1;
+    opacity: 1;
 }
 
 /* -- Lens chat — warm glass --------------------------------- */
 .loupe-chat {
-  background: #232120;
-  border: 1px solid rgba(255, 245, 230, 0.08);
-  border-radius: 14px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  max-height: 70vh;
+    background: #232120;
+    border: 1px solid rgba(255, 245, 230, 0.08);
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 70vh;
 }
 
 /* When rendered as a fixed side panel */
 .loupe-chat-fixed {
-  position: fixed;
-  right: 1rem;
-  top: 3.5rem;
-  width: 340px;
-  max-width: 40vw;
-  z-index: 20;
+    position: fixed;
+    right: 1rem;
+    top: 3.5rem;
+    width: 340px;
+    max-width: 40vw;
+    z-index: 20;
 }
 
 .loupe-chat-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
 }
 
 .loupe-chat-separator {
-  height: 1px;
-  background: rgba(255, 245, 230, 0.04);
-  margin: 0 14px;
+    height: 1px;
+    background: rgba(255, 245, 230, 0.04);
+    margin: 0 14px;
 }
 
 .loupe-chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 14px;
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
 }
 
 .loupe-chat-lens-msg {
-  font-size: 13px;
-  line-height: 1.8;
-  color: #d4cec8;
-  letter-spacing: 0.005em;
-  margin-bottom: 16px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #d4cec8;
+    letter-spacing: 0.005em;
+    margin-bottom: 16px;
 }
 
 .loupe-chat-lens-msg:last-child {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
 
 .loupe-chat-user-msg {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 16px;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
 }
 
 .loupe-chat-user-msg > div {
-  background: rgba(255, 245, 230, 0.035);
-  border: 1px solid rgba(255, 245, 230, 0.04);
-  border-radius: 12px;
-  padding: 8px 12px;
-  font-size: 12.5px;
-  line-height: 1.6;
-  color: #8b8580;
-  max-width: 85%;
+    background: rgba(255, 245, 230, 0.035);
+    border: 1px solid rgba(255, 245, 230, 0.04);
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #8b8580;
+    max-width: 85%;
 }
 
 .loupe-chat-input-wrap {
-  padding: 8px 14px 12px;
+    padding: 8px 14px 12px;
 }
 
 .loupe-chat-input {
-  display: flex;
-  align-items: center;
-  border: 1px solid rgba(255, 245, 230, 0.05);
-  border-radius: 10px;
-  padding: 0 12px;
-  transition: border-color 0.15s;
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(255, 245, 230, 0.05);
+    border-radius: 10px;
+    padding: 0 12px;
+    transition: border-color 0.15s;
 }
 
 .loupe-chat-input:focus-within {
-  border-color: rgba(255, 245, 230, 0.12);
+    border-color: rgba(255, 245, 230, 0.12);
 }
 
 .loupe-chat-input input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  font-size: 13px;
-  color: var(--loupe-text);
-  padding: 9px 0;
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    color: var(--loupe-text);
+    padding: 9px 0;
 }
 
 .loupe-chat-input input::placeholder {
-  color: rgba(255, 245, 230, 0.15);
+    color: rgba(255, 245, 230, 0.15);
 }
 
 .loupe-chat-close {
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 245, 230, 0.04);
-  color: var(--loupe-text-tertiary);
-  font-size: 15px;
-  cursor: pointer;
-  transition: background 0.15s;
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 245, 230, 0.04);
+    color: var(--loupe-text-tertiary);
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.15s;
 }
 
 .loupe-chat-close:hover {
-  background: rgba(255, 245, 230, 0.08);
-  color: var(--loupe-text-secondary);
+    background: rgba(255, 245, 230, 0.08);
+    color: var(--loupe-text-secondary);
 }
 
 .loupe-chat-overflow-btn {
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  color: var(--loupe-text-tertiary);
-  font-size: 16px;
-  cursor: pointer;
-  letter-spacing: 1px;
-  transition: background 0.15s;
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: var(--loupe-text-tertiary);
+    font-size: 16px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: background 0.15s;
 }
 
 .loupe-chat-overflow-btn:hover {
-  background: rgba(255, 245, 230, 0.06);
+    background: rgba(255, 245, 230, 0.06);
 }
 
 .loupe-chat-overflow-menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 4px;
-  background: var(--loupe-elevated);
-  border: 1px solid var(--loupe-border-strong);
-  border-radius: 8px;
-  padding: 4px 0;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  z-index: 50;
-  min-width: 140px;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: var(--loupe-elevated);
+    border: 1px solid var(--loupe-border-strong);
+    border-radius: 8px;
+    padding: 4px 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    z-index: 50;
+    min-width: 140px;
 }
 
 .loupe-chat-overflow-item {
-  display: block;
-  width: 100%;
-  padding: 6px 12px;
-  text-align: left;
-  border: none;
-  background: none;
-  color: var(--loupe-text-secondary);
-  font-size: 12px;
-  cursor: pointer;
-  font-family: system-ui, -apple-system, sans-serif;
-  transition: background 0.1s;
+    display: block;
+    width: 100%;
+    padding: 6px 12px;
+    text-align: left;
+    border: none;
+    background: none;
+    color: var(--loupe-text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+    font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
+    transition: background 0.1s;
 }
 
 .loupe-chat-overflow-item:hover {
-  background: rgba(255, 245, 230, 0.06);
+    background: rgba(255, 245, 230, 0.06);
 }
 
 .loupe-chat-overflow-item.danger {
-  color: #b85c5c;
+    color: #b85c5c;
 }
 
 /* -- Drag highlight on paragraphs --------------------------- */
 .loupe-drag-target {
-  border-left: 3px solid var(--loupe-drag-color, #888) !important;
-  background: color-mix(in srgb, var(--loupe-drag-color, #888) 6%, transparent) !important;
-  border-radius: 0 4px 4px 0 !important;
-  padding-left: 16px !important;
-  transition: border-left 0.1s, background 0.1s, padding-left 0.1s;
+    border-left: 3px solid var(--loupe-drag-color, #888) !important;
+    background: color-mix(
+        in srgb,
+        var(--loupe-drag-color, #888) 6%,
+        transparent
+    ) !important;
+    border-radius: 0 4px 4px 0 !important;
+    padding-left: 16px !important;
+    transition:
+        border-left 0.1s,
+        background 0.1s,
+        padding-left 0.1s;
 }
 
 .loupe-drag-landed {
-  border-left: 3px solid var(--loupe-drag-color, #888) !important;
-  background: color-mix(in srgb, var(--loupe-drag-color, #888) 4%, transparent) !important;
-  padding-left: 16px !important;
-  transition: border-left-color 3s, background 3s;
+    border-left: 3px solid var(--loupe-drag-color, #888) !important;
+    background: color-mix(
+        in srgb,
+        var(--loupe-drag-color, #888) 4%,
+        transparent
+    ) !important;
+    padding-left: 16px !important;
+    transition:
+        border-left-color 3s,
+        background 3s;
 }
 
 /* -- Drag overlay — floating loupe follows cursor ----------- */
 .loupe-drag-overlay {
-  position: fixed;
-  z-index: 200;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
+    position: fixed;
+    z-index: 200;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
 }
 
 /* Preview snippet */
 .loupe-bubble-preview {
-  background: var(--loupe-surface);
-  border-radius: 10px;
-  padding: 8px 12px;
-  max-width: 220px;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--loupe-text-secondary);
-  cursor: pointer;
-  transition: opacity 0.15s;
+    background: var(--loupe-surface);
+    border-radius: 10px;
+    padding: 8px 12px;
+    max-width: 220px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--loupe-text-secondary);
+    cursor: pointer;
+    transition: opacity 0.15s;
 }
 
 .loupe-bubble-preview:hover {
-  opacity: 0.8;
+    opacity: 0.8;
 }
 
 /* -- Code block — enhanced with Shiki highlighting ---------- */
 .loupe-code-block {
-  position: relative;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 245, 230, 0.06);
-  background: #1e1c1a;
-  margin: 4px 0 24px 0;
-  overflow: hidden;
+    position: relative;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 245, 230, 0.06);
+    background: #1e1c1a;
+    margin: 4px 0 24px 0;
+    overflow: hidden;
 }
 
 .loupe-code-block.selected {
-  border-color: rgba(255, 245, 230, 0.15);
+    border-color: rgba(255, 245, 230, 0.15);
 }
 
 /* Toolbar */
 .loupe-code-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 4px 8px;
-  border-bottom: 1px solid rgba(255, 245, 230, 0.06);
-  position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 8px;
+    border-bottom: 1px solid rgba(255, 245, 230, 0.06);
+    position: relative;
 }
 
 .loupe-code-toolbar button {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  border: none;
-  background: transparent;
-  color: var(--loupe-text-tertiary);
-  font-size: 12px;
-  font-family: system-ui, -apple-system, sans-serif;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    color: var(--loupe-text-tertiary);
+    font-size: 12px;
+    font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
+    cursor: pointer;
+    transition:
+        background 0.15s,
+        color 0.15s;
 }
 
 .loupe-code-toolbar button:hover {
-  background: rgba(255, 245, 230, 0.06);
-  color: var(--loupe-text-secondary);
+    background: rgba(255, 245, 230, 0.06);
+    color: var(--loupe-text-secondary);
 }
 
 .loupe-code-toolbar .loupe-code-copy-btn.copied {
-  color: #6b9e6b;
+    color: #6b9e6b;
 }
 
 .loupe-code-toolbar .loupe-code-wrap-btn {
-  padding: 3px 6px;
+    padding: 3px 6px;
 }
 
 .loupe-code-block.wrapped .loupe-code-wrap-btn {
-  color: var(--loupe-text-secondary);
+    color: var(--loupe-text-secondary);
 }
 
 .loupe-code-actions {
-  display: flex;
-  align-items: center;
-  gap: 2px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
 }
 
 /* Language dropdown — portaled to document.body, positioned via JS */
 .loupe-code-dropdown {
-  z-index: 100;
-  background: var(--loupe-elevated);
-  border: 1px solid var(--loupe-border-strong);
-  border-radius: 8px;
-  width: 180px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  padding: 4px 0;
+    z-index: 100;
+    background: var(--loupe-elevated);
+    border: 1px solid var(--loupe-border-strong);
+    border-radius: 8px;
+    width: 180px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    padding: 4px 0;
 }
 
 .loupe-code-dropdown-search {
-  padding: 4px 8px;
+    padding: 4px 8px;
 }
 
 .loupe-code-dropdown-search input {
-  width: 100%;
-  padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid var(--loupe-border-strong);
-  background: var(--loupe-surface);
-  color: var(--loupe-text);
-  font-size: 12px;
-  outline: none;
-  box-sizing: border-box;
+    width: 100%;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--loupe-border-strong);
+    background: var(--loupe-surface);
+    color: var(--loupe-text);
+    font-size: 12px;
+    outline: none;
+    box-sizing: border-box;
 }
 
 .loupe-code-dropdown-search input:focus {
-  border-color: rgba(255, 245, 230, 0.2);
+    border-color: rgba(255, 245, 230, 0.2);
 }
 
 .loupe-code-dropdown-list {
-  max-height: 250px;
-  overflow-y: auto;
+    max-height: 250px;
+    overflow-y: auto;
 }
 
 .loupe-code-dropdown-item {
-  display: block;
-  width: 100%;
-  padding: 5px 12px;
-  text-align: left;
-  border: none;
-  background: none;
-  color: var(--loupe-text-secondary);
-  font-size: 12px;
-  cursor: pointer;
-  font-family: system-ui, -apple-system, sans-serif;
-  transition: background 0.1s;
-  box-sizing: border-box;
+    display: block;
+    width: 100%;
+    padding: 5px 12px;
+    text-align: left;
+    border: none;
+    background: none;
+    color: var(--loupe-text-secondary);
+    font-size: 12px;
+    cursor: pointer;
+    font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
+    transition: background 0.1s;
+    box-sizing: border-box;
 }
 
 .loupe-code-dropdown-item:hover {
-  background: rgba(255, 245, 230, 0.06);
+    background: rgba(255, 245, 230, 0.06);
 }
 
 .loupe-code-dropdown-item.active {
-  color: var(--loupe-text);
-  font-weight: 500;
+    color: var(--loupe-text);
+    font-weight: 500;
 }
 
 /* Code container — CSS Grid stacks overlay + editable in same cell.
    Both children share one scroll context, preventing horizontal scroll desync. */
 .loupe-code-container {
-  display: grid;
-  grid-template: 1fr / 1fr;
-  overflow-x: auto;
+    display: grid;
+    grid-template: 1fr / 1fr;
+    overflow-x: auto;
 }
 
 .loupe-code-block.wrapped .loupe-code-container {
-  overflow-x: visible;
+    overflow-x: visible;
 }
 
 .loupe-code-highlight,
 .loupe-code-editable {
-  grid-area: 1 / 1;
-  margin: 0 !important;
-  padding: 16px !important;
-  font-family: "SF Mono", "Fira Code", ui-monospace, monospace !important;
-  font-size: 14px !important;
-  line-height: 1.6 !important;
-  white-space: pre !important;
-  border: none !important;
-  background: transparent !important;
-  border-radius: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
+    grid-area: 1 / 1;
+    margin: 0 !important;
+    padding: 16px !important;
+    font-family: "SF Mono", "Fira Code", ui-monospace, monospace !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    white-space: pre !important;
+    border: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .loupe-code-block.wrapped .loupe-code-highlight,
 .loupe-code-block.wrapped .loupe-code-editable {
-  white-space: pre-wrap !important;
-  word-break: break-word !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
 }
 
 /* Shiki overlay — behind editable text, no pointer events */
 .loupe-code-highlight {
-  pointer-events: none;
+    pointer-events: none;
 }
 
 /* Editable layer — transparent text, visible caret */
 .loupe-code-editable {
-  position: relative;
-  color: transparent !important;
-  caret-color: var(--loupe-text-secondary) !important;
+    position: relative;
+    color: transparent !important;
+    caret-color: var(--loupe-text-secondary) !important;
 }
 
 .loupe-editor .loupe-code-block .loupe-code-editable code {
-  color: transparent !important;
-  background: none !important;
-  padding: 0 !important;
-  border: none !important;
-  border-radius: 0 !important;
-  font: inherit !important;
+    color: transparent !important;
+    background: none !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    font: inherit !important;
 }
 
 /* Selection should still be visible */
 .loupe-code-editable ::selection {
-  background: rgba(255, 245, 230, 0.15);
+    background: rgba(255, 245, 230, 0.15);
 }
 
 /* -- Outline Panel ------------------------------------------- */
 .outline-panel {
-  position: fixed;
-  top: 44px; /* below TopBar */
-  left: 0;
-  bottom: 0;
-  width: 360px;
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--loupe-border);
-  background: var(--loupe-bg);
-  z-index: 15;
-  overflow: hidden;
+    position: fixed;
+    top: 44px; /* below TopBar */
+    left: 0;
+    bottom: 0;
+    width: 360px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--loupe-border);
+    background: var(--loupe-bg);
+    z-index: 15;
+    overflow: hidden;
 }
 
 .outline-header {
-  padding: 20px 24px 12px;
-  flex-shrink: 0;
+    padding: 20px 24px 12px;
+    flex-shrink: 0;
 }
 
 .outline-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--loupe-text-ghost);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--loupe-text-ghost);
 }
 
 .outline-content {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 0 16px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0 16px;
 }
 
 .outline-content .loupe-editor {
-  min-height: 100%;
+    min-height: 100%;
 }
 
 .outline-content .loupe-editor div[contenteditable="true"] {
-  font-size: 14px !important;
-  line-height: 1.7 !important;
+    font-size: 14px !important;
+    line-height: 1.7 !important;
 }
 
 .outline-content .loupe-editor div[contenteditable="true"] h1 {
-  font-size: 20px !important;
-  margin: 0 0 16px 0 !important;
+    font-size: 20px !important;
+    margin: 0 0 16px 0 !important;
 }
 
 .outline-content .loupe-editor div[contenteditable="true"] h2 {
-  font-size: 16px !important;
-  margin: 24px 0 10px 0 !important;
+    font-size: 16px !important;
+    margin: 24px 0 10px 0 !important;
 }
 
 .outline-content .loupe-editor div[contenteditable="true"] h3 {
-  font-size: 14px !important;
-  margin: 20px 0 8px 0 !important;
+    font-size: 14px !important;
+    margin: 20px 0 8px 0 !important;
 }
 
 .outline-content .loupe-editor div[contenteditable="true"] p {
-  margin: 0 0 12px 0 !important;
+    margin: 0 0 12px 0 !important;
 }
 
 .outline-divider {
-  flex-shrink: 0;
-  height: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: row-resize;
-  border-top: 1px solid var(--loupe-border);
-  border-bottom: 1px solid var(--loupe-border);
-  background: var(--loupe-chrome-bg);
-  transition: background 0.15s;
+    flex-shrink: 0;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: row-resize;
+    border-top: 1px solid var(--loupe-border);
+    border-bottom: 1px solid var(--loupe-border);
+    background: var(--loupe-chrome-bg);
+    transition: background 0.15s;
 }
 
 .outline-divider:hover {
-  background: var(--loupe-surface);
+    background: var(--loupe-surface);
 }
 
 .outline-divider-grip {
-  width: 32px;
-  height: 2px;
-  border-radius: 1px;
-  background: var(--loupe-text-ghost);
-  opacity: 0.4;
+    width: 32px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--loupe-text-ghost);
+    opacity: 0.4;
 }
 
 .outline-divider:hover .outline-divider-grip {
-  opacity: 0.7;
+    opacity: 0.7;
 }
 
 .outline-chat-messages {
-  flex-shrink: 0;
-  overflow-y: auto;
-  padding: 16px 24px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    padding: 16px 24px;
 }
 
 .outline-chat-user {
-  font-size: 12px;
-  color: var(--loupe-text-tertiary);
-  background: var(--loupe-surface);
-  padding: 8px 12px;
-  border-radius: 6px;
-  margin-bottom: 12px;
-  text-align: right;
+    font-size: 12px;
+    color: var(--loupe-text-tertiary);
+    background: var(--loupe-surface);
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    text-align: right;
 }
 
 .outline-chat-ai {
-  font-size: 13px;
-  color: var(--loupe-text);
-  margin-bottom: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--loupe-border);
-  line-height: 1.6;
+    font-size: 13px;
+    color: var(--loupe-text);
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--loupe-border);
+    line-height: 1.6;
 }
 
 .outline-chat-ai:last-child {
-  border-bottom: none;
-  margin-bottom: 8px;
+    border-bottom: none;
+    margin-bottom: 8px;
 }
 
 .outline-chat-ai .lens-markdown {
-  font-size: 13px !important;
+    font-size: 13px !important;
 }
 
 .outline-chat-input-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  border-top: 1px solid var(--loupe-border);
-  flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-top: 1px solid var(--loupe-border);
+    flex-shrink: 0;
 }
 
 .outline-chat-input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  font-size: 13px;
-  color: var(--loupe-text-secondary);
-  caret-color: var(--loupe-text-secondary);
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    color: var(--loupe-text-secondary);
+    caret-color: var(--loupe-text-secondary);
 }
 
 .outline-chat-input::placeholder {
-  color: var(--loupe-text-ghost);
+    color: var(--loupe-text-ghost);
 }
 
 /* -- Frontmatter Bar ----------------------------------------- */
 .frontmatter-bar {
-  position: fixed;
-  bottom: 12px;
-  right: 16px;
-  z-index: 10;
-  max-width: 360px;
+    position: fixed;
+    bottom: 12px;
+    right: 16px;
+    z-index: 10;
+    max-width: 360px;
 }
 
 .frontmatter-display {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 6px;
-  transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background 0.15s;
 }
 
 .frontmatter-display:hover {
-  background: var(--loupe-surface);
+    background: var(--loupe-surface);
 }
 
 .frontmatter-fields {
-  font-size: 11px;
-  color: var(--loupe-text-ghost);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    font-size: 11px;
+    color: var(--loupe-text-ghost);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .frontmatter-key {
-  color: var(--loupe-text-tertiary);
+    color: var(--loupe-text-tertiary);
 }
 
 .frontmatter-value {
-  color: var(--loupe-text-ghost);
+    color: var(--loupe-text-ghost);
 }
 
 .frontmatter-sep {
-  color: var(--loupe-text-ghost);
-  opacity: 0.4;
+    color: var(--loupe-text-ghost);
+    opacity: 0.4;
 }
 
 .frontmatter-icon {
-  flex-shrink: 0;
-  color: var(--loupe-text-ghost);
-  opacity: 0.5;
+    flex-shrink: 0;
+    color: var(--loupe-text-ghost);
+    opacity: 0.5;
 }
 
 .frontmatter-display:hover .frontmatter-icon {
-  opacity: 0.8;
+    opacity: 0.8;
 }
 
 .frontmatter-editor {
-  background: var(--loupe-elevated);
-  border: 1px solid var(--loupe-border-strong);
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    background: var(--loupe-elevated);
+    border: 1px solid var(--loupe-border-strong);
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .frontmatter-textarea {
-  width: 320px;
-  min-height: 80px;
-  max-height: 200px;
-  background: transparent;
-  border: none;
-  outline: none;
-  resize: vertical;
-  font-family: "SF Mono", "Fira Code", monospace;
-  font-size: 12px;
-  line-height: 1.6;
-  color: var(--loupe-text-secondary);
-  caret-color: var(--loupe-text-secondary);
+    width: 320px;
+    min-height: 80px;
+    max-height: 200px;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: vertical;
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--loupe-text-secondary);
+    caret-color: var(--loupe-text-secondary);
 }
 
 /* Image interaction wrapper */
 .image-wrapper {
-  position: relative;
-  display: block;
-  border-radius: 4px;
-  max-width: 100%;
-  cursor: pointer;
+    position: relative;
+    display: block;
+    border-radius: 4px;
+    max-width: 100%;
+    cursor: pointer;
 }
 
 .image-wrapper img {
-  display: block;
-  max-width: 100%;
-  height: auto;
+    display: block;
+    max-width: 100%;
+    height: auto;
 }
 
 .image-edit-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-  background: rgba(0, 0, 0, 0.6);
-  color: rgba(255, 255, 255, 0.9);
-  pointer-events: auto;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    background: rgba(0, 0, 0, 0.6);
+    color: rgba(255, 255, 255, 0.9);
+    pointer-events: auto;
 }
 
 .image-wrapper:hover .image-edit-btn {
-  opacity: 1;
+    opacity: 1;
 }
 
 .image-edit-btn:hover {
-  background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.8);
 }
