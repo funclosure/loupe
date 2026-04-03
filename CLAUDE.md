@@ -45,8 +45,11 @@ src/
 ├── client/
 │   ├── App.tsx             # Main shell — wires editor, lenses, outline, file handling
 │   ├── editor/
-│   │   ├── Editor.tsx      # React wrapper with placeholder, click-to-focus, image paste
-│   │   └── milkdown-setup.ts  # Milkdown plugins: commonmark, listener, trailing, clipboard
+│   │   ├── Editor.tsx      # React wrapper with placeholder, click-to-focus, image paste, lightbox/edit state
+│   │   ├── milkdown-setup.ts  # Milkdown plugins: commonmark, listener, trailing, clipboard, image NodeView
+│   │   ├── image-view.ts   # Custom ProseMirror NodeView for images (hover edit btn, click lightbox)
+│   │   ├── ImageLightbox.tsx  # Fullscreen image overlay (click/Escape to close)
+│   │   └── ImageEditPopup.tsx # Modal to edit image URL + caption
 │   ├── hooks/
 │   │   ├── use-file.ts     # Server-backed file I/O, frontmatter stripping, localStorage backup
 │   │   ├── use-lenses.ts   # Lens state + per-request fetch streaming, lens creator
@@ -88,6 +91,10 @@ src/
 * Client reads SSE with `fetch()` + `res.body.getReader()` (NOT EventSource API)
 
 * Milkdown injects `prose`/`milkdown-theme-nord` classes — use MutationObserver to strip them
+
+* Images use a custom ProseMirror NodeView (`image-view.ts`): hover shows pencil edit button, click opens lightbox. NodeView registered via `$view(imageSchema.node, ...)` — same pattern as `codeBlockView`. Image is an inline atom node so NodeView `dom` must be a `<div>` (appended via JS, not HTML parsing)
+
+* After any client-side change, run `bun run build` before `bun run start` — the server serves pre-built files from `dist/`
 
 * Frontmatter stripped from editor on load, preserved in memory, re-attached on save (supports `---` and `***` delimiters)
 
@@ -196,6 +203,8 @@ Sidecar file: `essay.md` → `essay.outline.md`. Toggled via Cmd+Shift+E or TopB
 * Lens Creator spec: `docs/superpowers/specs/2026-03-30-lens-creator-design.md`
 
 * Intention outline spec: `docs/superpowers/specs/2026-03-31-intention-outline-design.md`
+
+* Image interaction spec: `docs/superpowers/specs/2026-04-03-image-interaction-design.md`
 
 ## Known Issues
 

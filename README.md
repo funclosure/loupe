@@ -29,6 +29,7 @@ You write. Lenses watch. Drag one onto a paragraph to focus its attention. It re
 - **Drag-to-inspect** — drag a lens onto any paragraph to start a conversation
 - **Syntax highlighting** — Shiki-powered code blocks with language selector, copy, wrap
 - **Image paste & folder config** — paste images directly into the editor; auto-detect, browse, or manually set image folder
+- **Image viewer** — tap any image to view fullscreen; hover to reveal edit button for URL and caption
 - **Frontmatter handling** — YAML frontmatter hidden from editor, editable via bottom-right bar (`---` and `***` delimiters)
 - **Server-side file I/O** — open, save, create, delete files through the server
 - **App menu** — hamburger menu with Open in Finder, image folder settings
@@ -112,7 +113,7 @@ Client + thin Bun server in one process. Bun serves Vite-built static files and 
 src/
 ├── server/          # Bun.serve, REST + SSE routes, lens sessions, file I/O
 ├── client/
-│   ├── editor/      # Milkdown setup, Shiki code blocks
+│   ├── editor/      # Milkdown setup, Shiki code blocks, image NodeView + lightbox
 │   ├── lenses/      # LoupeIcon, LensBubble, LensChat, LensLayer, LensProposalCard
 │   ├── outline/     # OutlinePanel — intention editor with inline chat
 │   ├── hooks/       # useLenses, useLensDrag, useFile, useOutline, useZenMode
