@@ -42,22 +42,9 @@ You write. Lenses watch. Drag one onto a paragraph to focus its attention. It re
 Requires [Bun](https://bun.sh) and [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
 
 ```bash
-# Install dependencies
-bun install
-
-# Build and run
-bun run build && bun run start
-
-# Open http://localhost:4460/w/
-```
-
-Or use the CLI:
-
-```bash
+bun install       # Install dependencies
 bun link          # Register the CLI globally (once)
-loupe             # Start server + open file picker
-loupe draft.md    # Open with a file pre-loaded
-loupe .           # Same as loupe (browse current directory)
+loupe             # Builds if needed, starts server, opens browser
 ```
 
 ## Creating Lenses
