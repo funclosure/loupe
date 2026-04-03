@@ -1037,14 +1037,17 @@ body {
 /* Image interaction wrapper */
 .image-wrapper {
   position: relative;
-  display: inline-block;
+  display: block;
   cursor: zoom-in;
   border-radius: 4px;
+  max-width: 100%;
 }
 
 .image-wrapper img {
   display: block;
   cursor: zoom-in;
+  max-width: 100%;
+  height: auto;
 }
 
 .image-edit-btn {

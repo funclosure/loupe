@@ -23,6 +23,8 @@ export function Editor({ defaultValue, onChange, editorRef, placeholder = "Start
     alt: string;
     getPos: () => number | undefined;
   } | null>(null);
+  const editTargetRef = useRef(editTarget);
+  editTargetRef.current = editTarget;
 
   // Stable callbacks — empty deps because setLightbox/setEditTarget are stable React state setters
   const handleImageClick = useCallback((src: string, alt: string) => {
@@ -66,8 +68,9 @@ export function Editor({ defaultValue, onChange, editorRef, placeholder = "Start
   }, []);
 
   const handleEditSave = useCallback((newSrc: string, newAlt: string) => {
-    if (!editTarget) return;
-    const pos = editTarget.getPos();
+    const target = editTargetRef.current;
+    if (!target) return;
+    const pos = target.getPos();
     if (pos === undefined) return;
     const view = instanceRef.current?.getEditorView();
     if (!view) return;
@@ -81,7 +84,7 @@ export function Editor({ defaultValue, onChange, editorRef, placeholder = "Start
       })
     );
     setEditTarget(null);
-  }, [editTarget]);
+  }, []); // stable — reads editTarget via ref
 
   // Handle image paste — upload to server, insert markdown image
   useEffect(() => {

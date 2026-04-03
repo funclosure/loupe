@@ -24,7 +24,7 @@ export function ImageEditPopup({ src, alt, onSave, onClose }: Props) {
 
   const handleSave = () => {
     onSave(srcValue, altValue);
-    onClose();
+    // onClose() removed — parent's onSave handler is responsible for closing
   };
 
   return (
