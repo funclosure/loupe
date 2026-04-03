@@ -1,5 +1,7 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { createEditor, type MilkdownInstance } from "./milkdown-setup";
+import { ImageLightbox } from "./ImageLightbox";
+import { ImageEditPopup } from "./ImageEditPopup";
 
 interface EditorProps {
   defaultValue: string;
@@ -15,6 +17,21 @@ export function Editor({ defaultValue, onChange, editorRef, placeholder = "Start
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
   const [isEmpty, setIsEmpty] = useState(!defaultValue);
+  const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null);
+  const [editTarget, setEditTarget] = useState<{
+    src: string;
+    alt: string;
+    getPos: () => number | undefined;
+  } | null>(null);
+
+  // Stable callbacks — empty deps because setLightbox/setEditTarget are stable React state setters
+  const handleImageClick = useCallback((src: string, alt: string) => {
+    setLightbox({ src, alt });
+  }, []);
+
+  const handleImageEdit = useCallback((src: string, alt: string, getPos: () => number | undefined) => {
+    setEditTarget({ src, alt, getPos });
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -29,7 +46,7 @@ export function Editor({ defaultValue, onChange, editorRef, placeholder = "Start
       }
       onChangeRef.current(md);
       setIsEmpty(!md || md.replace(/\s/g, "") === "");
-    }).then(
+    }, handleImageClick, handleImageEdit).then(
       (instance) => {
         if (!mounted) {
           instance.destroy();
@@ -47,6 +64,24 @@ export function Editor({ defaultValue, onChange, editorRef, placeholder = "Start
       if (editorRef) editorRef.current = null;
     };
   }, []);
+
+  const handleEditSave = useCallback((newSrc: string, newAlt: string) => {
+    if (!editTarget) return;
+    const pos = editTarget.getPos();
+    if (pos === undefined) return;
+    const view = instanceRef.current?.getEditorView();
+    if (!view) return;
+    const currentNode = view.state.doc.nodeAt(pos);
+    if (!currentNode) return;
+    view.dispatch(
+      view.state.tr.setNodeMarkup(pos, null, {
+        ...currentNode.attrs,
+        src: newSrc,
+        alt: newAlt,
+      })
+    );
+    setEditTarget(null);
+  }, [editTarget]);
 
   // Handle image paste — upload to server, insert markdown image
   useEffect(() => {
@@ -120,6 +155,21 @@ export function Editor({ defaultValue, onChange, editorRef, placeholder = "Start
         </div>
       )}
       <div ref={containerRef} />
+      {lightbox && (
+        <ImageLightbox
+          src={lightbox.src}
+          alt={lightbox.alt}
+          onClose={() => setLightbox(null)}
+        />
+      )}
+      {editTarget && (
+        <ImageEditPopup
+          src={editTarget.src}
+          alt={editTarget.alt}
+          onSave={handleEditSave}
+          onClose={() => setEditTarget(null)}
+        />
+      )}
     </div>
   );
 }
