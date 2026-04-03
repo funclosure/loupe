@@ -1033,3 +1033,43 @@ body {
   color: var(--loupe-text-secondary);
   caret-color: var(--loupe-text-secondary);
 }
+
+/* Image interaction wrapper */
+.image-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: zoom-in;
+  border-radius: 4px;
+}
+
+.image-wrapper img {
+  display: block;
+  cursor: zoom-in;
+}
+
+.image-edit-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  background: rgba(0, 0, 0, 0.6);
+  color: rgba(255, 255, 255, 0.9);
+  pointer-events: auto;
+}
+
+.image-wrapper:hover .image-edit-btn {
+  opacity: 1;
+}
+
+.image-edit-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
