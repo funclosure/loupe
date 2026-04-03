@@ -12,6 +12,7 @@ import { history } from "@milkdown/kit/plugin/history";
 import { getMarkdown, replaceAll } from "@milkdown/kit/utils";
 import type { EditorView } from "@milkdown/kit/prose/view";
 import { codeBlockView } from "./code-block-view";
+import { createImageView } from "./image-view";
 
 export interface MilkdownInstance {
   editor: Editor;
@@ -24,7 +25,9 @@ export interface MilkdownInstance {
 export async function createEditor(
   root: HTMLElement,
   defaultValue: string,
-  onChange: (markdown: string) => void
+  onChange: (markdown: string) => void,
+  onImageClick?: (src: string, alt: string) => void,
+  onImageEdit?: (src: string, alt: string, getPos: () => number | undefined) => void,
 ): Promise<MilkdownInstance> {
   const editor = await Editor.make()
     .config((ctx) => {
@@ -42,6 +45,7 @@ export async function createEditor(
     .use(clipboard)
     .use(history)
     .use(codeBlockView)
+    .use(createImageView(onImageClick ?? (() => {}), onImageEdit ?? (() => {})))
     .create();
 
   // Milkdown injects theme classes (prose, milkdown-theme-nord) that fight
