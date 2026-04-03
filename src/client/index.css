@@ -1038,14 +1038,13 @@ body {
 .image-wrapper {
   position: relative;
   display: block;
-  cursor: zoom-in;
   border-radius: 4px;
   max-width: 100%;
+  cursor: pointer;
 }
 
 .image-wrapper img {
   display: block;
-  cursor: zoom-in;
   max-width: 100%;
   height: auto;
 }
