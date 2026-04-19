@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Editor } from "../editor/Editor";
 import type { MilkdownInstance } from "../editor/milkdown-setup";
 import type { ChatMessage } from "@shared/types";
@@ -130,13 +131,13 @@ export function OutlinePanel({
                 {msg.role === "user" ? (
                   msg.content
                 ) : (
-                  <Markdown className="lens-markdown">{stripUpdateBlock(msg.content)}</Markdown>
+                  <div className="lens-markdown"><Markdown remarkPlugins={[remarkGfm]}>{stripUpdateBlock(msg.content)}</Markdown></div>
                 )}
               </div>
             ))}
             {streamingContent && (
               <div className="outline-chat-ai">
-                <Markdown className="lens-markdown">{stripUpdateBlock(streamingContent)}</Markdown>
+                <div className="lens-markdown"><Markdown remarkPlugins={[remarkGfm]}>{stripUpdateBlock(streamingContent)}</Markdown></div>
               </div>
             )}
             {isThinking && !streamingContent && (

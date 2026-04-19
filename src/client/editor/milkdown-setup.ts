@@ -5,6 +5,7 @@ import {
   editorViewCtx,
 } from "@milkdown/kit/core";
 import { commonmark } from "@milkdown/kit/preset/commonmark";
+import { gfm } from "@milkdown/kit/preset/gfm";
 import { listener, listenerCtx } from "@milkdown/kit/plugin/listener";
 import { trailing } from "@milkdown/kit/plugin/trailing";
 import { clipboard } from "@milkdown/kit/plugin/clipboard";
@@ -40,6 +41,7 @@ export async function createEditor(
       });
     })
     .use(commonmark)
+    .use(gfm)
     .use(listener)
     .use(trailing)
     .use(clipboard)

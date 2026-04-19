@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { LensDefinition, ChatMessage } from "@shared/types";
 import { LoupeIcon } from "./LoupeIcon";
 import { parseLensProposal, stripProposalBlock, LensProposalCard } from "./LensProposalCard";
@@ -155,7 +156,7 @@ export function LensChat({
           return (
             <div key={i} className="loupe-chat-lens-msg">
               {textWithoutProposal && (
-                <Markdown className="lens-markdown">{textWithoutProposal}</Markdown>
+                <div className="lens-markdown"><Markdown remarkPlugins={[remarkGfm]}>{textWithoutProposal}</Markdown></div>
               )}
               {proposal && (
                 <LensProposalCard
@@ -170,7 +171,7 @@ export function LensChat({
 
         {streamingContent && (
           <div className="loupe-chat-lens-msg">
-            <Markdown className="lens-markdown">{streamingContent}</Markdown>
+            <div className="lens-markdown"><Markdown remarkPlugins={[remarkGfm]}>{streamingContent}</Markdown></div>
           </div>
         )}
 

@@ -1129,3 +1129,65 @@ body {
 .image-edit-btn:hover {
     background: rgba(0, 0, 0, 0.8);
 }
+
+/* GFM tables — editor surface (Milkdown / ProseMirror) */
+.loupe-editor div[contenteditable="true"] table {
+    border-collapse: collapse;
+    margin: 16px 0 24px 0;
+    font-size: 15px;
+    line-height: 1.5;
+    width: auto;
+    max-width: 100%;
+    overflow-x: auto;
+    display: block;
+}
+
+.loupe-editor div[contenteditable="true"] thead {
+    background: var(--loupe-elevated);
+}
+
+.loupe-editor div[contenteditable="true"] th,
+.loupe-editor div[contenteditable="true"] td {
+    border: 1px solid var(--loupe-border-strong);
+    padding: 8px 14px;
+    vertical-align: top;
+    text-align: left;
+    color: var(--loupe-text);
+}
+
+.loupe-editor div[contenteditable="true"] th {
+    font-weight: 600;
+    color: var(--loupe-text);
+    letter-spacing: 0.01em;
+}
+
+.loupe-editor div[contenteditable="true"] tr:nth-child(even) td {
+    background: rgba(255, 245, 230, 0.02);
+}
+
+/* GFM tables — lens / outline chat bubbles (react-markdown) */
+.lens-markdown table {
+    border-collapse: collapse;
+    margin: 8px 0;
+    font-size: 13px;
+    line-height: 1.4;
+    max-width: 100%;
+    display: table;
+}
+
+.lens-markdown th,
+.lens-markdown td {
+    border: 1px solid var(--loupe-border-strong);
+    padding: 4px 8px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.lens-markdown th {
+    background: var(--loupe-elevated);
+    font-weight: 600;
+}
+
+.lens-markdown tr:nth-child(even) td {
+    background: rgba(255, 245, 230, 0.02);
+}

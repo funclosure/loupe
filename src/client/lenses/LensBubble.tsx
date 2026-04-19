@@ -1,4 +1,5 @@
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { LensDefinition, LensStatus } from "@shared/types";
 import { LoupeIcon } from "./LoupeIcon";
 
@@ -57,8 +58,8 @@ export function LensBubble({
 
       {/* Preview */}
       {preview && status === "idle" && (
-        <button onClick={onClick} className="loupe-bubble-preview text-left">
-          <Markdown className="lens-markdown" components={{
+        <button onClick={onClick} className="loupe-bubble-preview text-left lens-markdown">
+          <Markdown remarkPlugins={[remarkGfm]} components={{
             p: ({ children }) => <span>{children} </span>,
             h1: ({ children }) => <span>{children} </span>,
             h2: ({ children }) => <span>{children} </span>,
