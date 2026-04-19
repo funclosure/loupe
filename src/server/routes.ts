@@ -352,10 +352,10 @@ Only include the update block when you're actually changing the outline. For dis
                 model: process.env.LOUPE_MODEL || "claude-sonnet-4-6",
                 permissionMode: "bypassPermissions",
                 allowDangerouslySkipPermissions: true,
-                allowedTools: [],
+                allowedTools: ["WebSearch"],
                 disallowedTools: [
                   "Bash", "Read", "Write", "Edit", "Glob", "Grep",
-                  "Agent", "WebFetch", "WebSearch", "NotebookEdit",
+                  "Agent", "WebFetch", "NotebookEdit",
                 ],
                 includePartialMessages: true,
               },
